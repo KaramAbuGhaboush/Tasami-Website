@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 export default function Work() {
   const projects = [
@@ -61,73 +64,163 @@ export default function Work() {
 
   const categories = ["All", "AI Solutions", "Automation", "Design & UX/UI", "Marketing Solutions"]
 
+  // Testimonials data
+  const testimonials = [
+    {
+      id: 1,
+      name: "John Smith",
+      role: "CEO, TechCorp Solutions",
+      initials: "JS",
+      quote: "Tasami transformed our entire operation with their AI solutions. The results exceeded our expectations and our efficiency has improved by 40%. Their team's expertise and dedication are unmatched.",
+      rating: 5
+    },
+    {
+      id: 2,
+      name: "Maria Johnson",
+      role: "CTO, InnovateLab",
+      initials: "MJ",
+      quote: "The automation solutions they built for us have saved us countless hours and reduced errors significantly. The ROI has been incredible, and the support team is always there when we need them.",
+      rating: 5
+    },
+    {
+      id: 3,
+      name: "David Rodriguez",
+      role: "Founder, StartupXYZ",
+      initials: "DR",
+      quote: "Their design team created an amazing user experience that our customers absolutely love. Our conversion rates have increased by 60%, and customer satisfaction is at an all-time high.",
+      rating: 5
+    }
+  ]
+
+  // Testimonials slider state
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying) return
+
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % testimonials.length)
+    }, 5000) // Change slide every 5 seconds
+
+    return () => clearInterval(interval)
+  }, [isAutoPlaying, testimonials.length])
+
+  // Navigation functions
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index)
+    setIsAutoPlaying(false) // Pause auto-play when manually navigating
+  }
+
+  const goToPrevious = () => {
+    setCurrentSlide((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+    setIsAutoPlaying(false)
+  }
+
+  const goToNext = () => {
+    setCurrentSlide((prev) => (prev + 1) % testimonials.length)
+    setIsAutoPlaying(false)
+  }
+
+  const resumeAutoPlay = () => {
+    setIsAutoPlaying(true)
+  }
+
+  // Touch gesture handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+    
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) {
+      goToNext()
+    } else if (isRightSwipe) {
+      goToPrevious()
+    }
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden">
-        {/* Grid and Gradient Background */}
+      <section className="relative py-40 overflow-hidden">
+        {/* Enhanced Background */}
         <div className="absolute inset-0">
           {/* Gradient Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
           
-          {/* Grid Pattern */}
+          {/* Enhanced Grid Pattern */}
           <div 
-            className="absolute inset-0 opacity-30 grid-pattern"
+            className="absolute inset-0 opacity-40 grid-pattern"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(104, 18, 247, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(104, 18, 247, 0.1) 1px, transparent 1px)
+                linear-gradient(rgba(104, 18, 247, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104, 18, 247, 0.15) 1px, transparent 1px)
               `,
-              backgroundSize: '40px 40px'
+              backgroundSize: '50px 50px'
             }}
           ></div>
           
-          {/* Subtle overlay for depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/20"></div>
+          {/* Enhanced overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/30"></div>
           
-          {/* Floating Elements */}
-          <div className="absolute top-20 left-20 w-2 h-2 bg-[#6812F7]/20 rounded-full float-gentle"></div>
-          <div className="absolute top-40 right-32 w-1 h-1 bg-[#9253F0]/30 rounded-full float-gentle" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-[#DFC7FE]/25 rounded-full float-gentle" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-20 right-20 w-1 h-1 bg-[#6812F7]/20 rounded-full float-gentle" style={{ animationDelay: '0.5s' }}></div>
+          {/* More Floating Elements */}
+          <div className="absolute top-20 left-20 w-3 h-3 bg-[#6812F7]/25 rounded-full float-gentle"></div>
+          <div className="absolute top-40 right-32 w-2 h-2 bg-[#9253F0]/35 rounded-full float-gentle" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-1/3 w-2 h-2 bg-[#DFC7FE]/30 rounded-full float-gentle" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute bottom-20 right-20 w-3 h-3 bg-[#6812F7]/25 rounded-full float-gentle" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute top-1/2 left-10 w-1 h-1 bg-[#9253F0]/20 rounded-full float-gentle" style={{ animationDelay: '3s' }}></div>
+          <div className="absolute top-1/3 right-10 w-2 h-2 bg-[#DFC7FE]/25 rounded-full float-gentle" style={{ animationDelay: '1.5s' }}></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-3 mb-8 border border-white/30">
-              <span className="text-[#667eea] font-semibold text-sm uppercase tracking-wider">Portfolio</span>
+            <div className="inline-flex items-center bg-white/30 backdrop-blur-md rounded-full px-8 py-4 mb-10 border border-white/40 shadow-lg">
+              <span className="text-[#667eea] font-bold text-sm uppercase tracking-wider">Our Portfolio</span>
             </div>
             
-            <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+            <h1 className="text-7xl md:text-8xl font-bold text-gray-900 mb-10 leading-tight">
               Our <span className="bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent">Work</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-700 max-w-4xl mx-auto leading-relaxed mb-12">
+            <p className="text-2xl md:text-3xl text-gray-700 max-w-5xl mx-auto leading-relaxed mb-16">
               Discover how we've transformed businesses with cutting-edge AI, automation, and design solutions. 
               Each project tells a story of innovation, growth, and exceptional results.
             </p>
 
-            {/* Stats preview */}
-            <div className="grid grid-cols-3 gap-8 mb-12 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#667eea] mb-1">6+</div>
-                <div className="text-gray-600 text-sm font-medium">Featured Projects</div>
+            {/* Enhanced Stats preview */}
+            <div className="grid grid-cols-3 gap-12 mb-16 max-w-3xl mx-auto">
+              <div className="text-center group">
+                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">6+</div>
+                <div className="text-gray-600 text-base font-semibold">Featured Projects</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#667eea] mb-1">100%</div>
-                <div className="text-gray-600 text-sm font-medium">Client Satisfaction</div>
+              <div className="text-center group">
+                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
+                <div className="text-gray-600 text-base font-semibold">Client Satisfaction</div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-[#667eea] mb-1">24/7</div>
-                <div className="text-gray-600 text-sm font-medium">Support</div>
+              <div className="text-center group">
+                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">24/7</div>
+                <div className="text-gray-600 text-base font-semibold">Support</div>
               </div>
             </div>
 
-            {/* Scroll indicator */}
-            <div className="flex flex-col items-center">
-              <span className="text-gray-600 text-sm mb-4 font-medium">Explore Our Work</span>
-              <div className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center">
-                <div className="w-1 h-3 bg-gray-400 rounded-full mt-2 animate-bounce"></div>
+            {/* Enhanced Scroll indicator */}
+            <div className="flex flex-col items-center group cursor-pointer">
+              <span className="text-gray-600 text-base mb-6 font-semibold group-hover:text-[#667eea] transition-colors duration-300">Explore Our Work</span>
+              <div className="w-8 h-12 border-2 border-gray-400 rounded-full flex justify-center group-hover:border-[#667eea] transition-colors duration-300">
+                <div className="w-1.5 h-4 bg-gray-400 rounded-full mt-2 animate-bounce group-hover:bg-[#667eea] transition-colors duration-300"></div>
               </div>
             </div>
           </div>
@@ -290,7 +383,7 @@ export default function Work() {
       </section>
 
       {/* What Our Clients Say */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-white overflow-visible">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -302,129 +395,111 @@ export default function Work() {
           </div>
 
           {/* Testimonials Carousel */}
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-300 group">
+          <div className="relative pb-16" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={resumeAutoPlay}>
+            {/* Navigation Arrows - Hidden on Mobile */}
+            <button 
+              onClick={goToPrevious}
+              className="hidden md:flex absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
+              aria-label="Previous testimonial"
+            >
               <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-300 group">
+            <button 
+              onClick={goToNext}
+              className="hidden md:flex absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
+              aria-label="Next testimonial"
+            >
               <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
 
             {/* Carousel Container */}
-            <div className="overflow-hidden">
-              <div className="flex animate-carousel">
-                {/* Testimonial 1 */}
-                <div className="w-full flex-shrink-0 px-4">
-                  <div className="max-w-4xl mx-auto">
-                    <div className="bg-gradient-to-br from-white to-gray-50 p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden text-center">
-                      {/* Quote decoration */}
-                      <div className="absolute top-8 right-8 text-8xl text-[#667eea]/10 font-serif">"</div>
-                      
-                      {/* Star rating */}
-                      <div className="flex justify-center mb-8">
-                        {[...Array(5)].map((_, i) => (
-                          <svg key={i} className="w-6 h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                          </svg>
-                        ))}
-                      </div>
-
-                      <blockquote className="text-gray-700 mb-10 text-2xl leading-relaxed italic max-w-3xl mx-auto">
-                        "Tasami transformed our entire operation with their AI solutions. The results exceeded our expectations and our efficiency has improved by 40%. Their team's expertise and dedication are unmatched."
-                      </blockquote>
-
-                      <div className="flex items-center justify-center">
-                        <div className="w-20 h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-2xl mr-6">
-                          JS
+            <div 
+              className="overflow-hidden min-h-[500px]"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              >
+                {testimonials.map((testimonial) => (
+                  <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
+                    <div className="max-w-4xl mx-auto">
+                      <div className="bg-gradient-to-br from-white to-gray-50 p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-visible text-center testimonial-card min-h-[400px] flex flex-col justify-center">
+                        {/* Quote decoration */}
+                        <div className="absolute top-8 right-8 text-6xl md:text-8xl text-[#667eea]/10 font-serif">"</div>
+                        
+                        {/* Star rating */}
+                        <div className="flex justify-center mb-6 md:mb-8">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <svg key={i} className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                            </svg>
+                          ))}
                         </div>
-                        <div>
-                          <div className="font-bold text-gray-900 text-2xl">John Smith</div>
-                          <div className="text-[#667eea] font-medium text-lg">CEO, TechCorp Solutions</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
 
-                {/* Testimonial 2 */}
-                <div className="w-full flex-shrink-0 px-4">
-                  <div className="max-w-4xl mx-auto">
-                    <div className="bg-gradient-to-br from-white to-gray-50 p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden text-center">
-                      {/* Quote decoration */}
-                      <div className="absolute top-8 right-8 text-8xl text-[#667eea]/10 font-serif">"</div>
-                      
-                      {/* Star rating */}
-                      <div className="flex justify-center mb-8">
-                        {[...Array(5)].map((_, i) => (
-                          <svg key={i} className="w-6 h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                          </svg>
-                        ))}
-                      </div>
+                        <blockquote className="text-gray-700 mb-8 md:mb-10 text-lg md:text-2xl leading-relaxed italic max-w-3xl mx-auto">
+                          "{testimonial.quote}"
+                        </blockquote>
 
-                      <blockquote className="text-gray-700 mb-10 text-2xl leading-relaxed italic max-w-3xl mx-auto">
-                        "The automation solutions they built for us have saved us countless hours and reduced errors significantly. The ROI has been incredible, and the support team is always there when we need them."
-                      </blockquote>
-
-                      <div className="flex items-center justify-center">
-                        <div className="w-20 h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-2xl mr-6">
-                          MJ
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900 text-2xl">Maria Johnson</div>
-                          <div className="text-[#667eea] font-medium text-lg">CTO, InnovateLab</div>
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-6">
+                          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-xl md:text-2xl">
+                            {testimonial.initials}
+                          </div>
+                          <div className="text-center sm:text-left">
+                            <div className="font-bold text-gray-900 text-xl md:text-2xl">{testimonial.name}</div>
+                            <div className="text-[#667eea] font-medium text-base md:text-lg">{testimonial.role}</div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Testimonial 3 */}
-                <div className="w-full flex-shrink-0 px-4">
-                  <div className="max-w-4xl mx-auto">
-                    <div className="bg-gradient-to-br from-white to-gray-50 p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-hidden text-center">
-                      {/* Quote decoration */}
-                      <div className="absolute top-8 right-8 text-8xl text-[#667eea]/10 font-serif">"</div>
-                      
-                      {/* Star rating */}
-                      <div className="flex justify-center mb-8">
-                        {[...Array(5)].map((_, i) => (
-                          <svg key={i} className="w-6 h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                          </svg>
-                        ))}
-                      </div>
-
-                      <blockquote className="text-gray-700 mb-10 text-2xl leading-relaxed italic max-w-3xl mx-auto">
-                        "Their design team created an amazing user experience that our customers absolutely love. Our conversion rates have increased by 60%, and customer satisfaction is at an all-time high."
-                      </blockquote>
-
-                      <div className="flex items-center justify-center">
-                        <div className="w-20 h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-2xl mr-6">
-                          DR
-                        </div>
-                        <div>
-                          <div className="font-bold text-gray-900 text-2xl">David Rodriguez</div>
-                          <div className="text-[#667eea] font-medium text-lg">Founder, StartupXYZ</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
             {/* Dots Indicator */}
-            <div className="flex justify-center mt-12 space-x-3">
-              <button className="w-3 h-3 bg-[#667eea] rounded-full"></button>
-              <button className="w-3 h-3 bg-gray-300 rounded-full hover:bg-[#667eea]/50 transition-colors"></button>
-              <button className="w-3 h-3 bg-gray-300 rounded-full hover:bg-[#667eea]/50 transition-colors"></button>
+            <div className="flex justify-center mt-12 md:mt-16 space-x-3">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentSlide 
+                      ? 'bg-[#667eea] w-8' 
+                      : 'bg-gray-300 hover:bg-[#667eea]/50'
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Auto-play indicator and mobile instructions */}
+            <div className="flex flex-col items-center mt-4 space-y-2">
+              <button
+                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                className="text-sm text-gray-500 hover:text-[#667eea] transition-colors duration-300 flex items-center gap-2"
+              >
+                <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-[#667eea]' : 'bg-gray-400'}`}></div>
+                {isAutoPlaying ? 'Auto-playing' : 'Paused'}
+              </button>
+              
+              {/* Mobile swipe instruction */}
+              <div className="md:hidden text-xs text-gray-400 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                </svg>
+                <span>Swipe to navigate</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>

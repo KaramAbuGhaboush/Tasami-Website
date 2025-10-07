@@ -74,12 +74,12 @@ export default function Blog() {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-16">
             {/* Blog Title */}
             <div className="mb-8 lg:mb-0">
-              <h1 className="text-6xl md:text-7xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
                 Tasami Blog
               </h1>
             </div>
             
-            {/* Search Bar */}
+            {/* Enhanced Search Bar */}
             <div className="lg:ml-8">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -89,8 +89,8 @@ export default function Blog() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search"
-                  className="w-full lg:w-80 pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                  placeholder="Search articles..."
+                  className="w-full lg:w-96 pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6812F7] focus:border-[#6812F7] transition-all duration-300"
                 />
               </div>
             </div>
@@ -191,9 +191,9 @@ export default function Blog() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-l-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                className="flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium"
               />
-              <button className="bg-white text-[#6812F7] px-6 py-3 rounded-r-full font-semibold hover:bg-gray-100 transition-colors">
+              <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
                 Subscribe
               </button>
             </div>
