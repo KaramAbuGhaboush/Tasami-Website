@@ -1,6 +1,11 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function About() {
+  const [openFAQ, setOpenFAQ] = useState<number | null>(null)
 
   const values = [
     {
@@ -25,59 +30,237 @@ export default function About() {
     }
   ]
 
+
+  const faqs = [
+    {
+      question: "How long has your company been in business?",
+      answer: "We're a fresh, dynamic startup founded in 2024. While we're new to the market, our team brings decades of combined experience from top tech companies and successful startups."
+    },
+    {
+      question: "What makes you different from established agencies?",
+      answer: "As a new company, we offer fresh perspectives, cutting-edge approaches, and personalized attention that larger agencies can't match. We're agile, innovative, and deeply invested in each client's success."
+    },
+    {
+      question: "Do you have experience with our industry?",
+      answer: "Our team has worked across various industries including healthcare, finance, e-commerce, and SaaS. We bring diverse experience and adapt quickly to new sectors and challenges."
+    },
+    {
+      question: "What's your team structure?",
+      answer: "We're a lean, focused team with senior leadership across all key areas. This structure allows us to be nimble, cost-effective, and provide direct access to decision-makers."
+    },
+    {
+      question: "How do you ensure quality with a small team?",
+      answer: "Our small team is our strength. Each member is a senior expert in their field, ensuring high-quality work. We also partner with trusted specialists when needed, maintaining our core team's focus and expertise."
+    },
+    {
+      question: "What's your pricing structure?",
+      answer: "We offer competitive, transparent pricing tailored to each project. As a new company, we provide excellent value while maintaining high standards. We're happy to discuss custom packages that fit your budget."
+    },
+    {
+      question: "How do you handle project management?",
+      answer: "We use modern project management tools and maintain regular communication with clients. Our small team ensures direct access to decision-makers and faster response times than larger agencies."
+    },
+    {
+      question: "What if we need to scale our project?",
+      answer: "We're designed to grow with you. Our flexible team structure allows us to bring in specialized talent as needed, ensuring we can handle projects of any size while maintaining our personal touch."
+    }
+  ]
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Enhanced Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
+          <div 
+            className="absolute inset-0 opacity-20 grid-pattern"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(104, 18, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104, 18, 247, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px'
+            }}
+          ></div>
+          
+          {/* Floating Elements */}
+          <div className="absolute top-20 left-20 w-3 h-3 bg-[#6812F7]/30 rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-32 w-2 h-2 bg-[#9253F0]/40 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-1/3 w-4 h-4 bg-[#DFC7FE]/30 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 right-20 w-2 h-2 bg-[#6812F7]/25 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute bottom-20 right-1/4 w-3 h-3 bg-[#9253F0]/35 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              About <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">TechFlow</span>
+            {/* Enhanced Badge */}
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#6812F7]/10 to-[#9253F0]/10 rounded-full text-[#6812F7] text-sm font-medium mb-8 border border-[#6812F7]/20 shadow-lg">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-3 animate-pulse"></span>
+              Fresh & Innovative Startup
+            </div>
+            
+            {/* Enhanced Heading */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 leading-[0.9] mb-8">
+              About
+              <span className="block bg-gradient-to-r from-[#6812F7] to-[#9253F0] bg-clip-text text-transparent mt-2">
+                Tasami
+              </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              We're a team of passionate technologists dedicated to transforming businesses through innovative AI, automation, design, and marketing solutions.
+            
+            {/* Enhanced Description */}
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto mb-12 leading-relaxed">
+              We're a dynamic startup team of passionate experts, dedicated to transforming businesses through 
+              <span className="text-[#6812F7] font-semibold"> innovative AI</span>, 
+              <span className="text-[#9253F0] font-semibold"> automation</span>, 
+              <span className="text-[#6812F7] font-semibold"> design</span>, and 
+              <span className="text-[#9253F0] font-semibold"> marketing solutions</span>.
             </p>
+            
+            {/* Enhanced CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+              <Link
+                href="/contact"
+                className="group bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white px-10 py-5 rounded-full text-lg font-semibold hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-105"
+              >
+                <span className="flex items-center justify-center">
+                  Work With Us
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+              </Link>
+              <Link
+                href="/services"
+                className="group border-2 border-[#6812F7] text-[#6812F7] px-10 py-5 rounded-full text-lg font-semibold hover:bg-[#6812F7] hover:text-white transition-all duration-300 transform hover:-translate-y-2 hover:scale-105"
+              >
+                <span className="flex items-center justify-center">
+                  Our Services
+                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </span>
+              </Link>
+            </div>
+            
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              <div className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">2024</div>
+                <div className="text-gray-600 font-medium">Founded</div>
+              </div>
+              <div className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
+                <div className="text-gray-600 font-medium">Client Focused</div>
+              </div>
+              <div className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">∞</div>
+                <div className="text-gray-600 font-medium">Innovation</div>
+              </div>
+              <div className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
+                <div className="text-gray-600 font-medium">Satisfaction</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Company Story */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Our Story
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Founded in 2019, TechFlow began as a small team of passionate technologists who believed in the transformative power of AI and automation. What started as a vision to help businesses streamline their operations has grown into a comprehensive technology company.
-              </p>
-              <p className="text-lg text-gray-600 mb-6">
-                Today, we've successfully delivered over 500 projects for clients ranging from startups to Fortune 500 companies. Our expertise spans across AI solutions, automation, design, UX/UI, and marketing, making us a one-stop partner for digital transformation.
-              </p>
-              <p className="text-lg text-gray-600">
-                We're committed to staying at the forefront of technology, continuously learning and adapting to bring our clients the most innovative and effective solutions.
-              </p>
+      <section className="py-20 bg-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div 
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `
+                radial-gradient(circle at 25% 25%, #6812F7 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #9253F0 2px, transparent 2px)
+              `,
+              backgroundSize: '60px 60px'
+            }}
+          ></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-[#6812F7]/10 rounded-full text-[#6812F7] text-sm font-medium mb-6">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-2"></span>
+              Our Journey
             </div>
-            <div className="bg-gradient-to-br from-blue-100 to-purple-100 p-8 rounded-2xl">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="bg-white p-6 rounded-xl">
-                  <div className="text-3xl font-bold text-blue-600 mb-2">500+</div>
-                  <div className="text-gray-600">Projects Delivered</div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              The Story Behind <span className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] bg-clip-text text-transparent">Tasami</span>
+            </h2>
+          </div>
+          
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="group">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl">🚀</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">The Beginning</h3>
                 </div>
-                <div className="bg-white p-6 rounded-xl">
-                  <div className="text-3xl font-bold text-purple-600 mb-2">98%</div>
-                  <div className="text-gray-600">Client Satisfaction</div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Founded in 2024, Tasami emerged from a shared vision among passionate technologists who believed in the transformative power of AI and automation. We saw an opportunity to help businesses navigate the digital landscape with fresh perspectives and cutting-edge solutions.
+                </p>
+              </div>
+              
+              <div className="group">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#9253F0] to-[#6812F7] rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl">💡</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Our Approach</h3>
                 </div>
-                <div className="bg-white p-6 rounded-xl">
-                  <div className="text-3xl font-bold text-green-600 mb-2">50+</div>
-                  <div className="text-gray-600">Team Members</div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  As a new company, we bring the energy and innovation of a startup combined with decades of combined experience from our team members who have worked at top tech companies and successful startups. We're agile, focused, and deeply committed to each client's success.
+                </p>
+              </div>
+              
+              <div className="group">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl">🎯</span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">Our Promise</h3>
                 </div>
-                <div className="bg-white p-6 rounded-xl">
-                  <div className="text-3xl font-bold text-orange-600 mb-2">5+</div>
-                  <div className="text-gray-600">Years Experience</div>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  Our lean structure allows us to provide personalized attention, faster response times, and cost-effective solutions while maintaining the highest quality standards. We're building the future of technology, one project at a time.
+                </p>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="bg-gradient-to-br from-[#6812F7]/5 to-[#9253F0]/5 p-8 rounded-3xl border border-[#6812F7]/10 shadow-2xl">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+                    <div className="text-4xl font-bold text-[#6812F7] mb-3 group-hover:scale-110 transition-transform duration-300">∞</div>
+                    <div className="text-gray-600 font-medium">Innovation Potential</div>
+                    <div className="text-sm text-gray-500 mt-2">Unlimited possibilities</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+                    <div className="text-4xl font-bold text-[#9253F0] mb-3 group-hover:scale-110 transition-transform duration-300">2024</div>
+                    <div className="text-gray-600 font-medium">Founded</div>
+                    <div className="text-sm text-gray-500 mt-2">Fresh & modern</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+                    <div className="text-4xl font-bold text-green-600 mb-3 group-hover:scale-110 transition-transform duration-300">100%</div>
+                    <div className="text-gray-600 font-medium">Client Focused</div>
+                    <div className="text-sm text-gray-500 mt-2">Your success is ours</div>
+                  </div>
+                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
+                    <div className="text-4xl font-bold text-orange-600 mb-3 group-hover:scale-110 transition-transform duration-300">100%</div>
+                    <div className="text-gray-600 font-medium">Satisfaction</div>
+                    <div className="text-sm text-gray-500 mt-2">Guaranteed quality</div>
+                  </div>
                 </div>
               </div>
+              
+              {/* Floating Elements */}
+              <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-full opacity-20 animate-pulse"></div>
+              <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-full opacity-30 animate-bounce"></div>
             </div>
           </div>
         </div>
@@ -105,24 +288,114 @@ export default function About() {
         </div>
       </section>
 
+
       {/* Values */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Our Values
+      <section className="py-20 bg-gradient-to-br from-[#F8F4FF] to-[#E8E0FF] relative overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div 
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: `
+                linear-gradient(45deg, transparent 40%, rgba(104, 18, 247, 0.1) 50%, transparent 60%),
+                linear-gradient(-45deg, transparent 40%, rgba(146, 83, 240, 0.1) 50%, transparent 60%)
+              `,
+              backgroundSize: '100px 100px'
+            }}
+          ></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center px-4 py-2 bg-white/50 rounded-full text-[#6812F7] text-sm font-medium mb-6 backdrop-blur-sm">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-2"></span>
+              Our Foundation
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Our <span className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] bg-clip-text text-transparent">Values</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              The principles that guide everything we do and shape our company culture
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              The principles that guide everything we do and shape our company culture. These values are the foundation of our success.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {values.map((value, index) => (
-              <div key={index} className="text-center">
-                <div className="text-5xl mb-4">{value.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+              <div key={index} className="group relative h-full">
+                <div className="bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 border border-white/20 h-full flex flex-col">
+                  {/* Icon Container */}
+                  <div className="relative mb-6">
+                    <div className="w-20 h-20 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                      <span className="text-3xl">{value.icon}</span>
+                    </div>
+                    {/* Floating decoration */}
+                    <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-full opacity-60 group-hover:scale-150 transition-all duration-500"></div>
+                  </div>
+                  
+                  {/* Content */}
+                  <div className="text-center flex-1 flex flex-col">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-[#6812F7] transition-colors duration-300">
+                      {value.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300 flex-1">
+                      {value.description}
+                    </p>
+                  </div>
+                  
+                  {/* Hover Effect Border */}
+                  <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-[#6812F7] to-[#9253F0] opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Bottom CTA */}
+          <div className="text-center mt-16">
+            <div className="inline-flex items-center px-6 py-3 bg-white/50 rounded-full text-[#6812F7] font-medium backdrop-blur-sm border border-white/20">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-3 animate-pulse"></span>
+              These values drive every decision we make
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Common questions about working with our startup team
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <button
+                  className="w-full px-6 py-6 text-left flex items-center justify-between hover:bg-gray-50 transition-colors duration-200"
+                  onClick={() => setOpenFAQ(openFAQ === index ? null : index)}
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 pr-4">{faq.question}</h3>
+                  <div className="flex-shrink-0">
+                    {openFAQ === index ? (
+                      <ChevronUp className="w-5 h-5 text-[#6812F7]" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
+                </button>
+                <div 
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    openFAQ === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className="px-6 pb-6">
+                    <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

@@ -151,23 +151,23 @@ export default function Blog() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.filter(post => !post.featured).map((post, index) => (
-              <article key={index} className="rounded-2xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
+              <article key={index} className="">
                 {/* Image Section */}
                 <div className="relative h-48 overflow-hidden group">
-                  <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center rounded-2xl">
                     <div className="text-6xl text-white">{post.image}</div>
                   </div>
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
-                    <span className="bg-white text-[#6812F7] px-3 py-1 rounded-lg text-sm font-bold shadow-md">
+                    <span className="bg-white text-[#6812F7] px-4 py-1.5 rounded-full text-sm font-bold shadow-md">
                       {post.category}
                     </span>
                   </div>
                 </div>
                 
                 {/* Title Section - No Background */}
-                <div className="p-6 bg-transparent">
-                  <h3 className="text-lg font-bold text-gray-900 leading-tight">
+                <div className="px-2 py-4 bg-transparent">
+                  <h3 className="text-xl font-bold text-gray-900 leading-tight">
                     {post.title}
                   </h3>
                 </div>

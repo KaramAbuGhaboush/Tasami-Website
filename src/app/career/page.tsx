@@ -100,78 +100,80 @@ export default function Career() {
     }
   ]
 
-  const benefits = [
-    {
-      title: "Competitive Compensation",
-      description: "We offer competitive salaries and equity packages to attract and retain top talent.",
-      icon: "💰"
-    },
-    {
-      title: "Health & Wellness",
-      description: "Comprehensive health insurance, dental, vision, and mental health support for you and your family.",
-      icon: "🏥"
-    },
-    {
-      title: "Remote Work",
-      description: "Work from anywhere with flexible schedules and a home office setup allowance.",
-      icon: "🏠"
-    },
-    {
-      title: "Learning & Development",
-      description: "Annual learning budget, conference attendance, and professional development opportunities.",
-      icon: "📚"
-    },
-    {
-      title: "Work-Life Balance",
-      description: "Flexible PTO, sabbaticals, and a culture that values work-life balance.",
-      icon: "⚖️"
-    },
-    {
-      title: "Growth Opportunities",
-      description: "Clear career paths, mentorship programs, and opportunities for advancement.",
-      icon: "🚀"
-    }
-  ]
 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 flex items-center overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
+          
+          {/* Grid Pattern */}
+          <div 
+            className="absolute inset-0 opacity-30 grid-pattern"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(104, 18, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104, 18, 247, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: '40px 40px'
+            }}
+          ></div>
+          
+          {/* Floating Elements */}
+          <div className="hidden sm:block absolute top-20 left-20 w-2 h-2 bg-[#6812F7]/20 rounded-full float-gentle"></div>
+          <div className="hidden sm:block absolute top-40 right-32 w-1 h-1 bg-[#9253F0]/30 rounded-full float-gentle" style={{ animationDelay: '1s' }}></div>
+          <div className="hidden sm:block absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-[#DFC7FE]/25 rounded-full float-gentle" style={{ animationDelay: '2s' }}></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Join Our <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Team</span>
+            {/* Trust Badge */}
+            <div className="inline-flex items-center px-4 py-2 bg-[#6812F7]/10 rounded-full text-[#6812F7] text-sm font-medium mb-6">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-2"></span>
+              Join 50+ Talented Professionals
+            </div>
+            
+            {/* Main Heading */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 leading-[0.9] mb-8">
+              Build the Future
+              <span className="block gradient-text mt-2">
+                With Us
+              </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Be part of a dynamic team that's shaping the future of technology. We're looking for passionate individuals who want to make a difference.
+            
+            {/* Subheading */}
+            <p className="text-xl sm:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto mb-12">
+              Join a team of innovators, creators, and problem-solvers who are transforming industries 
+              through cutting-edge technology and exceptional talent.
             </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Why Work With Us */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Why Work With Us?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We offer more than just a job - we provide a career path with growth opportunities and a supportive culture.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl hover:shadow-lg transition-all duration-300">
-                <div className="text-5xl mb-4">{benefit.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
+            
+            
+            {/* Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2">50+</div>
+                <div className="text-gray-600">Team Members</div>
               </div>
-            ))}
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2">15+</div>
+                <div className="text-gray-600">Countries</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2">95%</div>
+                <div className="text-gray-600">Retention Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2">4.8/5</div>
+                <div className="text-gray-600">Satisfaction</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* Company Culture */}
       <section className="py-20 bg-gray-50">

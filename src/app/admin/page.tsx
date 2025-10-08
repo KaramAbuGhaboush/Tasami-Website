@@ -27,11 +27,14 @@ import {
   MoreHorizontal,
   Bell,
   Search,
-  Filter
+  Filter,
+  Menu,
+  X
 } from 'lucide-react'
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const dashboardSections = [
     { id: 'overview', name: 'Overview', icon: BarChart3 },
@@ -45,17 +48,111 @@ export default function AdminDashboard() {
   ]
 
   const stats = [
-    { label: 'Total Projects', value: '24', change: '+12%' },
-    { label: 'Blog Posts', value: '18', change: '+8%' },
-    { label: 'Active Users', value: '1,234', change: '+15%' },
-    { label: 'Contact Messages', value: '89', change: '+23%' },
+    { 
+      label: 'Total Revenue', 
+      value: '$124,500', 
+      change: '+18.2%', 
+      trend: 'up',
+      icon: '💰',
+      description: 'Monthly recurring revenue',
+      color: 'from-green-500 to-emerald-600'
+    },
+    { 
+      label: 'Active Projects', 
+      value: '24', 
+      change: '+12%', 
+      trend: 'up',
+      icon: '🚀',
+      description: 'Currently in progress',
+      color: 'from-blue-500 to-cyan-600'
+    },
+    { 
+      label: 'Client Satisfaction', 
+      value: '4.9/5', 
+      change: '+0.3', 
+      trend: 'up',
+      icon: '⭐',
+      description: 'Average rating',
+      color: 'from-yellow-500 to-orange-600'
+    },
+    { 
+      label: 'Team Members', 
+      value: '12', 
+      change: '+2', 
+      trend: 'up',
+      icon: '👥',
+      description: 'Active team members',
+      color: 'from-purple-500 to-pink-600'
+    },
+    { 
+      label: 'Website Traffic', 
+      value: '45.2K', 
+      change: '+23%', 
+      trend: 'up',
+      icon: '📊',
+      description: 'Monthly visitors',
+      color: 'from-indigo-500 to-blue-600'
+    },
+    { 
+      label: 'Conversion Rate', 
+      value: '3.2%', 
+      change: '+0.8%', 
+      trend: 'up',
+      icon: '🎯',
+      description: 'Lead to client conversion',
+      color: 'from-teal-500 to-green-600'
+    },
   ]
 
   const recentActivities = [
-    { action: 'New project added', time: '2 hours ago', type: 'portfolio' },
-    { action: 'Blog post published', time: '4 hours ago', type: 'blog' },
-    { action: 'Contact form submitted', time: '6 hours ago', type: 'contact' },
-    { action: 'User registered', time: '8 hours ago', type: 'users' },
+    { 
+      action: 'New client project "E-commerce Platform" started', 
+      time: '2 hours ago', 
+      type: 'portfolio',
+      user: 'Sarah Johnson',
+      status: 'active',
+      value: '$15,000'
+    },
+    { 
+      action: 'Blog post "AI Trends 2024" published', 
+      time: '4 hours ago', 
+      type: 'blog',
+      user: 'Mike Chen',
+      status: 'published',
+      views: '1,234'
+    },
+    { 
+      action: 'High-priority contact from TechCorp', 
+      time: '6 hours ago', 
+      type: 'contact',
+      user: 'John Smith',
+      status: 'urgent',
+      value: 'Potential $50K project'
+    },
+    { 
+      action: 'New team member "Alex Rodriguez" onboarded', 
+      time: '8 hours ago', 
+      type: 'users',
+      user: 'HR Team',
+      status: 'completed',
+      role: 'Senior Developer'
+    },
+    { 
+      action: 'Project "Mobile App" completed and delivered', 
+      time: '1 day ago', 
+      type: 'portfolio',
+      user: 'Development Team',
+      status: 'completed',
+      value: '$25,000'
+    },
+    { 
+      action: 'Website performance optimization completed', 
+      time: '2 days ago', 
+      type: 'maintenance',
+      user: 'DevOps Team',
+      status: 'completed',
+      improvement: '+40% faster load times'
+    },
   ]
 
   const renderContent = () => {
@@ -63,61 +160,210 @@ export default function AdminDashboard() {
       case 'overview':
         return (
           <div className="space-y-8">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Welcome Section */}
+            <div className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] rounded-2xl p-8 text-white">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2">Welcome back, Admin! 👋</h1>
+                  <p className="text-white/80 text-lg">Here's what's happening with your business today.</p>
+                </div>
+                <div className="mt-4 sm:mt-0">
+                  <div className="text-right">
+                    <p className="text-white/60 text-sm">Last updated</p>
+                    <p className="text-white font-semibold">2 minutes ago</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {stats.map((stat, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-0 shadow-lg">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-xl flex items-center justify-center">
-                        <BarChart3 className="w-6 h-6 text-white" />
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-14 h-14 bg-gradient-to-br ${stat.color} rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        {stat.icon}
                       </div>
-                      <Badge variant="secondary" className="bg-green-100 text-green-700">
-                        {stat.change}
-                      </Badge>
+                      <div className="text-right">
+                        <Badge 
+                          variant="secondary" 
+                          className={`${
+                            stat.trend === 'up' 
+                              ? 'bg-green-100 text-green-700 border-green-200' 
+                              : 'bg-red-100 text-red-700 border-red-200'
+                          }`}
+                        >
+                          {stat.change}
+                        </Badge>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</h3>
-                    <p className="text-gray-600">{stat.label}</p>
+                    <div className="space-y-2">
+                      <h3 className="text-3xl font-bold text-gray-900">{stat.value}</h3>
+                      <p className="text-gray-600 font-medium">{stat.label}</p>
+                      <p className="text-sm text-gray-500">{stat.description}</p>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {/* Recent Activities */}
-            <Card>
+            {/* Quick Actions */}
+            <Card className="border-0 shadow-lg">
               <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>Latest updates across your dashboard</CardDescription>
+                <CardTitle className="flex items-center">
+                  <span className="text-2xl mr-3">⚡</span>
+                  Quick Actions
+                </CardTitle>
+                <CardDescription>Common tasks you might want to perform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <Button className="h-20 flex-col space-y-2 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white">
+                    <Plus className="w-6 h-6" />
+                    <span className="text-sm">Add Project</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                    <FileText className="w-6 h-6" />
+                    <span className="text-sm">New Blog Post</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                    <Users className="w-6 h-6" />
+                    <span className="text-sm">Add Team Member</span>
+                  </Button>
+                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                    <MessageSquare className="w-6 h-6" />
+                    <span className="text-sm">View Messages</span>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Enhanced Recent Activities */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <span className="text-2xl mr-3">📈</span>
+                  Recent Activities
+                </CardTitle>
+                <CardDescription>Latest updates and important events</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {recentActivities.map((activity, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-xl">
-                      <div className="w-10 h-10 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-lg flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-white" />
+                    <div key={index} className="flex items-start space-x-4 p-4 bg-gradient-to-r from-gray-50 to-white rounded-xl hover:shadow-md transition-all duration-200 border border-gray-100">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold ${
+                        activity.type === 'portfolio' ? 'bg-gradient-to-br from-blue-500 to-cyan-600' :
+                        activity.type === 'blog' ? 'bg-gradient-to-br from-green-500 to-emerald-600' :
+                        activity.type === 'contact' ? 'bg-gradient-to-br from-yellow-500 to-orange-600' :
+                        activity.type === 'users' ? 'bg-gradient-to-br from-purple-500 to-pink-600' :
+                        'bg-gradient-to-br from-gray-500 to-gray-600'
+                      }`}>
+                        {activity.type === 'portfolio' ? '🚀' :
+                         activity.type === 'blog' ? '📝' :
+                         activity.type === 'contact' ? '📧' :
+                         activity.type === 'users' ? '👥' : '⚙️'}
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{activity.action}</p>
-                        <p className="text-sm text-gray-500">{activity.time}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 mb-1">{activity.action}</p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-500">
+                              <span>👤 {activity.user}</span>
+                              <span>🕒 {activity.time}</span>
+                            </div>
+                            {(activity.value || activity.views || activity.role || activity.improvement) && (
+                              <div className="mt-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {activity.value || activity.views || activity.role || activity.improvement}
+                                </Badge>
+                              </div>
+                            )}
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ${
+                              activity.status === 'urgent' ? 'border-red-200 text-red-700 bg-red-50' :
+                              activity.status === 'active' ? 'border-blue-200 text-blue-700 bg-blue-50' :
+                              activity.status === 'completed' ? 'border-green-200 text-green-700 bg-green-50' :
+                              'border-gray-200 text-gray-700 bg-gray-50'
+                            }`}
+                          >
+                            {activity.status}
+                          </Badge>
+                        </div>
                       </div>
-                      <Badge variant="outline" className="text-[#6812F7] border-[#6812F7]">
-                        {activity.type}
-                      </Badge>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+
+            {/* Performance Insights */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span className="text-2xl mr-3">📊</span>
+                    Performance Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <span className="text-sm font-medium text-green-800">Website Speed</span>
+                      <span className="text-lg font-bold text-green-600">98/100</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <span className="text-sm font-medium text-blue-800">SEO Score</span>
+                      <span className="text-lg font-bold text-blue-600">92/100</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                      <span className="text-sm font-medium text-purple-800">Security Score</span>
+                      <span className="text-lg font-bold text-purple-600">95/100</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <span className="text-2xl mr-3">🎯</span>
+                    Upcoming Tasks
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3 p-3 bg-yellow-50 rounded-lg">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <span className="text-sm">Client meeting with TechCorp</span>
+                      <Badge variant="outline" className="text-xs">Today 2PM</Badge>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 bg-blue-50 rounded-lg">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-sm">Project milestone review</span>
+                      <Badge variant="outline" className="text-xs">Tomorrow</Badge>
+                    </div>
+                    <div className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Team standup meeting</span>
+                      <Badge variant="outline" className="text-xs">Daily 9AM</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )
 
       case 'portfolio':
         return (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">Portfolio Management</h2>
-                <p className="text-gray-600">Manage your project portfolio</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Portfolio Management</h2>
+                <p className="text-gray-600 text-sm sm:text-base">Manage your project portfolio</p>
               </div>
               <Dialog>
                 <DialogTrigger asChild>
@@ -143,22 +389,22 @@ export default function AdminDashboard() {
             </div>
             
             <Card>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <CardContent className="p-4 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {[1, 2, 3, 4, 5, 6].map((item) => (
                     <Card key={item} className="hover:shadow-lg transition-all duration-200">
                       <CardContent className="p-4">
                         <div className="w-full h-32 bg-gradient-to-br from-[#6812F7]/20 to-[#9253F0]/20 rounded-lg mb-4"></div>
                         <h3 className="font-semibold text-gray-900 mb-2">Project {item}</h3>
                         <p className="text-sm text-gray-600 mb-4">AI-Powered E-commerce Platform</p>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <Button size="sm" className="flex-1 bg-[#6812F7] hover:bg-[#5a0fd4]">
                             <Edit className="w-4 h-4 mr-1" />
-                            Edit
+                            <span className="hidden sm:inline">Edit</span>
                           </Button>
                           <Button size="sm" variant="outline" className="flex-1">
                             <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <span className="hidden sm:inline">View</span>
                           </Button>
                         </div>
                       </CardContent>
@@ -347,7 +593,8 @@ export default function AdminDashboard() {
             
             <Card>
               <CardContent className="p-0">
-                <Table>
+                <div className="overflow-x-auto">
+                  <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>User</TableHead>
@@ -409,7 +656,8 @@ export default function AdminDashboard() {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -423,23 +671,33 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F2F3FF] via-white to-[#DFC7FE]/20">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+              
               <Link href="/" className="text-xl font-bold gradient-text">
                 Tasami Admin
               </Link>
-              <Badge variant="outline">Dashboard</Badge>
+              <Badge variant="outline" className="hidden sm:inline-flex">Dashboard</Badge>
             </div>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <Button variant="ghost" size="sm" className="hidden sm:flex">
                 <Bell className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hidden sm:flex">
                 <Settings className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="text-xs sm:text-sm">
                 <Link href="/">Back to Site</Link>
               </Button>
             </div>
@@ -447,41 +705,64 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <div className="lg:w-64">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Navigation</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <nav className="space-y-1 p-4">
-                  {dashboardSections.map((section) => {
-                    const IconComponent = section.icon
-                    return (
-                      <Button
-                        key={section.id}
-                        variant={activeTab === section.id ? "default" : "ghost"}
-                        onClick={() => setActiveTab(section.id)}
-                        className={`w-full justify-start ${
-                          activeTab === section.id
-                            ? 'bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white hover:from-[#5a0fd4] hover:to-[#7d42e6]'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                        }`}
-                      >
-                        <IconComponent className="w-4 h-4 mr-3" />
-                        {section.name}
-                      </Button>
-                    )
-                  })}
-                </nav>
-              </CardContent>
-            </Card>
-          </div>
+      <div className="flex">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
 
-          {/* Main Content */}
-          <div className="flex-1">
+        {/* Sidebar */}
+        <div className={`
+          fixed lg:static inset-y-0 left-0 z-50 w-80 lg:w-72 transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="h-full bg-white border-r border-gray-200 shadow-lg lg:shadow-none">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="font-semibold text-gray-900">
+                Navigation
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <nav className="p-4 space-y-2">
+              {dashboardSections.map((section) => {
+                const IconComponent = section.icon
+                return (
+                  <Button
+                    key={section.id}
+                    variant={activeTab === section.id ? "default" : "ghost"}
+                    onClick={() => {
+                      setActiveTab(section.id)
+                      setSidebarOpen(false) // Close mobile sidebar when item is selected
+                    }}
+                    className={`w-full justify-start px-3 ${
+                      activeTab === section.id
+                        ? 'bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white hover:from-[#5a0fd4] hover:to-[#7d42e6]'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4 mr-3" />
+                    <span>{section.name}</span>
+                  </Button>
+                )
+              })}
+            </nav>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 min-w-0">
+          <div className="p-4 sm:p-6 lg:p-8">
             {renderContent()}
           </div>
         </div>

@@ -155,72 +155,71 @@ export default function Work() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-40 overflow-hidden">
-        {/* Enhanced Background */}
+      <section className="relative min-h-screen flex items-center overflow-hidden">
+        {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
-          {/* Gradient Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
-          
-          {/* Enhanced Grid Pattern */}
           <div 
-            className="absolute inset-0 opacity-40 grid-pattern"
+            className="absolute inset-0 opacity-20 grid-pattern"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(104, 18, 247, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(104, 18, 247, 0.15) 1px, transparent 1px)
+                linear-gradient(rgba(104, 18, 247, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(104, 18, 247, 0.1) 1px, transparent 1px)
               `,
-              backgroundSize: '50px 50px'
+              backgroundSize: '40px 40px'
             }}
           ></div>
           
-          {/* Enhanced overlay for depth */}
-          <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/30"></div>
-          
-          {/* More Floating Elements */}
-          <div className="absolute top-20 left-20 w-3 h-3 bg-[#6812F7]/25 rounded-full float-gentle"></div>
-          <div className="absolute top-40 right-32 w-2 h-2 bg-[#9253F0]/35 rounded-full float-gentle" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-32 left-1/3 w-2 h-2 bg-[#DFC7FE]/30 rounded-full float-gentle" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute bottom-20 right-20 w-3 h-3 bg-[#6812F7]/25 rounded-full float-gentle" style={{ animationDelay: '0.5s' }}></div>
-          <div className="absolute top-1/2 left-10 w-1 h-1 bg-[#9253F0]/20 rounded-full float-gentle" style={{ animationDelay: '3s' }}></div>
-          <div className="absolute top-1/3 right-10 w-2 h-2 bg-[#DFC7FE]/25 rounded-full float-gentle" style={{ animationDelay: '1.5s' }}></div>
+          {/* Floating Elements */}
+          <div className="absolute top-20 left-20 w-3 h-3 bg-[#6812F7]/30 rounded-full animate-pulse"></div>
+          <div className="absolute top-40 right-32 w-2 h-2 bg-[#9253F0]/40 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-32 left-1/3 w-4 h-4 bg-[#DFC7FE]/30 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-1/2 right-20 w-2 h-2 bg-[#6812F7]/25 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute bottom-20 right-1/4 w-3 h-3 bg-[#9253F0]/35 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
         </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <div className="inline-flex items-center bg-white/30 backdrop-blur-md rounded-full px-8 py-4 mb-10 border border-white/40 shadow-lg">
-              <span className="text-[#667eea] font-bold text-sm uppercase tracking-wider">Our Portfolio</span>
+            {/* Enhanced Badge */}
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#6812F7]/10 to-[#9253F0]/10 rounded-full text-[#6812F7] text-sm font-medium mb-8 border border-[#6812F7]/20 shadow-lg">
+              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-3 animate-pulse"></span>
+              Our Portfolio
             </div>
             
-            <h1 className="text-7xl md:text-8xl font-bold text-gray-900 mb-10 leading-tight">
-              Our <span className="bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent">Work</span>
+            {/* Enhanced Heading */}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 leading-[0.9] mb-8">
+              Our
+              <span className="block bg-gradient-to-r from-[#6812F7] to-[#9253F0] bg-clip-text text-transparent mt-2">
+                Work
+              </span>
             </h1>
             
-            <p className="text-2xl md:text-3xl text-gray-700 max-w-5xl mx-auto leading-relaxed mb-16">
-              Discover how we've transformed businesses with cutting-edge AI, automation, and design solutions. 
+            {/* Enhanced Description */}
+            <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto mb-12 leading-relaxed">
+              Discover how we've transformed businesses through 
+              <span className="text-[#6812F7] font-semibold"> cutting-edge AI</span>, 
+              <span className="text-[#9253F0] font-semibold"> automation</span>, and 
+              <span className="text-[#6812F7] font-semibold"> design solutions</span>. 
               Each project tells a story of innovation, growth, and exceptional results.
             </p>
-
-            {/* Enhanced Stats preview */}
-            <div className="grid grid-cols-3 gap-12 mb-16 max-w-3xl mx-auto">
+            
+            {/* Trust Indicators */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center group">
-                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">6+</div>
-                <div className="text-gray-600 text-base font-semibold">Featured Projects</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
+                <div className="text-gray-600 font-medium">Projects</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
-                <div className="text-gray-600 text-base font-semibold">Client Satisfaction</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">98%</div>
+                <div className="text-gray-600 font-medium">Success Rate</div>
               </div>
               <div className="text-center group">
-                <div className="text-4xl md:text-5xl font-bold text-[#667eea] mb-2 group-hover:scale-110 transition-transform duration-300">24/7</div>
-                <div className="text-gray-600 text-base font-semibold">Support</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
+                <div className="text-gray-600 font-medium">Client Satisfaction</div>
               </div>
-            </div>
-
-            {/* Enhanced Scroll indicator */}
-            <div className="flex flex-col items-center group cursor-pointer">
-              <span className="text-gray-600 text-base mb-6 font-semibold group-hover:text-[#667eea] transition-colors duration-300">Explore Our Work</span>
-              <div className="w-8 h-12 border-2 border-gray-400 rounded-full flex justify-center group-hover:border-[#667eea] transition-colors duration-300">
-                <div className="w-1.5 h-4 bg-gray-400 rounded-full mt-2 animate-bounce group-hover:bg-[#667eea] transition-colors duration-300"></div>
+              <div className="text-center group">
+                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">∞</div>
+                <div className="text-gray-600 font-medium">Innovation</div>
               </div>
             </div>
           </div>
