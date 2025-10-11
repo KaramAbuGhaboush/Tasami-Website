@@ -1,0 +1,768 @@
+{
+  "common": {
+    "loading": "Loading..."
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "about": "About Us",
+    "work": "Work",
+    "blog": "Blog",
+    "career": "Career",
+    "contact": "Contact",
+    "getStarted": "Get Started",
+    "language": "Language"
+  },
+  "home": {
+    "title": "Welcome to Tasami",
+    "description": "AI, Automation, Design & Marketing Solutions",
+    "hero": {
+      "title": "Transform Your Business",
+      "subtitle": "with AI & Automation",
+      "description": "We help companies leverage cutting-edge technology to streamline operations, enhance user experiences, and drive growth.",
+      "startProject": "Start Your Project",
+      "viewWork": "View Our Work",
+      "trustedBy": "Trusted by 500+ Companies",
+      "stats": {
+        "projects": "Projects",
+        "successRate": "Success Rate",
+        "years": "Years"
+      }
+    },
+    "services": {
+      "title": "What We Do",
+      "subtitle": "Our Services",
+      "description": "Comprehensive technology solutions to accelerate your digital transformation",
+      "aiSolutions": {
+        "title": "AI Solutions",
+        "description": "Machine learning, natural language processing, and intelligent automation to revolutionize your business processes and drive unprecedented efficiency.",
+        "features": [
+          "Machine Learning Models",
+          "Natural Language Processing",
+          "Intelligent Automation"
+        ]
+      },
+      "automation": {
+        "title": "Automation",
+        "description": "Streamline workflows and eliminate manual tasks with intelligent automation solutions tailored to your specific business needs and processes.",
+        "features": [
+          "Workflow Automation",
+          "Process Optimization",
+          "Smart Integrations"
+        ]
+      },
+      "design": {
+        "title": "Design & UX/UI",
+        "description": "Beautiful, intuitive interfaces that engage users and drive conversions through exceptional design and user experience optimization.",
+        "features": [
+          "User Interface Design",
+          "User Experience Research",
+          "Prototyping & Testing"
+        ]
+      },
+      "marketing": {
+        "title": "Marketing Solutions",
+        "description": "Data-driven marketing strategies and campaigns that reach the right audience and deliver measurable results for your business growth.",
+        "features": [
+          "Digital Marketing",
+          "Content Strategy",
+          "Analytics & Reporting"
+        ]
+      },
+      "mvp": {
+        "title": "MVP Development",
+        "description": "Rapid development of minimum viable products to validate your business ideas quickly and cost-effectively with market-ready solutions.",
+        "features": [
+          "Rapid Prototyping",
+          "Market Validation",
+          "Iterative Development"
+        ]
+      },
+      "dataAnalysis": {
+        "title": "Data Analysis",
+        "description": "Transform raw data into actionable insights with advanced analytics, machine learning, and business intelligence solutions.",
+        "features": [
+          "Business Intelligence",
+          "Predictive Analytics",
+          "Data Visualization"
+        ]
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Business?",
+      "description": "Let's discuss how our technology solutions can accelerate your growth and streamline your operations.",
+      "startProject": "Start Your Project",
+      "viewWork": "View Our Work"
+    },
+    "floatingCards": {
+      "aiSolutions": {
+        "title": "AI Solutions",
+        "description": "Intelligent automation for your business"
+      },
+      "uxDesign": {
+        "title": "UX/UI Design",
+        "description": "Beautiful user experiences"
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Data-driven strategies"
+      }
+    }
+  },
+  "about": {
+    "title": "About Us",
+    "content": "Learn more about our cutting-edge solutions.",
+    "hero": {
+      "badge": "Fresh & Innovative Startup",
+      "title": "About",
+      "subtitle": "Tasami",
+      "description": "We're a dynamic startup team of passionate experts, dedicated to transforming businesses through innovative AI, automation, design, and marketing solutions.",
+      "workWithUs": "Work With Us",
+      "ourServices": "Our Services"
+    },
+    "stats": {
+      "innovation": {
+        "value": "∞",
+        "title": "Innovation Potential",
+        "description": "Unlimited possibilities"
+      },
+      "founded": {
+        "value": "2024",
+        "title": "Founded",
+        "description": "Fresh & modern"
+      },
+      "clientFocused": {
+        "value": "100%",
+        "title": "Client Focused",
+        "description": "Your success is ours"
+      },
+      "satisfaction": {
+        "value": "100%",
+        "title": "Satisfaction",
+        "description": "Guaranteed quality"
+      }
+    },
+    "story": {
+      "badge": "Our Journey",
+      "title": "The Story Behind",
+      "subtitle": "Tasami",
+      "beginning": {
+        "title": "The Beginning",
+        "description": "Founded in 2024, Tasami emerged from a shared vision among passionate technologists who believed in the transformative power of AI and automation. We saw an opportunity to help businesses navigate the digital landscape with fresh perspectives and cutting-edge solutions."
+      },
+      "approach": {
+        "title": "Our Approach",
+        "description": "As a new company, we bring the energy and innovation of a startup combined with decades of combined experience from our team members who have worked at top tech companies and successful startups. We're agile, focused, and deeply committed to each client's success."
+      },
+      "promise": {
+        "title": "Our Promise",
+        "description": "Our lean structure allows us to provide personalized attention, faster response times, and cost-effective solutions while maintaining the highest quality standards. We're building the future of technology, one project at a time."
+      }
+    },
+    "mission": {
+      "title": "Our Mission",
+      "description": "To empower businesses with cutting-edge technology solutions that drive growth, efficiency, and innovation. We believe technology should be accessible, understandable, and transformative for organizations of all sizes."
+    },
+    "vision": {
+      "title": "Our Vision",
+      "description": "To be the leading technology partner that helps businesses navigate the digital landscape, leveraging AI, automation, and design to create a more efficient and connected world."
+    },
+    "values": {
+      "badge": "Our Foundation",
+      "title": "Our",
+      "subtitle": "Values",
+      "description": "The principles that guide everything we do and shape our company culture. These values are the foundation of our success.",
+      "innovation": {
+        "title": "Innovation",
+        "description": "We constantly push the boundaries of what's possible with technology, always seeking innovative solutions to complex problems."
+      },
+      "quality": {
+        "title": "Quality",
+        "description": "We maintain the highest standards in everything we do, ensuring our solutions are robust, reliable, and performant."
+      },
+      "collaboration": {
+        "title": "Collaboration",
+        "description": "We believe in the power of teamwork and work closely with our clients to achieve shared success."
+      },
+      "transparency": {
+        "title": "Transparency",
+        "description": "We maintain open communication and provide clear insights into our processes and progress."
+      },
+      "cta": "These values drive every decision we make"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "description": "Common questions about working with our startup team",
+      "questions": [
+        {
+          "question": "How long has your company been in business?",
+          "answer": "We're a fresh, dynamic startup founded in 2024. While we're new to the market, our team brings decades of combined experience from top tech companies and successful startups."
+        },
+        {
+          "question": "What makes you different from established agencies?",
+          "answer": "As a new company, we offer fresh perspectives, cutting-edge approaches, and personalized attention that larger agencies can't match. We're agile, innovative, and deeply invested in each client's success."
+        },
+        {
+          "question": "Do you have experience with our industry?",
+          "answer": "Our team has worked across various industries including healthcare, finance, e-commerce, and SaaS. We bring diverse experience and adapt quickly to new sectors and challenges."
+        },
+        {
+          "question": "What's your team structure?",
+          "answer": "We're a lean, focused team with senior leadership across all key areas. This structure allows us to be nimble, cost-effective, and provide direct access to decision-makers."
+        },
+        {
+          "question": "How do you ensure quality with a small team?",
+          "answer": "Our small team is our strength. Each member is a senior expert in their field, ensuring high-quality work. We also partner with trusted specialists when needed, maintaining our core team's focus and expertise."
+        },
+        {
+          "question": "What's your pricing structure?",
+          "answer": "We offer competitive, transparent pricing tailored to each project. As a new company, we provide excellent value while maintaining high standards. We're happy to discuss custom packages that fit your budget."
+        },
+        {
+          "question": "How do you handle project management?",
+          "answer": "We use modern project management tools and maintain regular communication with clients. Our small team ensures direct access to decision-makers and faster response times than larger agencies."
+        },
+        {
+          "question": "What if we need to scale our project?",
+          "answer": "We're designed to grow with you. Our flexible team structure allows us to bring in specialized talent as needed, ensuring we can handle projects of any size while maintaining our personal touch."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to Work With Us?",
+      "description": "Let's discuss how our team can help transform your business with innovative technology solutions.",
+      "getInTouch": "Get in Touch",
+      "joinTeam": "Join Our Team"
+    }
+  },
+  "services": {
+    "hero": {
+      "title": "Our",
+      "subtitle": "Services",
+      "description": "Comprehensive technology solutions designed to accelerate your digital transformation and drive business growth."
+    },
+    "process": {
+      "badge": "Our Methodology",
+      "title": "How We",
+      "subtitle": "Deliver",
+      "description": "A proven methodology that ensures successful project delivery and client satisfaction through our systematic approach",
+      "steps": {
+        "discovery": {
+          "title": "Discovery",
+          "description": "We analyze your requirements and understand your business goals"
+        },
+        "development": {
+          "title": "Development",
+          "description": "We build your solution using cutting-edge technology and best practices"
+        },
+        "launch": {
+          "title": "Launch",
+          "description": "We deploy your solution and provide ongoing support and maintenance"
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "description": "Let's discuss your project requirements and how we can help you achieve your business goals.",
+      "getQuote": "Get a Quote",
+      "viewWork": "View Our Work"
+    }
+  },
+  "contact": {
+    "hero": {
+      "badge": "Ready to Transform Your Business?",
+      "title": "Let's Build Something",
+      "subtitle": "Extraordinary Together",
+      "description": "We're a new, innovative company ready to help you transform your business with cutting-edge AI, automation, and design solutions. Let's build something amazing together!",
+      "indicators": {
+        "responseTime": "24-Hour Response Time",
+        "consultation": "Free Consultation",
+        "guarantee": "Satisfaction Guarantee",
+        "noContracts": "No Long-term Contracts"
+      }
+    },
+    "form": {
+      "title": "Let's start the",
+      "subtitle": "dialogue",
+      "description": "Are you ready to elevate your brand's digital presence? We lead an exceptional team of developers, designers, and AI specialists ready to transform your vision into reality.",
+      "alternativeTitle": "Prefer a different approach?",
+      "alternativeDescription": "We're flexible and here to help in whatever way works best for you.",
+      "email": {
+        "title": "Email us directly",
+        "email": "hello@tasami.com",
+        "action": "Send →"
+      },
+      "whatsapp": {
+        "title": "WhatsApp chat",
+        "description": "Quick questions",
+        "action": "Chat →"
+      },
+      "meeting": {
+        "title": "30-min CEO meeting",
+        "description": "Strategic discussions",
+        "action": "Book →"
+      },
+      "formTitle": "Let's Build Something Amazing",
+      "formDescription": "Tell us about your project and we'll get back to you within 24 hours",
+      "fields": {
+        "name": "Full Name",
+        "company": "Company Name",
+        "email": "Email",
+        "service": "Service Required",
+        "budget": "Project Budget",
+        "message": "Project Details"
+      },
+      "placeholders": {
+        "name": "Jane Cooper",
+        "company": "Ex. Tesla Inc",
+        "email": "You@Example.Com",
+        "service": "Select Your Service",
+        "budget": "Select Your Range",
+        "message": "Tell us more about your idea"
+      },
+      "submit": "Send inquiry",
+      "sending": "Sending...",
+      "security": "Your information is secure and will never be shared"
+    },
+    "success": {
+      "title": "You're One Step Closer to Success!",
+      "description": "Thank you for reaching out! Our team is reviewing your project details and will contact you within 24 hours with a personalized proposal.",
+      "nextSteps": "Next Steps: We'll send you a detailed project roadmap and timeline within 48 hours!",
+      "startAnother": "Start Another Project"
+    }
+  },
+  "blog": {
+    "hero": {
+      "title": "Tasami Blog"
+    },
+    "search": {
+      "placeholder": "Search articles..."
+    },
+    "featured": {
+      "category": "AI & Technology",
+      "readTime": "6 min",
+      "title": "The Future of AI in Business: Trends to Watch in 2024",
+      "excerpt": "Explore the latest AI trends that are reshaping how businesses operate, from automation to predictive analytics and machine learning applications."
+    },
+    "categories": [
+      "All",
+      "AI & Technology",
+      "Automation",
+      "Design",
+      "Marketing",
+      "Industry Insights"
+    ],
+    "posts": [
+      {
+        "id": 1,
+        "title": "How AI is Revolutionizing Customer Service",
+        "category": "AI & Technology",
+        "image": "🤖",
+        "featured": false
+      },
+      {
+        "id": 2,
+        "title": "Automation Best Practices for Small Businesses",
+        "category": "Automation",
+        "image": "⚙️",
+        "featured": false
+      },
+      {
+        "id": 3,
+        "title": "Design Trends That Will Dominate 2024",
+        "category": "Design",
+        "image": "🎨",
+        "featured": false
+      },
+      {
+        "id": 4,
+        "title": "Marketing Automation: A Complete Guide",
+        "category": "Marketing",
+        "image": "📈",
+        "featured": false
+      },
+      {
+        "id": 5,
+        "title": "The Future of Work: Remote Teams and AI",
+        "category": "Industry Insights",
+        "image": "💼",
+        "featured": false
+      },
+      {
+        "id": 6,
+        "title": "Building Scalable AI Solutions",
+        "category": "AI & Technology",
+        "image": "🚀",
+        "featured": false
+      }
+    ],
+    "newsletter": {
+      "title": "Stay Updated",
+      "description": "Subscribe to our newsletter and get the latest insights on AI, automation, design, and marketing delivered to your inbox.",
+      "placeholder": "Enter your email",
+      "subscribe": "Subscribe"
+    },
+    "topics": {
+      "title": "Popular Topics",
+      "description": "Explore our most popular content categories and trending topics",
+      "items": [
+        {
+          "icon": "🤖",
+          "title": "AI & Machine Learning",
+          "description": "Latest trends and insights in artificial intelligence",
+          "articles": "25+ Articles"
+        },
+        {
+          "icon": "⚙️",
+          "title": "Automation",
+          "description": "Workflow automation and process optimization",
+          "articles": "18+ Articles"
+        },
+        {
+          "icon": "🎨",
+          "title": "Design & UX",
+          "description": "User experience and interface design best practices",
+          "articles": "22+ Articles"
+        },
+        {
+          "icon": "📈",
+          "title": "Marketing",
+          "description": "Digital marketing strategies and growth tactics",
+          "articles": "20+ Articles"
+        }
+      ]
+    }
+  },
+  "career": {
+    "hero": {
+      "badge": "Join 50+ Talented Professionals",
+      "title": "Build the Future",
+      "subtitle": "With Us",
+      "description": "Join a team of innovators, creators, and problem-solvers who are transforming industries through cutting-edge technology and exceptional talent.",
+      "stats": [
+        {
+          "value": "50+",
+          "label": "Team Members"
+        },
+        {
+          "value": "15+",
+          "label": "Countries"
+        },
+        {
+          "value": "95%",
+          "label": "Retention Rate"
+        },
+        {
+          "value": "4.8/5",
+          "label": "Team Satisfaction"
+        }
+      ]
+    },
+    "culture": {
+      "title": "Our Culture",
+      "description": "At Tasami, we believe in creating an environment where everyone can thrive. Our culture is built on collaboration, innovation, and mutual respect.",
+      "points": [
+        {
+          "title": "Collaborative Environment",
+          "description": "We work together as a team, sharing knowledge and supporting each other's growth."
+        },
+        {
+          "title": "Innovation Focus",
+          "description": "We encourage creative thinking and experimentation to drive innovation."
+        },
+        {
+          "title": "Work-Life Balance",
+          "description": "We believe in maintaining a healthy balance between work and personal life."
+        }
+      ],
+      "teamStats": {
+        "title": "Join Our Growing Team",
+        "teamMembers": "Team Members",
+        "countries": "Countries",
+        "retention": "Retention Rate",
+        "satisfaction": "Team Satisfaction"
+      }
+    },
+    "jobs": {
+      "title": "Open Positions",
+      "description": "Explore our current job openings and find the perfect role for your career growth.",
+      "requirements": "Requirements",
+      "benefits": "Benefits",
+      "applyNow": "Apply Now",
+      "learnMore": "Learn More",
+      "items": [
+        {
+          "title": "Senior AI Engineer",
+          "location": "Remote",
+          "type": "Full-time",
+          "experience": "5+ years",
+          "department": "Engineering",
+          "description": "We're looking for a passionate AI Engineer to join our team and help build cutting-edge AI solutions that transform businesses.",
+          "requirements": [
+            "Bachelor's degree in Computer Science or related field",
+            "5+ years of experience in machine learning and AI",
+            "Proficiency in Python, TensorFlow, and PyTorch",
+            "Experience with cloud platforms (AWS, GCP, Azure)",
+            "Strong problem-solving and communication skills"
+          ],
+          "benefits": [
+            "Competitive salary and equity",
+            "Flexible work arrangements",
+            "Health, dental, and vision insurance",
+            "Professional development budget",
+            "Unlimited vacation policy"
+          ]
+        },
+        {
+          "title": "UX/UI Designer",
+          "location": "New York, NY",
+          "type": "Full-time",
+          "experience": "3+ years",
+          "department": "Design",
+          "description": "Join our design team to create beautiful, intuitive user experiences that delight our clients and drive business results.",
+          "requirements": [
+            "3+ years of UX/UI design experience",
+            "Proficiency in Figma, Sketch, and Adobe Creative Suite",
+            "Strong portfolio showcasing user-centered design",
+            "Experience with design systems and prototyping",
+            "Excellent communication and collaboration skills"
+          ],
+          "benefits": [
+            "Competitive salary and equity",
+            "Flexible work arrangements",
+            "Health, dental, and vision insurance",
+            "Professional development budget",
+            "Unlimited vacation policy"
+          ]
+        },
+        {
+          "title": "Marketing Automation Specialist",
+          "location": "San Francisco, CA",
+          "type": "Full-time",
+          "experience": "4+ years",
+          "department": "Marketing",
+          "description": "Help us scale our marketing efforts through intelligent automation and data-driven strategies that drive growth.",
+          "requirements": [
+            "4+ years of marketing automation experience",
+            "Proficiency in HubSpot, Marketo, or similar platforms",
+            "Experience with email marketing and lead nurturing",
+            "Strong analytical and reporting skills",
+            "Knowledge of marketing attribution and ROI analysis"
+          ],
+          "benefits": [
+            "Competitive salary and equity",
+            "Flexible work arrangements",
+            "Health, dental, and vision insurance",
+            "Professional development budget",
+            "Unlimited vacation policy"
+          ]
+        }
+      ]
+    },
+    "cta": {
+      "title": "Don't See Your Role?",
+      "description": "We're always looking for talented individuals. Send us your resume and let us know how you can contribute to our team.",
+      "sendResume": "Send Resume",
+      "contactUs": "Contact Us"
+    }
+  },
+  "work": {
+    "hero": {
+      "badge": "Our Portfolio",
+      "title": "Our",
+      "subtitle": "Work",
+      "description": "Discover how we've transformed businesses through cutting-edge AI, automation, and design solutions. Each project tells a story of innovation, growth, and exceptional results.",
+      "indicators": [
+        {
+          "value": "500+",
+          "label": "Projects"
+        },
+        {
+          "value": "98%",
+          "label": "Success Rate"
+        },
+        {
+          "value": "4.9/5",
+          "label": "Rating"
+        },
+        {
+          "value": "100%",
+          "label": "Satisfaction"
+        }
+      ]
+    },
+    "categories": [
+      "All",
+      "AI Solutions",
+      "Automation",
+      "Design & UX/UI",
+      "Marketing Solutions"
+    ],
+    "projects": {
+      "title": "Featured Projects",
+      "description": "Discover how we've helped businesses transform and achieve remarkable results",
+      "viewProject": "View Project",
+      "items": [
+        {
+          "id": "ai-ecommerce",
+          "title": "AI-Powered E-commerce Platform",
+          "description": "Revolutionary e-commerce solution with intelligent product recommendations, automated customer service, and predictive analytics that increased sales by 300%.",
+          "image": "/api/placeholder/400/300",
+          "category": "AI Solutions",
+          "results": [
+            "300% Sales Increase",
+            "50% Reduction in Support Tickets",
+            "95% Customer Satisfaction"
+          ]
+        },
+        {
+          "id": "automation-workflow",
+          "title": "Enterprise Workflow Automation",
+          "description": "Comprehensive automation system that streamlined operations for a Fortune 500 company, reducing manual work by 80% and improving efficiency by 200%.",
+          "image": "/api/placeholder/400/300",
+          "category": "Automation",
+          "results": [
+            "80% Manual Work Reduction",
+            "200% Efficiency Improvement",
+            "60% Cost Savings"
+          ]
+        },
+        {
+          "id": "ux-redesign",
+          "title": "Mobile App UX Redesign",
+          "description": "Complete user experience overhaul for a fintech mobile application, resulting in 150% increase in user engagement and 40% improvement in conversion rates.",
+          "image": "/api/placeholder/400/300",
+          "category": "Design & UX/UI",
+          "results": [
+            "150% Engagement Increase",
+            "40% Conversion Improvement",
+            "90% User Satisfaction"
+          ]
+        }
+      ]
+    },
+    "metrics": {
+      "title": "Project Success Metrics",
+      "description": "Our track record speaks for itself. These metrics represent the tangible impact we've delivered across all our projects.",
+      "items": [
+        {
+          "value": "500+",
+          "label": "Projects Completed",
+          "icon": "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        },
+        {
+          "value": "98%",
+          "label": "On-Time Delivery",
+          "icon": "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        },
+        {
+          "value": "95%",
+          "label": "Client Retention",
+          "icon": "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+        },
+        {
+          "value": "4.9/5",
+          "label": "Average Rating",
+          "icon": "M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+        }
+      ]
+    },
+    "testimonials": {
+      "title": "What Our Clients Say",
+      "description": "Don't just take our word for it. Here's what our clients have to say about working with us and the results we've delivered.",
+      "items": [
+        {
+          "id": 1,
+          "name": "Sarah Johnson",
+          "role": "CEO, TechCorp",
+          "quote": "Tasami transformed our entire digital infrastructure. The AI solutions they implemented increased our efficiency by 300% and reduced costs by 40%. Their team's expertise and dedication are unmatched.",
+          "rating": 5,
+          "initials": "SJ"
+        },
+        {
+          "id": 2,
+          "name": "Michael Chen",
+          "role": "CTO, InnovateLab",
+          "quote": "Working with Tasami was a game-changer for our business. Their automation solutions saved us countless hours and their design team created the most intuitive user experience we've ever had.",
+          "rating": 5,
+          "initials": "MC"
+        },
+        {
+          "id": 3,
+          "name": "Emily Rodriguez",
+          "role": "Marketing Director, GrowthCo",
+          "quote": "The marketing solutions Tasami provided exceeded all our expectations. Our conversion rates increased by 250% and customer engagement improved dramatically. Highly recommend their services.",
+          "rating": 5,
+          "initials": "ER"
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to Start Your",
+      "subtitle": "Next Project?",
+      "description": "Let's discuss how we can help you achieve similar results for your business. Our proven expertise and innovative solutions are ready to transform your ideas into reality.",
+      "startProject": "Start Your Project",
+      "viewServices": "View Our Services",
+      "callUs": "Or call us directly at",
+      "stats": {
+        "projects": "Projects",
+        "onTime": "On-Time",
+        "rating": "Rating"
+      }
+    }
+  },
+  "footer": {
+    "description": "Transforming businesses through cutting-edge AI, automation, design, and marketing solutions. We help companies leverage technology to streamline operations and drive growth.",
+    "downloadDeck": "Download Company Deck",
+    "sections": {
+      "services": "Services",
+      "company": "Company",
+      "resources": "Resources"
+    },
+    "links": {
+      "services": [
+        { "name": "AI Solutions", "href": "/services#ai" },
+        { "name": "Automation", "href": "/services#automation" },
+        { "name": "Design & UX/UI", "href": "/services#design" },
+        { "name": "Marketing Solutions", "href": "/services#marketing" },
+        { "name": "MVP Development", "href": "/services#mvp" },
+        { "name": "Data Analysis", "href": "/services#data" }
+      ],
+      "company": [
+        { "name": "About Us", "href": "/about" },
+        { "name": "Our Work", "href": "/work" },
+        { "name": "Careers", "href": "/career" },
+        { "name": "Contact", "href": "/contact" }
+      ],
+      "resources": [
+        { "name": "Blog", "href": "/blog" },
+        { "name": "Case Studies", "href": "/work" },
+        { "name": "Documentation", "href": "/docs" },
+        { "name": "Support", "href": "/support" }
+      ],
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "cookies": "Cookie Policy"
+    },
+    "social": [
+      {
+        "name": "LinkedIn",
+        "icon": "💼",
+        "href": "https://linkedin.com/company/tasami"
+      },
+      { "name": "Twitter", "icon": "🐦", "href": "https://twitter.com/tasami" },
+      { "name": "GitHub", "icon": "🐙", "href": "https://github.com/tasami" },
+      { "name": "Email", "icon": "📧", "href": "mailto:hello@tasami.com" }
+    ],
+    "copyright": "© {year} Tasami. All rights reserved."
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "learnMore": "Learn More"
+  }
+}

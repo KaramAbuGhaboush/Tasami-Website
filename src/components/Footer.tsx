@@ -1,39 +1,14 @@
+'use client'
+
 import Link from 'next/link'
+import { useLanguage } from '../context/LanguageContext'
 
 export default function Footer() {
+  const { t, language } = useLanguage();
   const currentYear = new Date().getFullYear()
 
-  const footerLinks = {
-    services: [
-      { name: 'AI Solutions', href: '/services#ai' },
-      { name: 'Automation', href: '/services#automation' },
-      { name: 'Design & UX/UI', href: '/services#design' },
-      { name: 'Marketing Solutions', href: '/services#marketing' },
-      { name: 'Quality Assurance', href: '/services#qa' },
-      { name: '24/7 Support', href: '/services#support' }
-    ],
-    company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Our Work', href: '/work' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Careers', href: '/career' },
-      { name: 'Contact', href: '/contact' }
-    ],
-    resources: [
-      { name: 'Case Studies', href: '/work' },
-      { name: 'White Papers', href: '/blog' },
-      { name: 'Webinars', href: '/blog' },
-      { name: 'Documentation', href: '/contact' },
-      { name: 'Support Center', href: '/contact' }
-    ]
-  }
-
-  const socialLinks = [
-    { name: 'LinkedIn', href: '#', icon: '💼' },
-    { name: 'Twitter', href: '#', icon: '🐦' },
-    { name: 'GitHub', href: '#', icon: '🐙' },
-    { name: 'Instagram', href: '#', icon: '📷' }
-  ]
+  const footerLinks = t('footer.links');
+  const socialLinks = t('footer.social');
 
   return (
     <footer className="bg-[#F2F3FF] border-t border-[#DFC7FE]">
@@ -50,23 +25,22 @@ export default function Footer() {
                 <span className="text-2xl font-bold text-gray-900">Tasami</span>
               </Link>
               <p className="text-gray-600 mb-6 max-w-md">
-                Transforming businesses through innovative AI, automation, design, and marketing solutions. 
-                We help companies leverage cutting-edge technology to drive growth and efficiency.
+                {t('footer.description')}
               </p>
-              
+
               {/* Company Deck Download */}
               <div className="mb-6">
                 <button className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Download Company Deck
+                  {t('footer.downloadDeck')}
                 </button>
               </div>
 
               {/* Social Links */}
               <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
+                {Array.isArray(socialLinks) && socialLinks.map((social: any, index: number) => (
                   <a
                     key={index}
                     href={social.href}
@@ -81,9 +55,9 @@ export default function Footer() {
 
             {/* Services */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Services</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.sections.services')}</h3>
               <ul className="space-y-3">
-                {footerLinks.services.map((link, index) => (
+                {Array.isArray(footerLinks?.services) && footerLinks.services.map((link: any, index: number) => (
                   <li key={index}>
                     <Link
                       href={link.href}
@@ -98,9 +72,9 @@ export default function Footer() {
 
             {/* Company */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Company</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.sections.company')}</h3>
               <ul className="space-y-3">
-                {footerLinks.company.map((link, index) => (
+                {Array.isArray(footerLinks?.company) && footerLinks.company.map((link: any, index: number) => (
                   <li key={index}>
                     <Link
                       href={link.href}
@@ -115,9 +89,9 @@ export default function Footer() {
 
             {/* Resources */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resources</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('footer.sections.resources')}</h3>
               <ul className="space-y-3">
-                {footerLinks.resources.map((link, index) => (
+                {Array.isArray(footerLinks?.resources) && footerLinks.resources.map((link: any, index: number) => (
                   <li key={index}>
                     <Link
                       href={link.href}
@@ -137,17 +111,17 @@ export default function Footer() {
         <div className="py-6 border-t border-[#DFC7FE]">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-600 text-sm">
-              © {currentYear} Tasami. All rights reserved.
+              {t('footer.copyright').replace('{year}', currentYear.toString())}
             </div>
-            <div className="flex space-x-6 mt-4 md:mt-0">
+            <div className="flex flex-row gap-6 space-x-6 mt-4 md:mt-0">
               <Link href="/privacy" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Privacy Policy
+                {t('footer.links.privacy')}
               </Link>
               <Link href="/terms" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Terms of Service
+                {t('footer.links.terms')}
               </Link>
               <Link href="/cookies" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Cookie Policy
+                {t('footer.links.cookies')}
               </Link>
             </div>
           </div>

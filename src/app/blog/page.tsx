@@ -1,70 +1,26 @@
+'use client'
+
 import Link from 'next/link'
+import { useLanguage } from '../../context/LanguageContext'
 
 export default function Blog() {
-  const blogPosts = [
-    {
-      title: "The Future of AI in Business: Trends to Watch in 2024",
-      excerpt: "Explore the latest AI trends that are reshaping how businesses operate, from automation to predictive analytics.",
-      author: "Sarah Johnson",
-      date: "March 15, 2024",
-      category: "AI & Technology",
-      readTime: "5 min read",
-      image: "🤖",
-      featured: true
-    },
-    {
-      title: "How Automation is Transforming Small Businesses",
-      excerpt: "Discover how small businesses can leverage automation to compete with larger enterprises and scale efficiently.",
-      author: "Michael Chen",
-      date: "March 12, 2024",
-      category: "Automation",
-      readTime: "4 min read",
-      image: "⚙️",
-      featured: false
-    },
-    {
-      title: "UX/UI Design Principles for Modern Web Applications",
-      excerpt: "Learn the essential design principles that create engaging and user-friendly web experiences.",
-      author: "Emily Rodriguez",
-      date: "March 10, 2024",
-      category: "Design",
-      readTime: "6 min read",
-      image: "🎨",
-      featured: false
-    },
-    {
-      title: "Marketing Automation: Strategies for 2024",
-      excerpt: "Effective marketing automation strategies that can help businesses reach their target audience more efficiently.",
-      author: "Lisa Thompson",
-      date: "March 8, 2024",
-      category: "Marketing",
-      readTime: "7 min read",
-      image: "📈",
-      featured: false
-    },
-    {
-      title: "Building Scalable AI Systems: Best Practices",
-      excerpt: "Technical insights on architecting AI systems that can handle growing data and user demands.",
-      author: "Alex Martinez",
-      date: "March 5, 2024",
-      category: "AI & Technology",
-      readTime: "8 min read",
-      image: "🔬",
-      featured: false
-    },
-    {
-      title: "The Role of Design Thinking in Tech Development",
-      excerpt: "How design thinking principles can improve the development process and create better user experiences.",
-      author: "David Kim",
-      date: "March 3, 2024",
-      category: "Design",
-      readTime: "5 min read",
-      image: "💡",
-      featured: false
-    }
-  ]
+  const { t, language, isInitialized } = useLanguage();
+  const blogPostsData = t('blog.posts');
+  const blogPosts = Array.isArray(blogPostsData) ? blogPostsData : [];
+  const categoriesData = t('blog.categories');
+  const categories = Array.isArray(categoriesData) ? categoriesData : [];
 
-  const categories = ["All", "AI & Technology", "Automation", "Design", "Marketing", "Industry Insights"]
+  // Show loading state if translations are not ready
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -75,10 +31,10 @@ export default function Blog() {
             {/* Blog Title */}
             <div className="mb-8 lg:mb-0">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                Tasami Blog
+                {t('blog.hero.title')}
               </h1>
             </div>
-            
+
             {/* Enhanced Search Bar */}
             <div className="lg:ml-8">
               <div className="relative">
@@ -89,7 +45,7 @@ export default function Blog() {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search articles..."
+                  placeholder={t('blog.search.placeholder')}
                   className="w-full lg:w-96 pl-12 pr-4 py-4 bg-white border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#6812F7] focus:border-[#6812F7] transition-all duration-300"
                 />
               </div>
@@ -104,7 +60,7 @@ export default function Blog() {
                 <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
                   <div className="text-center text-white">
                     <div className="text-6xl mb-4">🤖</div>
-                    <div className="text-lg font-semibold">AI Technology</div>
+                    <div className="text-lg font-semibold">{t('blog.featured.category')}</div>
                   </div>
                 </div>
               </div>
@@ -113,17 +69,17 @@ export default function Blog() {
             {/* Featured Post Content */}
             <div className="space-y-6">
               <div className="flex items-center space-x-4 text-sm text-gray-500">
-                <span>6 min</span>
+                <span>{t('blog.featured.readTime')}</span>
                 <span>•</span>
-                <span>AI & Technology</span>
+                <span>{t('blog.featured.category')}</span>
               </div>
-              
+
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                The Future of AI in Business: Trends to Watch in 2024
+                {t('blog.featured.title')}
               </h2>
-              
+
               <p className="text-xl text-gray-600 leading-relaxed">
-                Explore the latest AI trends that are reshaping how businesses operate, from automation to predictive analytics and machine learning applications.
+                {t('blog.featured.excerpt')}
               </p>
             </div>
           </div>
@@ -134,7 +90,7 @@ export default function Blog() {
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category, index) => (
+            {Array.isArray(categories) && categories.map((category: string, index: number) => (
               <button
                 key={index}
                 className="px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:border-[#6812F7] hover:text-[#6812F7] transition-all duration-300"
@@ -150,7 +106,7 @@ export default function Blog() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.filter(post => !post.featured).map((post, index) => (
+            {Array.isArray(blogPosts) && blogPosts.filter((post: any) => !post.featured).map((post: any, index: number) => (
               <article key={index} className="">
                 {/* Image Section */}
                 <div className="relative h-48 overflow-hidden group">
@@ -164,7 +120,7 @@ export default function Blog() {
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Title Section - No Background */}
                 <div className="px-2 py-4 bg-transparent">
                   <h3 className="text-xl font-bold text-gray-900 leading-tight">
@@ -181,21 +137,37 @@ export default function Blog() {
       <section className="py-20 gradient-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Stay Updated
+            {t('blog.newsletter.title')}
           </h2>
           <p className="text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Subscribe to our newsletter and get the latest insights on AI, automation, design, and marketing delivered to your inbox.
+            {t('blog.newsletter.description')}
           </p>
           <div className="max-w-md mx-auto">
             <div className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium"
-              />
-              <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
-                Subscribe
-              </button>
+              {language === "ar" ? <>
+                <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
+                  {t('blog.newsletter.subscribe')}
+                </button>
+                <input
+                  type="email"
+                  placeholder={t('blog.newsletter.placeholder')}
+                  className={`flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium ${language === 'ar' ? 'text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
+                  dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  style={language === 'ar' ? { textAlign: 'right' } : { textAlign: 'left' }}
+                />
+              </> : <>
+
+                <input
+                  type="email"
+                  placeholder={t('blog.newsletter.placeholder')}
+                  className={`flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium ${language === 'ar' ? 'text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
+                  dir={language === 'ar' ? 'rtl' : 'ltr'}
+                  style={language === 'ar' ? { textAlign: 'right' } : { textAlign: 'left' }}
+                />
+                <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
+                  {t('blog.newsletter.subscribe')}
+                </button>
+              </>}
             </div>
           </div>
         </div>
@@ -206,41 +178,28 @@ export default function Blog() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Popular Topics
+              {t('blog.topics.title')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Explore our most popular content categories and trending topics
+              {t('blog.topics.description')}
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="luxury-card p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">🤖</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">AI & Machine Learning</h3>
-              <p className="text-gray-600 mb-4">Latest trends and insights in artificial intelligence</p>
-              <div className="text-2xl font-bold gradient-text">25+ Articles</div>
-            </div>
-
-            <div className="luxury-card p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">⚙️</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Automation</h3>
-              <p className="text-gray-600 mb-4">Workflow automation and process optimization</p>
-              <div className="text-2xl font-bold gradient-text">18+ Articles</div>
-            </div>
-
-            <div className="luxury-card p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">🎨</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Design & UX</h3>
-              <p className="text-gray-600 mb-4">User experience and interface design best practices</p>
-              <div className="text-2xl font-bold gradient-text">22+ Articles</div>
-            </div>
-
-            <div className="luxury-card p-6 rounded-2xl text-center">
-              <div className="text-4xl mb-4">📈</div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Marketing</h3>
-              <p className="text-gray-600 mb-4">Digital marketing strategies and growth tactics</p>
-              <div className="text-2xl font-bold gradient-text">20+ Articles</div>
-            </div>
+            {(() => {
+              const topics = t('blog.topics.items');
+              if (Array.isArray(topics)) {
+                return topics.map((topic: any, index: number) => (
+                  <div key={index} className="luxury-card p-6 rounded-2xl text-center">
+                    <div className="text-4xl mb-4">{topic.icon}</div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{topic.title}</h3>
+                    <p className="text-gray-600 mb-4">{topic.description}</p>
+                    <div className="text-2xl font-bold gradient-text">{topic.articles}</div>
+                  </div>
+                ));
+              }
+              return null;
+            })()}
           </div>
         </div>
       </section>
