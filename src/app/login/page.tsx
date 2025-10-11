@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useLanguage } from '../../context/LanguageContext'
 
 export default function LoginPage() {
+  const { language } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -13,7 +15,7 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
+
     // Simulate login process
     setTimeout(() => {
       setIsLoading(false)
@@ -35,7 +37,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/5 via-transparent to-[#9253F0]/5"></div>
       <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-[#6812F7]/10 to-[#9253F0]/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-[#DFC7FE]/20 to-transparent rounded-full blur-3xl"></div>
-      
+
       <div className="relative z-10 w-full max-w-md">
         {/* Login Card */}
         <div className="luxury-card rounded-3xl p-8 md:p-10 shadow-2xl">
@@ -65,8 +67,10 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200"
+                className={`w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200 ${language === 'ar' ? 'text-right placeholder:text-right' : 'text-left placeholder:text-left'}`}
                 placeholder="Enter your email"
+                dir={language === 'ar' ? 'rtl' : 'ltr'}
+                style={language === 'ar' ? { textAlign: 'right' } : { textAlign: 'left' }}
               />
             </div>
 
@@ -104,8 +108,8 @@ export default function LoginPage() {
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="text-sm text-gray-500 hover:text-[#6812F7] transition-colors duration-200"
             >
               ← Back to Website

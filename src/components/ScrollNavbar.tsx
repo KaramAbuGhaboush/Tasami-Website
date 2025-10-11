@@ -4,21 +4,27 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useLanguage } from '../context/LanguageContext';
 
 export default function ScrollNavbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname()
 
   const navItems = [
-    { name: 'Home', href: '/' },
-    { name: 'Services', href: '/services' },
-    { name: 'About Us', href: '/about' },
-    { name: 'Work', href: '/work' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Career', href: '/career' },
+    { name: t('nav.home'), href: '/', key: 'home' },
+    { name: t('nav.services'), href: '/services', key: 'services' },
+    { name: t('nav.about'), href: '/about', key: 'about' },
+    { name: t('nav.work'), href: '/work', key: 'work' },
+    { name: t('nav.blog'), href: '/blog', key: 'blog' },
+    { name: t('nav.career'), href: '/career', key: 'career' },
   ]
 
+  const toggleLanguage = () => {
+    const newLang = language === 'en' ? 'ar' : 'en';
+    setLanguage(newLang);
+  };
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50)
@@ -30,10 +36,10 @@ export default function ScrollNavbar() {
 
   return (
     <nav className={`glass-nav sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 navbar-container">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center navbar-logo mobile-logo">
             <Image
               src="/Logo.png"
               alt="Tasami Logo"
@@ -45,36 +51,52 @@ export default function ScrollNavbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8 navbar-nav">
             {navItems.map((item) => (
               <Link
-                key={item.name}
+                key={item.key}
                 href={item.href}
-                className={`nav-link text-sm font-medium transition-all duration-300 ${
-                  pathname === item.href
-                    ? 'text-[#667eea] font-semibold active'
-                    : 'text-gray-700 hover:text-[#667eea]'
-                }`}
+                className={`nav-link text-sm font-medium transition-all duration-300 ${pathname === item.href
+                  ? 'text-[#667eea] font-semibold active'
+                  : 'text-gray-700 hover:text-[#667eea]'
+                  }`}
               >
                 {item.name}
               </Link>
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:flex">
+          {/* Language Toggle & CTA Button */}
+          <div className="hidden md:flex items-center space-x-4 navbar-actions">
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 text-sm font-medium language-toggle"
+              title={t('nav.language')}
+            >
+              <span className="text-xs">
+                {language === 'en' ? '🇺🇸' : '🇸🇦'}
+              </span>
+              <span className="text-gray-700">
+                {language === 'en' ? 'English' : 'العربية'}
+              </span>
+            </button>
+
+            {/* CTA Button */}
             <Link
               href="/contact"
               className="btn-primary rounded-full"
             >
-              Get Started
+              {t('nav.getStarted')}
             </Link>
           </div>
 
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-[#667eea] hover:bg-gray-100 transition-colors duration-200"
+            className="md:hidden p-2 rounded-md text-gray-700 hover:text-[#667eea] hover:bg-gray-100 transition-colors duration-200 mobile-menu-button"
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+            title={isMenuOpen ? 'Close menu' : 'Open menu'}
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -90,28 +112,46 @@ export default function ScrollNavbar() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 glass-card border-t border-white/20">
+            <div className="px-2 pt-2 pb-3 space-y-1 glass-card border-t border-white/20 mobile-menu">
               {navItems.map((item) => (
                 <Link
-                  key={item.name}
+                  key={item.key}
                   href={item.href}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
-                    pathname === item.href
-                      ? 'text-[#667eea] bg-gray-50'
-                      : 'text-gray-700 hover:text-[#667eea] hover:bg-gray-50'
-                  }`}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${pathname === item.href
+                    ? 'text-[#667eea] bg-gray-50'
+                    : 'text-gray-700 hover:text-[#667eea] hover:bg-gray-50'
+                    }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
+
+              {/* Mobile Language Toggle */}
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    toggleLanguage();
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center justify-center space-x-2 w-full px-3 py-2 rounded-md bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 text-sm font-medium language-toggle"
+                >
+                  <span className="text-sm">
+                    {language === 'en' ? '🇺🇸' : '🇸🇦'}
+                  </span>
+                  <span className="text-gray-700">
+                    {language === 'en' ? 'English' : 'العربية'}
+                  </span>
+                </button>
+              </div>
+
               <div className="pt-4">
                 <Link
                   href="/contact"
                   className="block w-full btn-primary text-center rounded-full"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </div>
             </div>
