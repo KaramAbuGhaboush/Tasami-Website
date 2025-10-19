@@ -1,70 +1,100 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { apiClient } from '@/lib/api'
+
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  image: string;
+  readTime: string;
+  featured: boolean;
+  status: string;
+  views: number;
+  tags: string[];
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    avatar: string;
+    role: string;
+  };
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+    color: string;
+  };
+}
 
 export default function Blog() {
-  const blogPosts = [
-    {
-      title: "The Future of AI in Business: Trends to Watch in 2024",
-      excerpt: "Explore the latest AI trends that are reshaping how businesses operate, from automation to predictive analytics.",
-      author: "Sarah Johnson",
-      date: "March 15, 2024",
-      category: "AI & Technology",
-      readTime: "5 min read",
-      image: "🤖",
-      featured: true
-    },
-    {
-      title: "How Automation is Transforming Small Businesses",
-      excerpt: "Discover how small businesses can leverage automation to compete with larger enterprises and scale efficiently.",
-      author: "Michael Chen",
-      date: "March 12, 2024",
-      category: "Automation",
-      readTime: "4 min read",
-      image: "⚙️",
-      featured: false
-    },
-    {
-      title: "UX/UI Design Principles for Modern Web Applications",
-      excerpt: "Learn the essential design principles that create engaging and user-friendly web experiences.",
-      author: "Emily Rodriguez",
-      date: "March 10, 2024",
-      category: "Design",
-      readTime: "6 min read",
-      image: "🎨",
-      featured: false
-    },
-    {
-      title: "Marketing Automation: Strategies for 2024",
-      excerpt: "Effective marketing automation strategies that can help businesses reach their target audience more efficiently.",
-      author: "Lisa Thompson",
-      date: "March 8, 2024",
-      category: "Marketing",
-      readTime: "7 min read",
-      image: "📈",
-      featured: false
-    },
-    {
-      title: "Building Scalable AI Systems: Best Practices",
-      excerpt: "Technical insights on architecting AI systems that can handle growing data and user demands.",
-      author: "Alex Martinez",
-      date: "March 5, 2024",
-      category: "AI & Technology",
-      readTime: "8 min read",
-      image: "🔬",
-      featured: false
-    },
-    {
-      title: "The Role of Design Thinking in Tech Development",
-      excerpt: "How design thinking principles can improve the development process and create better user experiences.",
-      author: "David Kim",
-      date: "March 3, 2024",
-      category: "Design",
-      readTime: "5 min read",
-      image: "💡",
-      featured: false
-    }
-  ]
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const categories = ["All", "AI & Technology", "Automation", "Design", "Marketing", "Industry Insights"]
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [articlesResponse, categoriesResponse] = await Promise.all([
+          apiClient.getBlogArticles(),
+          apiClient.getBlogCategories()
+        ]);
+
+        if (articlesResponse.success) {
+          setBlogPosts(articlesResponse.data.articles);
+        }
+
+        if (categoriesResponse.success) {
+          const categoryNames = ["All", ...categoriesResponse.data.categories.map((cat: any) => cat.name)];
+          setCategories(categoryNames);
+        }
+      } catch (err) {
+        console.error('Error fetching blog data:', err);
+        setError('Failed to load blog posts. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading blog posts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Blog</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[#6812F7] text-white px-6 py-3 rounded-lg hover:bg-[#9253F0] transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const featuredPost = blogPosts.find(post => post.featured);
+  const regularPosts = blogPosts.filter(post => !post.featured);
 
   return (
     <div className="min-h-screen">
@@ -99,33 +129,37 @@ export default function Blog() {
           {/* Featured Post */}
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Featured Post Visual - Clickable */}
-            <Link href="#" className="relative group cursor-pointer">
-              <div className="luxury-card rounded-3xl overflow-hidden group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2">
-                <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="text-6xl mb-4">🤖</div>
-                    <div className="text-lg font-semibold">AI Technology</div>
+            {featuredPost && (
+              <Link href={`/article/${featuredPost.slug}`} className="relative group cursor-pointer">
+                <div className="luxury-card rounded-3xl overflow-hidden group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2">
+                  <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <div className="text-6xl mb-4">{featuredPost.image}</div>
+                      <div className="text-lg font-semibold">{featuredPost.category.name}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            )}
 
             {/* Featured Post Content */}
-            <div className="space-y-6">
-              <div className="flex items-center space-x-4 text-sm text-gray-500">
-                <span>6 min</span>
-                <span>•</span>
-                <span>AI & Technology</span>
+            {featuredPost && (
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4 text-sm text-gray-500">
+                  <span>{featuredPost.readTime}</span>
+                  <span>•</span>
+                  <span>{featuredPost.category.name}</span>
+                </div>
+                
+                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                  {featuredPost.title}
+                </h2>
+                
+                <p className="text-xl text-gray-600 leading-relaxed">
+                  {featuredPost.excerpt}
+                </p>
               </div>
-              
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
-                The Future of AI in Business: Trends to Watch in 2024
-              </h2>
-              
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Explore the latest AI trends that are reshaping how businesses operate, from automation to predictive analytics and machine learning applications.
-              </p>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -150,26 +184,46 @@ export default function Blog() {
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.filter(post => !post.featured).map((post, index) => (
-              <article key={index} className="">
+            {regularPosts.map((post, index) => (
+              <article key={post.id} className="">
                 {/* Image Section */}
-                <div className="relative h-48 overflow-hidden group">
+                <Link href={`/article/${post.slug}`} className="relative h-48 overflow-hidden group block">
                   <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center rounded-2xl">
                     <div className="text-6xl text-white">{post.image}</div>
                   </div>
                   {/* Category Badge */}
                   <div className="absolute top-4 left-4">
-                    <span className="bg-white text-[#6812F7] px-4 py-1.5 rounded-full text-sm font-bold shadow-md">
-                      {post.category}
+                    <span 
+                      className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
+                      style={{ color: post.category.color }}
+                    >
+                      {post.category.name}
                     </span>
                   </div>
-                </div>
+                </Link>
                 
                 {/* Title Section - No Background */}
                 <div className="px-2 py-4 bg-transparent">
-                  <h3 className="text-xl font-bold text-gray-900 leading-tight">
-                    {post.title}
-                  </h3>
+                  <Link href={`/article/${post.slug}`}>
+                    <h3 className="text-xl font-bold text-gray-900 leading-tight hover:text-[#6812F7] transition-colors">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <p className="text-gray-600 mt-2 line-clamp-2">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center">
+                      <div className="w-8 h-8 bg-gradient-to-r from-[#6812F7] to-[#9253F0] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                        {post.author.avatar}
+                      </div>
+                      <div className="ml-3">
+                        <p className="font-semibold text-gray-900 text-sm">{post.author.name}</p>
+                        <p className="text-xs text-gray-500">{new Date(post.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <span className="text-gray-500 text-sm">{post.readTime}</span>
+                  </div>
                 </div>
               </article>
             ))}
