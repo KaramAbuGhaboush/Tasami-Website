@@ -17,9 +17,20 @@ router.get('/', async (req, res) => {
             where,
             orderBy: { createdAt: 'desc' }
         });
+        const transformedTestimonials = testimonials.map(testimonial => ({
+            id: testimonial.id,
+            clientName: testimonial.name,
+            clientCompany: testimonial.company,
+            clientPosition: testimonial.role,
+            clientAvatar: testimonial.initials || '',
+            content: testimonial.quote,
+            rating: testimonial.rating,
+            createdAt: testimonial.createdAt,
+            updatedAt: testimonial.updatedAt
+        }));
         res.json({
             success: true,
-            data: { testimonials }
+            data: { testimonials: transformedTestimonials }
         });
     }
     catch (error) {
@@ -43,9 +54,20 @@ router.get('/:id', async (req, res) => {
             });
             return;
         }
+        const transformedTestimonial = {
+            id: testimonial.id,
+            clientName: testimonial.name,
+            clientCompany: testimonial.company,
+            clientPosition: testimonial.role,
+            clientAvatar: testimonial.initials || '',
+            content: testimonial.quote,
+            rating: testimonial.rating,
+            createdAt: testimonial.createdAt,
+            updatedAt: testimonial.updatedAt
+        };
         res.json({
             success: true,
-            data: { testimonial }
+            data: { testimonial: transformedTestimonial }
         });
     }
     catch (error) {

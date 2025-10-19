@@ -3,94 +3,24 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
+import { useProjects } from '@/hooks/useProjects'
+import { useTestimonials } from '@/hooks/useTestimonials'
 
 export default function Work() {
-  const projects = [
-    {
-      id: "ai-ecommerce",
-      title: "AI-Powered E-commerce Platform",
-      description: "Built a comprehensive e-commerce solution with AI-driven product recommendations, automated inventory management, and intelligent customer service chatbots.",
-      image: "/api/placeholder/400/300",
-      category: "AI Solutions",
-      technologies: ["Machine Learning", "React", "Node.js", "MongoDB"],
-      results: ["40% increase in sales", "60% reduction in support tickets", "95% customer satisfaction"]
-    },
-    {
-      id: "healthcare-automation",
-      title: "Healthcare Automation System",
-      description: "Developed an automated patient management system with AI-powered diagnosis assistance and automated appointment scheduling.",
-      image: "/api/placeholder/400/300",
-      category: "Automation",
-      technologies: ["Python", "TensorFlow", "PostgreSQL", "Docker"],
-      results: ["50% faster patient processing", "30% reduction in errors", "24/7 availability"]
-    },
-    {
-      id: "fintech-mobile",
-      title: "FinTech Mobile App",
-      description: "Created a modern mobile banking application with intuitive UX/UI design, real-time transaction monitoring, and AI-powered fraud detection.",
-      image: "/api/placeholder/400/300",
-      category: "Design & UX/UI",
-      technologies: ["React Native", "TypeScript", "Firebase", "Machine Learning"],
-      results: ["4.8/5 app store rating", "2M+ downloads", "99.9% uptime"]
-    },
-    {
-      id: "marketing-analytics",
-      title: "Marketing Analytics Dashboard",
-      description: "Built a comprehensive marketing analytics platform with real-time data visualization, automated reporting, and predictive insights.",
-      image: "/api/placeholder/400/300",
-      category: "Marketing Solutions",
-      technologies: ["Vue.js", "Python", "BigQuery", "D3.js"],
-      results: ["300% improvement in campaign ROI", "Real-time insights", "Automated reporting"]
-    },
-    {
-      id: "smart-manufacturing",
-      title: "Smart Manufacturing System",
-      description: "Implemented IoT-based automation for manufacturing processes with predictive maintenance and quality control systems.",
-      image: "/api/placeholder/400/300",
-      category: "Automation",
-      technologies: ["IoT", "Machine Learning", "Python", "Cloud Computing"],
-      results: ["25% increase in efficiency", "40% reduction in downtime", "Predictive maintenance"]
-    },
-    {
-      id: "edtech-platform",
-      title: "EdTech Learning Platform",
-      description: "Developed an AI-powered educational platform with personalized learning paths, automated assessments, and interactive content delivery.",
-      image: "/api/placeholder/400/300",
-      category: "AI Solutions",
-      technologies: ["React", "Node.js", "TensorFlow", "MongoDB"],
-      results: ["85% student engagement", "Personalized learning", "Automated grading"]
-    }
-  ]
+  const { projects, loading, error } = useProjects()
+  const { testimonials: apiTestimonials, loading: testimonialsLoading, error: testimonialsError } = useTestimonials()
 
   const categories = ["All", "AI Solutions", "Automation", "Design & UX/UI", "Marketing Solutions"]
 
-  // Testimonials data
-  const testimonials = [
-    {
-      id: 1,
-      name: "John Smith",
-      role: "CEO, TechCorp Solutions",
-      initials: "JS",
-      quote: "Tasami transformed our entire operation with their AI solutions. The results exceeded our expectations and our efficiency has improved by 40%. Their team's expertise and dedication are unmatched.",
-      rating: 5
-    },
-    {
-      id: 2,
-      name: "Maria Johnson",
-      role: "CTO, InnovateLab",
-      initials: "MJ",
-      quote: "The automation solutions they built for us have saved us countless hours and reduced errors significantly. The ROI has been incredible, and the support team is always there when we need them.",
-      rating: 5
-    },
-    {
-      id: 3,
-      name: "David Rodriguez",
-      role: "Founder, StartupXYZ",
-      initials: "DR",
-      quote: "Their design team created an amazing user experience that our customers absolutely love. Our conversion rates have increased by 60%, and customer satisfaction is at an all-time high.",
-      rating: 5
-    }
-  ]
+  // Transform API testimonials to match the UI structure
+  const testimonials = apiTestimonials.map(testimonial => ({
+    id: testimonial.id,
+    name: testimonial.clientName,
+    role: testimonial.clientPosition,
+    initials: testimonial.clientAvatar,
+    quote: testimonial.content,
+    rating: testimonial.rating
+  }))
 
   // Testimonials slider state
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -254,58 +184,103 @@ export default function Work() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {projects.map((project, index) => (
-              <Link key={index} href={`/projects/${project.id}`}>
-                <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 h-full flex flex-col">
-                  {/* Project Image */}
-                  <div className="relative h-64 overflow-hidden">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-white/90 backdrop-blur-sm text-[#667eea] px-3 py-1 rounded-full text-sm font-medium">
-                      {project.category}
-                    </span>
-                    </div>
-                  </div>
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
+              <span className="ml-4 text-gray-600">Loading projects...</span>
+            </div>
+          )}
 
-                  {/* Project Content */}
-                  <div className="p-8 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-[#667eea] transition-colors duration-300">
-                      {project.title}
-                    </h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed line-clamp-3 flex-grow">
-                      {project.description}
-                    </p>
-                    
-                    {/* Key Results Preview */}
-                    <div className="mb-6">
-                      <div className="flex flex-wrap gap-2">
-                          {project.results.slice(0, 2).map((result, resultIndex) => (
-                            <span key={resultIndex} className="bg-[#667eea]/10 text-[#667eea] px-3 py-1 rounded-full text-xs font-medium">
-                              {result}
-                          </span>
-                        ))}
+          {/* Error State */}
+          {error && (
+            <div className="text-center py-20">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+                <div className="text-red-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Projects</h3>
+                <p className="text-red-600 mb-4">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Projects Grid */}
+          {!loading && !error && (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {projects.map((project, index) => (
+                <Link key={project.id} href={`/projects/${project.id}`}>
+                  <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 h-full flex flex-col">
+                    {/* Project Image */}
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={project.image || "/api/placeholder/400/300"}
+                        alt={project.title}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-white/90 backdrop-blur-sm text-[#667eea] px-3 py-1 rounded-full text-sm font-medium">
+                        {project.category}
+                      </span>
                       </div>
                     </div>
 
-                    {/* View Project Link */}
-                    <div className="flex items-center text-[#667eea] font-semibold group-hover:text-[#764ba2] transition-colors duration-300 mt-auto">
-                      <span>View Project</span>
-                      <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                    {/* Project Content */}
+                    <div className="p-8 flex flex-col flex-grow">
+                      <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-[#667eea] transition-colors duration-300">
+                        {project.title}
+                      </h3>
+                      <p className="text-gray-600 mb-6 leading-relaxed line-clamp-3 flex-grow">
+                        {project.description}
+                      </p>
+                      
+                      {/* Key Results Preview */}
+                      <div className="mb-6">
+                        <div className="flex flex-wrap gap-2">
+                            {project.results.slice(0, 2).map((result, resultIndex) => (
+                              <span key={resultIndex} className="bg-[#667eea]/10 text-[#667eea] px-3 py-1 rounded-full text-xs font-medium">
+                                {result.description}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* View Project Link */}
+                      <div className="flex items-center text-[#667eea] font-semibold group-hover:text-[#764ba2] transition-colors duration-300 mt-auto">
+                        <span>View Project</span>
+                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
+          {/* No Projects State */}
+          {!loading && !error && projects.length === 0 && (
+            <div className="text-center py-20">
+              <div className="text-gray-500 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Projects Found</h3>
+              <p className="text-gray-500">We're working on adding more projects. Check back soon!</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -393,8 +368,38 @@ export default function Work() {
             </p>
           </div>
 
+          {/* Testimonials Loading State */}
+          {testimonialsLoading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
+              <span className="ml-4 text-gray-600">Loading testimonials...</span>
+            </div>
+          )}
+
+          {/* Testimonials Error State */}
+          {testimonialsError && (
+            <div className="text-center py-20">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+                <div className="text-red-600 mb-4">
+                  <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Testimonials</h3>
+                <p className="text-red-600 mb-4">{testimonialsError}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Testimonials Carousel */}
-          <div className="relative pb-16" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={resumeAutoPlay}>
+          {!testimonialsLoading && !testimonialsError && testimonials.length > 0 && (
+            <div className="relative pb-16" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={resumeAutoPlay}>
             {/* Navigation Arrows - Hidden on Mobile */}
             <button 
               onClick={goToPrevious}
@@ -501,6 +506,20 @@ export default function Work() {
               </div>
             </div>
           </div>
+          )}
+
+          {/* No Testimonials State */}
+          {!testimonialsLoading && !testimonialsError && testimonials.length === 0 && (
+            <div className="text-center py-20">
+              <div className="text-gray-500 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Testimonials Available</h3>
+              <p className="text-gray-500">We're working on adding client testimonials. Check back soon!</p>
+            </div>
+          )}
         </div>
       </section>
 

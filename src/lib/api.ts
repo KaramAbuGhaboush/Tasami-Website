@@ -121,16 +121,10 @@ class ApiClient {
 
   // Projects API
   async getProjects(params?: {
-    page?: number;
-    limit?: number;
     category?: string;
-    featured?: boolean;
   }) {
     const searchParams = new URLSearchParams();
-    if (params?.page) searchParams.append('page', params.page.toString());
-    if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.category) searchParams.append('category', params.category);
-    if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
     
     const queryString = searchParams.toString();
     const endpoint = `/projects${queryString ? `?${queryString}` : ''}`;
@@ -139,12 +133,6 @@ class ApiClient {
       success: boolean;
       data: {
         projects: any[];
-        pagination: {
-          page: number;
-          limit: number;
-          total: number;
-          pages: number;
-        };
       };
     }>(endpoint);
   }

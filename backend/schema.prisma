@@ -95,7 +95,6 @@ model Project {
   timeline          String?
   teamSize          String?
   status            String   @default("planning")
-  featured          Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 

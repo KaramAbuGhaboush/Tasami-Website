@@ -39,7 +39,28 @@ const prisma = new PrismaClient();
  *                     testimonials:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Testimonial'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           clientName:
+ *                             type: string
+ *                           clientCompany:
+ *                             type: string
+ *                           clientPosition:
+ *                             type: string
+ *                           clientAvatar:
+ *                             type: string
+ *                           content:
+ *                             type: string
+ *                           rating:
+ *                             type: integer
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
  *       500:
  *         description: Internal server error
  *         content:
@@ -59,9 +80,22 @@ router.get('/', async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
+    // Transform the response to match the desired format
+    const transformedTestimonials = testimonials.map(testimonial => ({
+      id: testimonial.id,
+      clientName: testimonial.name,
+      clientCompany: testimonial.company,
+      clientPosition: testimonial.role,
+      clientAvatar: testimonial.initials || '',
+      content: testimonial.quote,
+      rating: testimonial.rating,
+      createdAt: testimonial.createdAt,
+      updatedAt: testimonial.updatedAt
+    }));
+
     res.json({
       success: true,
-      data: { testimonials }
+      data: { testimonials: transformedTestimonials }
     });
   } catch (error) {
     console.error('Get testimonials error:', error);
@@ -100,7 +134,28 @@ router.get('/', async (req, res) => {
  *                   type: object
  *                   properties:
  *                     testimonial:
- *                       $ref: '#/components/schemas/Testimonial'
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         clientName:
+ *                           type: string
+ *                         clientCompany:
+ *                           type: string
+ *                         clientPosition:
+ *                           type: string
+ *                         clientAvatar:
+ *                           type: string
+ *                         content:
+ *                           type: string
+ *                         rating:
+ *                           type: integer
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
  *       404:
  *         description: Testimonial not found
  *         content:
@@ -130,9 +185,22 @@ router.get('/:id', async (req, res) => {
       return;
     }
 
+    // Transform the response to match the desired format
+    const transformedTestimonial = {
+      id: testimonial.id,
+      clientName: testimonial.name,
+      clientCompany: testimonial.company,
+      clientPosition: testimonial.role,
+      clientAvatar: testimonial.initials || '',
+      content: testimonial.quote,
+      rating: testimonial.rating,
+      createdAt: testimonial.createdAt,
+      updatedAt: testimonial.updatedAt
+    };
+
     res.json({
       success: true,
-      data: { testimonial }
+      data: { testimonial: transformedTestimonial }
     });
   } catch (error) {
     console.error('Get testimonial error:', error);

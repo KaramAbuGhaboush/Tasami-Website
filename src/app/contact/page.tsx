@@ -110,12 +110,10 @@ export default function Contact() {
                 setIsSubmitted(false)
                 setFormData({
                   name: '',
-                  email: '',
-                  phone: '',
                   company: '',
-                  projectType: '',
+                  email: '',
+                  service: '',
                   budget: '',
-                  timeline: '',
                   message: ''
                 })
               }}

@@ -12,27 +12,10 @@ const prisma = new PrismaClient();
  *     tags: [Projects]
  *     parameters:
  *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of projects per page
- *       - in: query
  *         name: category
  *         schema:
  *           type: string
  *         description: Filter by project category
- *       - in: query
- *         name: featured
- *         schema:
- *           type: boolean
- *         description: Filter by featured status
  *     responses:
  *       200:
  *         description: List of projects
@@ -50,9 +33,34 @@ const prisma = new PrismaClient();
  *                     projects:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/Project'
- *                     pagination:
- *                       $ref: '#/components/schemas/Pagination'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           title:
+ *                             type: string
+ *                           description:
+ *                             type: string
+ *                           image:
+ *                             type: string
+ *                           category:
+ *                             type: string
+ *                           status:
+ *                             type: string
+ *                           technologies:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                           results:
+ *                             type: array
+ *                             items:
+ *                               type: object
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
  *       500:
  *         description: Internal server error
  *         content:
@@ -62,39 +70,39 @@ const prisma = new PrismaClient();
  */
 router.get('/', async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, featured } = req.query;
-    
-    const skip = (Number(page) - 1) * Number(limit);
+    const { category } = req.query;
     
     const where: any = { status: 'active' };
     if (category) where.category = category;
-    if (featured !== undefined) where.featured = featured === 'true';
 
-    const [projects, total] = await Promise.all([
-      prisma.project.findMany({
-        where,
-        skip,
-        take: Number(limit),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          technologies: true,
-          results: true,
-          clientTestimonial: true
-        }
-      }),
-      prisma.project.count({ where })
-    ]);
+    const projects = await prisma.project.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        technologies: true,
+        results: true,
+        category: true
+      }
+    });
+
+    // Transform the response to match the desired format
+    const transformedProjects = projects.map(project => ({
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      image: project.headerImage,
+      category: project.category.name,
+      status: project.status,
+      technologies: project.technologies,
+      results: project.results,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt
+    }));
 
     return res.json({
       success: true,
       data: {
-        projects,
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total,
-          pages: Math.ceil(total / Number(limit))
-        }
+        projects: transformedProjects
       }
     });
   } catch (error) {
@@ -134,7 +142,34 @@ router.get('/', async (req, res) => {
  *                   type: object
  *                   properties:
  *                     project:
- *                       $ref: '#/components/schemas/Project'
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         title:
+ *                           type: string
+ *                         description:
+ *                           type: string
+ *                         image:
+ *                           type: string
+ *                         category:
+ *                           type: string
+ *                         status:
+ *                           type: string
+ *                         technologies:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                         results:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
  *       404:
  *         description: Project not found
  *         content:
@@ -157,7 +192,7 @@ router.get('/:id', async (req, res) => {
       include: {
         technologies: true,
         results: true,
-        clientTestimonial: true
+        category: true
       }
     });
 
@@ -168,9 +203,23 @@ router.get('/:id', async (req, res) => {
       });
     }
 
+    // Transform the response to match the desired format
+    const transformedProject = {
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      image: project.headerImage,
+      category: project.category.name,
+      status: project.status,
+      technologies: project.technologies,
+      results: project.results,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt
+    };
+
     return res.json({
       success: true,
-      data: { project }
+      data: { project: transformedProject }
     });
   } catch (error) {
     console.error('Get project error:', error);

@@ -9,56 +9,35 @@ const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get('/', async (req, res) => {
     try {
-        const { page = 1, limit = 10, category, featured } = req.query;
-        const skip = (Number(page) - 1) * Number(limit);
+        const { category } = req.query;
         const where = { status: 'active' };
         if (category)
             where.category = category;
-        if (featured !== undefined)
-            where.featured = featured === 'true';
-        const [projects, total] = await Promise.all([
-            prisma.project.findMany({
-                where,
-                skip,
-                take: Number(limit),
-                orderBy: { createdAt: 'desc' },
-                include: {
-                    category: true,
-                    technologies: true,
-                    results: true,
-                    clientTestimonial: true
-                }
-            }),
-            prisma.project.count({ where })
-        ]);
+        const projects = await prisma.project.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            include: {
+                technologies: true,
+                results: true,
+                category: true
+            }
+        });
         const transformedProjects = projects.map(project => ({
             id: project.id,
             title: project.title,
             description: project.description,
             image: project.headerImage,
-            category: project.category?.name || 'Uncategorized',
-            technologies: project.technologies.map(tech => tech.name),
-            results: project.results.map(result => `${result.metric}: ${result.description}`),
-            featured: project.featured,
+            category: project.category.name,
             status: project.status,
-            timeline: project.timeline,
-            teamSize: project.teamSize,
-            challenge: project.challenge,
-            solution: project.solution,
-            clientTestimonial: project.clientTestimonial,
+            technologies: project.technologies,
+            results: project.results,
             createdAt: project.createdAt,
             updatedAt: project.updatedAt
         }));
         return res.json({
             success: true,
             data: {
-                projects: transformedProjects,
-                pagination: {
-                    page: Number(page),
-                    limit: Number(limit),
-                    total,
-                    pages: Math.ceil(total / Number(limit))
-                }
+                projects: transformedProjects
             }
         });
     }
@@ -76,10 +55,9 @@ router.get('/:id', async (req, res) => {
         const project = await prisma.project.findUnique({
             where: { id },
             include: {
-                category: true,
                 technologies: true,
                 results: true,
-                clientTestimonial: true
+                category: true
             }
         });
         if (!project) {
@@ -92,23 +70,11 @@ router.get('/:id', async (req, res) => {
             id: project.id,
             title: project.title,
             description: project.description,
-            headerImage: project.headerImage,
-            category: project.category?.name || 'Uncategorized',
-            technologies: project.technologies.map(tech => ({
-                name: tech.name,
-                description: tech.description
-            })),
-            results: project.results.map(result => ({
-                metric: result.metric,
-                description: result.description
-            })),
-            featured: project.featured,
+            image: project.headerImage,
+            category: project.category.name,
             status: project.status,
-            timeline: project.timeline,
-            teamSize: project.teamSize,
-            challenge: project.challenge,
-            solution: project.solution,
-            clientTestimonial: project.clientTestimonial,
+            technologies: project.technologies,
+            results: project.results,
             createdAt: project.createdAt,
             updatedAt: project.updatedAt
         };
