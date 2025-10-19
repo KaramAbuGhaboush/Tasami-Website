@@ -7,7 +7,81 @@ import { AuthRequest } from '../middleware/auth';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Register
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *                 description: User's password
+ *                 example: "password123"
+ *               name:
+ *                 type: string
+ *                 description: User's full name
+ *                 example: "John Doe"
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                     token:
+ *                       type: string
+ *                       description: JWT authentication token
+ *       400:
+ *         description: Bad request - user already exists or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/register', async (req, res) => {
   try {
     const { email, password, name } = req.body;
@@ -69,7 +143,75 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: User's email address
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 description: User's password
+ *                 example: "password123"
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                         lastLogin:
+ *                           type: string
+ *                           format: date-time
+ *                     token:
+ *                       type: string
+ *                       description: JWT authentication token
+ *       401:
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -126,6 +268,77 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get current user profile
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         email:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *                         role:
+ *                           type: string
+ *                         avatar:
+ *                           type: string
+ *                         phone:
+ *                           type: string
+ *                         department:
+ *                           type: string
+ *                         position:
+ *                           type: string
+ *                         status:
+ *                           type: string
+ *                         lastLogin:
+ *                           type: string
+ *                           format: date-time
+ *                         emailVerified:
+ *                           type: boolean
+ *                         twoFactorEnabled:
+ *                           type: boolean
+ *                         preferences:
+ *                           type: object
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *       401:
+ *         description: Unauthorized - invalid or missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/me', async (req: AuthRequest, res) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');

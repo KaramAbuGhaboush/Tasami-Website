@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpecs from './config/swagger';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -11,7 +13,6 @@ import blogRoutes from './routes/blog';
 import projectRoutes from './routes/projects';
 import careerRoutes from './routes/career';
 import contactRoutes from './routes/contact';
-import financialRoutes from './routes/financial';
 import testimonialRoutes from './routes/testimonials';
 import categoryRoutes from './routes/categories';
 
@@ -58,6 +59,12 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Swagger Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Tasami API Documentation'
+}));
+
 // Basic API routes
 app.get('/api/test', (req, res) => {
   res.json({
@@ -73,7 +80,6 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/career', careerRoutes);
 app.use('/api/contact', contactRoutes);
-app.use('/api/financial', financialRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/categories', categoryRoutes);
 
@@ -91,6 +97,7 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
+  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
   console.log(`📝 Available endpoints:`);
   console.log(`   - POST /api/auth/register`);
   console.log(`   - POST /api/auth/login`);
@@ -98,7 +105,6 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/projects`);
   console.log(`   - GET  /api/career/jobs`);
   console.log(`   - POST /api/contact/messages`);
-  console.log(`   - GET  /api/financial/overview`);
 });
 
 export default app;

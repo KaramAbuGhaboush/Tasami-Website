@@ -1,105 +1,83 @@
+'use client'
+
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+import { apiClient } from '@/lib/api'
+
+interface Job {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  experience: string;
+  description: string;
+  requirements: string[];
+  benefits: string[];
+  skills: string[];
+  salary: string;
+  applicationDeadline: string;
+  postedDate: string;
+  status: string;
+}
 
 export default function Career() {
-  const jobOpenings = [
-    {
-      title: "Senior AI Engineer",
-      department: "AI & Technology",
-      location: "Remote / San Francisco",
-      type: "Full-time",
-      experience: "5+ years",
-      description: "Lead the development of cutting-edge AI solutions and machine learning models for our clients.",
-      requirements: [
-        "Master's degree in Computer Science, AI, or related field",
-        "5+ years experience in machine learning and AI development",
-        "Proficiency in Python, TensorFlow, PyTorch",
-        "Experience with cloud platforms (AWS, GCP, Azure)",
-        "Strong problem-solving and communication skills"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Learning budget", "Stock options"]
-    },
-    {
-      title: "UX/UI Designer",
-      department: "Design",
-      location: "Remote / New York",
-      type: "Full-time",
-      experience: "3+ years",
-      description: "Create exceptional user experiences and beautiful interfaces for web and mobile applications.",
-      requirements: [
-        "Bachelor's degree in Design or related field",
-        "3+ years experience in UX/UI design",
-        "Proficiency in Figma, Sketch, Adobe Creative Suite",
-        "Portfolio demonstrating strong design skills",
-        "Experience with design systems and prototyping"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Design tools budget", "Flexible hours"]
-    },
-    {
-      title: "Automation Specialist",
-      department: "Automation",
-      location: "Remote / Austin",
-      type: "Full-time",
-      experience: "4+ years",
-      description: "Design and implement automation solutions to streamline business processes and workflows.",
-      requirements: [
-        "Bachelor's degree in Computer Science or related field",
-        "4+ years experience in automation and workflow design",
-        "Proficiency in Python, JavaScript, and automation tools",
-        "Experience with RPA platforms (UiPath, Automation Anywhere)",
-        "Strong analytical and problem-solving skills"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Professional development", "401k matching"]
-    },
-    {
-      title: "Marketing Manager",
-      department: "Marketing",
-      location: "Remote / Chicago",
-      type: "Full-time",
-      experience: "4+ years",
-      description: "Develop and execute marketing strategies to drive growth and brand awareness.",
-      requirements: [
-        "Bachelor's degree in Marketing or related field",
-        "4+ years experience in digital marketing",
-        "Proficiency in marketing automation tools",
-        "Experience with SEO, SEM, and social media marketing",
-        "Strong analytical and communication skills"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Marketing budget", "Performance bonuses"]
-    },
-    {
-      title: "Full Stack Developer",
-      department: "Development",
-      location: "Remote / Seattle",
-      type: "Full-time",
-      experience: "3+ years",
-      description: "Build scalable web applications using modern technologies and best practices.",
-      requirements: [
-        "Bachelor's degree in Computer Science or related field",
-        "3+ years experience in full-stack development",
-        "Proficiency in React, Node.js, and databases",
-        "Experience with cloud platforms and DevOps",
-        "Strong problem-solving and teamwork skills"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Learning budget", "Flexible schedule"]
-    },
-    {
-      title: "DevOps Engineer",
-      department: "Infrastructure",
-      location: "Remote / Denver",
-      type: "Full-time",
-      experience: "4+ years",
-      description: "Manage and optimize our cloud infrastructure and deployment pipelines.",
-      requirements: [
-        "Bachelor's degree in Computer Science or related field",
-        "4+ years experience in DevOps and cloud infrastructure",
-        "Proficiency in AWS, Docker, Kubernetes",
-        "Experience with CI/CD pipelines and monitoring",
-        "Strong troubleshooting and automation skills"
-      ],
-      benefits: ["Competitive salary", "Health insurance", "Remote work", "Certification budget", "Stock options"]
-    }
-  ]
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.getJobs();
+        
+        if (response.success) {
+          setJobs(response.data.jobs);
+        } else {
+          setError('Failed to load job positions');
+        }
+      } catch (err) {
+        console.error('Error fetching jobs:', err);
+        setError('Failed to load job positions. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading job positions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Jobs</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-[#6812F7] text-white px-6 py-3 rounded-lg hover:bg-[#9253F0] transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const jobOpenings = jobs;
 
   return (
     <div className="min-h-screen">

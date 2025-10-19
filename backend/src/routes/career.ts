@@ -4,7 +4,67 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all jobs (public)
+/**
+ * @swagger
+ * /career/jobs:
+ *   get:
+ *     summary: Get all job positions
+ *     tags: [Career]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of jobs per page
+ *       - in: query
+ *         name: department
+ *         schema:
+ *           type: string
+ *         description: Filter by department
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Filter by location
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         description: Filter by job type
+ *     responses:
+ *       200:
+ *         description: List of job positions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     jobs:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Job'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/jobs', async (req, res) => {
   try {
     const { page = 1, limit = 10, department, location, type } = req.query;

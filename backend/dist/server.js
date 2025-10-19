@@ -9,12 +9,13 @@ const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
+const swagger_1 = __importDefault(require("./config/swagger"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const blog_1 = __importDefault(require("./routes/blog"));
 const projects_1 = __importDefault(require("./routes/projects"));
 const career_1 = __importDefault(require("./routes/career"));
 const contact_1 = __importDefault(require("./routes/contact"));
-const financial_1 = __importDefault(require("./routes/financial"));
 const testimonials_1 = __importDefault(require("./routes/testimonials"));
 const categories_1 = __importDefault(require("./routes/categories"));
 dotenv_1.default.config();
@@ -45,6 +46,10 @@ app.get('/health', (req, res) => {
         uptime: process.uptime()
     });
 });
+app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Tasami API Documentation'
+}));
 app.get('/api/test', (req, res) => {
     res.json({
         success: true,
@@ -57,7 +62,6 @@ app.use('/api/blog', blog_1.default);
 app.use('/api/projects', projects_1.default);
 app.use('/api/career', career_1.default);
 app.use('/api/contact', contact_1.default);
-app.use('/api/financial', financial_1.default);
 app.use('/api/testimonials', testimonials_1.default);
 app.use('/api/categories', categories_1.default);
 app.use('*', (req, res) => {
@@ -70,6 +74,7 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Health check: http://localhost:${PORT}/health`);
     console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
     console.log(`📝 Available endpoints:`);
     console.log(`   - POST /api/auth/register`);
     console.log(`   - POST /api/auth/login`);
@@ -77,7 +82,6 @@ app.listen(PORT, () => {
     console.log(`   - GET  /api/projects`);
     console.log(`   - GET  /api/career/jobs`);
     console.log(`   - POST /api/contact/messages`);
-    console.log(`   - GET  /api/financial/overview`);
 });
 exports.default = app;
 //# sourceMappingURL=server.js.map

@@ -23,6 +23,7 @@ router.get('/', async (req, res) => {
                 take: Number(limit),
                 orderBy: { createdAt: 'desc' },
                 include: {
+                    category: true,
                     technologies: true,
                     results: true,
                     clientTestimonial: true
@@ -30,10 +31,28 @@ router.get('/', async (req, res) => {
             }),
             prisma.project.count({ where })
         ]);
+        const transformedProjects = projects.map(project => ({
+            id: project.id,
+            title: project.title,
+            description: project.description,
+            image: project.headerImage,
+            category: project.category?.name || 'Uncategorized',
+            technologies: project.technologies.map(tech => tech.name),
+            results: project.results.map(result => `${result.metric}: ${result.description}`),
+            featured: project.featured,
+            status: project.status,
+            timeline: project.timeline,
+            teamSize: project.teamSize,
+            challenge: project.challenge,
+            solution: project.solution,
+            clientTestimonial: project.clientTestimonial,
+            createdAt: project.createdAt,
+            updatedAt: project.updatedAt
+        }));
         return res.json({
             success: true,
             data: {
-                projects,
+                projects: transformedProjects,
                 pagination: {
                     page: Number(page),
                     limit: Number(limit),
@@ -57,6 +76,7 @@ router.get('/:id', async (req, res) => {
         const project = await prisma.project.findUnique({
             where: { id },
             include: {
+                category: true,
                 technologies: true,
                 results: true,
                 clientTestimonial: true
@@ -68,175 +88,37 @@ router.get('/:id', async (req, res) => {
                 message: 'Project not found'
             });
         }
+        const transformedProject = {
+            id: project.id,
+            title: project.title,
+            description: project.description,
+            headerImage: project.headerImage,
+            category: project.category?.name || 'Uncategorized',
+            technologies: project.technologies.map(tech => ({
+                name: tech.name,
+                description: tech.description
+            })),
+            results: project.results.map(result => ({
+                metric: result.metric,
+                description: result.description
+            })),
+            featured: project.featured,
+            status: project.status,
+            timeline: project.timeline,
+            teamSize: project.teamSize,
+            challenge: project.challenge,
+            solution: project.solution,
+            clientTestimonial: project.clientTestimonial,
+            createdAt: project.createdAt,
+            updatedAt: project.updatedAt
+        };
         return res.json({
             success: true,
-            data: { project }
+            data: { project: transformedProject }
         });
     }
     catch (error) {
         console.error('Get project error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-});
-router.post('/', async (req, res) => {
-    try {
-        const { title, description, headerImage, challenge, solution, timeline, teamSize, status = 'planning', featured = false, categoryId, technologies = [], results = [] } = req.body;
-        if (!title || !description || !categoryId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Title, description, and category are required'
-            });
-        }
-        const project = await prisma.project.create({
-            data: {
-                title,
-                description,
-                headerImage,
-                challenge,
-                solution,
-                timeline,
-                teamSize,
-                status,
-                featured,
-                categoryId,
-                technologies: {
-                    create: technologies.map((tech) => ({
-                        name: tech.name || tech,
-                        description: tech.description || ''
-                    }))
-                },
-                results: {
-                    create: results.map((result) => ({
-                        metric: result.metric || result,
-                        description: result.description || ''
-                    }))
-                }
-            },
-            include: {
-                category: true,
-                technologies: true,
-                results: true,
-                clientTestimonial: true
-            }
-        });
-        return res.status(201).json({
-            success: true,
-            data: { project }
-        });
-    }
-    catch (error) {
-        console.error('Create project error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-});
-router.put('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, description, headerImage, challenge, solution, timeline, teamSize, status, featured, categoryId, technologies = [], results = [] } = req.body;
-        const existingProject = await prisma.project.findUnique({
-            where: { id }
-        });
-        if (!existingProject) {
-            return res.status(404).json({
-                success: false,
-                message: 'Project not found'
-            });
-        }
-        const project = await prisma.project.update({
-            where: { id },
-            data: {
-                ...(title && { title }),
-                ...(description && { description }),
-                ...(headerImage !== undefined && { headerImage }),
-                ...(challenge !== undefined && { challenge }),
-                ...(solution !== undefined && { solution }),
-                ...(timeline !== undefined && { timeline }),
-                ...(teamSize !== undefined && { teamSize }),
-                ...(status && { status }),
-                ...(featured !== undefined && { featured }),
-                ...(categoryId && { categoryId })
-            },
-            include: {
-                category: true,
-                technologies: true,
-                results: true,
-                clientTestimonial: true
-            }
-        });
-        if (technologies.length > 0) {
-            await prisma.projectTechnology.deleteMany({
-                where: { projectId: id }
-            });
-            await prisma.projectTechnology.createMany({
-                data: technologies.map((tech) => ({
-                    projectId: id,
-                    name: tech.name || tech,
-                    description: tech.description || ''
-                }))
-            });
-        }
-        if (results.length > 0) {
-            await prisma.projectResult.deleteMany({
-                where: { projectId: id }
-            });
-            await prisma.projectResult.createMany({
-                data: results.map((result) => ({
-                    projectId: id,
-                    metric: result.metric || result,
-                    description: result.description || ''
-                }))
-            });
-        }
-        const updatedProject = await prisma.project.findUnique({
-            where: { id },
-            include: {
-                category: true,
-                technologies: true,
-                results: true,
-                clientTestimonial: true
-            }
-        });
-        return res.json({
-            success: true,
-            data: { project: updatedProject }
-        });
-    }
-    catch (error) {
-        console.error('Update project error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error'
-        });
-    }
-});
-router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const existingProject = await prisma.project.findUnique({
-            where: { id }
-        });
-        if (!existingProject) {
-            return res.status(404).json({
-                success: false,
-                message: 'Project not found'
-            });
-        }
-        await prisma.project.delete({
-            where: { id }
-        });
-        return res.json({
-            success: true,
-            message: 'Project deleted successfully'
-        });
-    }
-    catch (error) {
-        console.error('Delete project error:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'

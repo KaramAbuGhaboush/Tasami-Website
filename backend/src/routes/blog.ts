@@ -4,7 +4,68 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all articles (public)
+/**
+ * @swagger
+ * /blog/articles:
+ *   get:
+ *     summary: Get all blog articles
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of articles per page
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by category slug
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *         description: Filter by featured status
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           default: published
+ *         description: Filter by article status
+ *     responses:
+ *       200:
+ *         description: List of blog articles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     articles:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/BlogArticle'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/Pagination'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/articles', async (req, res) => {
   try {
     const { page = 1, limit = 10, category, featured, status = 'published' } = req.query;
@@ -64,7 +125,48 @@ router.get('/articles', async (req, res) => {
   }
 });
 
-// Get single article (public)
+/**
+ * @swagger
+ * /blog/articles/{slug}:
+ *   get:
+ *     summary: Get a single article by slug
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Article slug
+ *     responses:
+ *       200:
+ *         description: Article details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     article:
+ *                       $ref: '#/components/schemas/BlogArticle'
+ *       404:
+ *         description: Article not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/articles/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -118,7 +220,37 @@ router.get('/articles/:slug', async (req, res) => {
   }
 });
 
-// Get categories (public)
+/**
+ * @swagger
+ * /blog/categories:
+ *   get:
+ *     summary: Get all blog categories
+ *     tags: [Blog]
+ *     responses:
+ *       200:
+ *         description: List of blog categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/BlogCategory'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/categories', async (req, res) => {
   try {
     const categories = await prisma.blogCategory.findMany({
@@ -273,6 +405,37 @@ router.delete('/categories/:id', async (req, res) => {
 });
 
 // Get authors (public)
+/**
+ * @swagger
+ * /blog/authors:
+ *   get:
+ *     summary: Get all blog authors
+ *     tags: [Blog]
+ *     responses:
+ *       200:
+ *         description: List of blog authors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     authors:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/BlogAuthor'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/authors', async (req, res) => {
   try {
     const authors = await prisma.blogAuthor.findMany({

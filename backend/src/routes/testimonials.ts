@@ -4,7 +4,49 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all testimonials (public)
+/**
+ * @swagger
+ * /testimonials:
+ *   get:
+ *     summary: Get all testimonials
+ *     tags: [Testimonials]
+ *     parameters:
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *         description: Filter by featured status
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           default: active
+ *         description: Filter by testimonial status
+ *     responses:
+ *       200:
+ *         description: List of testimonials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     testimonials:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Testimonial'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/', async (req, res) => {
   try {
     const { featured, status = 'active' } = req.query;
@@ -30,7 +72,48 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single testimonial (public)
+/**
+ * @swagger
+ * /testimonials/{id}:
+ *   get:
+ *     summary: Get a single testimonial by ID
+ *     tags: [Testimonials]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Testimonial ID
+ *     responses:
+ *       200:
+ *         description: Testimonial details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     testimonial:
+ *                       $ref: '#/components/schemas/Testimonial'
+ *       404:
+ *         description: Testimonial not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;

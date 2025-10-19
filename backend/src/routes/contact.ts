@@ -4,7 +4,45 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all contact messages (admin)
+/**
+ * @swagger
+ * /contact/messages:
+ *   get:
+ *     summary: Get all contact messages (Admin)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of contact messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     messages:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ContactMessage'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/messages', async (req, res) => {
   try {
     const messages = await prisma.contactMessage.findMany({
@@ -24,7 +62,85 @@ router.get('/messages', async (req, res) => {
   }
 });
 
-// Submit contact message (public)
+/**
+ * @swagger
+ * /contact/messages:
+ *   post:
+ *     summary: Submit a contact message
+ *     tags: [Contact]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - message
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Contact person's name
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Contact person's email
+ *                 example: "john@example.com"
+ *               phone:
+ *                 type: string
+ *                 description: Contact person's phone number
+ *                 example: "+1234567890"
+ *               company:
+ *                 type: string
+ *                 description: Company name
+ *                 example: "Acme Corp"
+ *               subject:
+ *                 type: string
+ *                 description: Message subject
+ *                 example: "Project Inquiry"
+ *               message:
+ *                 type: string
+ *                 description: Message content
+ *                 example: "I'm interested in your services"
+ *               service:
+ *                 type: string
+ *                 description: Service of interest
+ *                 example: "Web Development"
+ *               budget:
+ *                 type: string
+ *                 description: Project budget range
+ *                 example: "$10,000 - $50,000"
+ *     responses:
+ *       201:
+ *         description: Message submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       $ref: '#/components/schemas/ContactMessage'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/messages', async (req, res) => {
   try {
     const {
