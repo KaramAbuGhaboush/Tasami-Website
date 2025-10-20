@@ -107,7 +107,48 @@ router.get('/jobs', async (req, res) => {
   }
 });
 
-// Get single job (public)
+/**
+ * @swagger
+ * /career/jobs/{id}:
+ *   get:
+ *     summary: Get a single job by ID
+ *     tags: [Career]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: Job details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     job:
+ *                       $ref: '#/components/schemas/Job'
+ *       404:
+ *         description: Job not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/jobs/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -136,7 +177,79 @@ router.get('/jobs/:id', async (req, res) => {
   }
 });
 
-// Submit job application (public)
+/**
+ * @swagger
+ * /career/applications:
+ *   post:
+ *     summary: Submit a job application
+ *     tags: [Career]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - jobId
+ *               - applicantName
+ *               - applicantEmail
+ *             properties:
+ *               jobId:
+ *                 type: string
+ *                 description: Job ID
+ *                 example: "cmgxuz4ao0000rvunc5togbmz"
+ *               applicantName:
+ *                 type: string
+ *                 description: Applicant's full name
+ *                 example: "John Doe"
+ *               applicantEmail:
+ *                 type: string
+ *                 format: email
+ *                 description: Applicant's email
+ *                 example: "john@example.com"
+ *               applicantPhone:
+ *                 type: string
+ *                 description: Applicant's phone number
+ *                 example: "+1234567890"
+ *               applicantLocation:
+ *                 type: string
+ *                 description: Applicant's location
+ *                 example: "New York, NY"
+ *               resume:
+ *                 type: string
+ *                 description: Resume file path or URL
+ *                 example: "/uploads/resume.pdf"
+ *               coverLetter:
+ *                 type: string
+ *                 description: Cover letter content
+ *                 example: "I am excited to apply for this position..."
+ *     responses:
+ *       201:
+ *         description: Application submitted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Application submitted successfully"
+ *       404:
+ *         description: Job not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/applications', async (req, res) => {
   try {
     const {
@@ -176,7 +289,110 @@ router.post('/applications', async (req, res) => {
   }
 });
 
-// Create new job (admin)
+/**
+ * @swagger
+ * /career/jobs:
+ *   post:
+ *     summary: Create a new job (Admin)
+ *     tags: [Career]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - department
+ *               - location
+ *               - type
+ *               - experience
+ *               - description
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Job title
+ *                 example: "Senior Full Stack Developer"
+ *               department:
+ *                 type: string
+ *                 description: Department
+ *                 example: "Engineering"
+ *               location:
+ *                 type: string
+ *                 description: Job location
+ *                 example: "Remote"
+ *               type:
+ *                 type: string
+ *                 description: Job type
+ *                 example: "Full-time"
+ *               experience:
+ *                 type: string
+ *                 description: Required experience
+ *                 example: "5+ years"
+ *               description:
+ *                 type: string
+ *                 description: Job description
+ *                 example: "We are looking for a senior developer..."
+ *               requirements:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Job requirements
+ *                 example: ["5+ years experience", "React knowledge", "Node.js experience"]
+ *               benefits:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Job benefits
+ *                 example: ["Health insurance", "Remote work", "Flexible hours"]
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Required skills
+ *                 example: ["React", "Node.js", "TypeScript", "AWS"]
+ *               salary:
+ *                 type: string
+ *                 description: Salary range
+ *                 example: "$120,000 - $160,000"
+ *               applicationDeadline:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Application deadline
+ *                 example: "2024-12-31T23:59:59.000Z"
+ *               status:
+ *                 type: string
+ *                 description: Job status
+ *                 example: "active"
+ *     responses:
+ *       201:
+ *         description: Job created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     job:
+ *                       $ref: '#/components/schemas/Job'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/jobs', async (req, res) => {
   try {
     const jobData = req.body;
@@ -212,7 +428,110 @@ router.post('/jobs', async (req, res) => {
   }
 });
 
-// Update job (admin)
+/**
+ * @swagger
+ * /career/jobs/{id}:
+ *   put:
+ *     summary: Update a job (Admin)
+ *     tags: [Career]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Job title
+ *                 example: "Senior Full Stack Developer"
+ *               department:
+ *                 type: string
+ *                 description: Department
+ *                 example: "Engineering"
+ *               location:
+ *                 type: string
+ *                 description: Job location
+ *                 example: "Remote"
+ *               type:
+ *                 type: string
+ *                 description: Job type
+ *                 example: "Full-time"
+ *               experience:
+ *                 type: string
+ *                 description: Required experience
+ *                 example: "5+ years"
+ *               description:
+ *                 type: string
+ *                 description: Job description
+ *                 example: "We are looking for a senior developer..."
+ *               requirements:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Job requirements
+ *                 example: ["5+ years experience", "React knowledge", "Node.js experience"]
+ *               benefits:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Job benefits
+ *                 example: ["Health insurance", "Remote work", "Flexible hours"]
+ *               skills:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Required skills
+ *                 example: ["React", "Node.js", "TypeScript", "AWS"]
+ *               salary:
+ *                 type: string
+ *                 description: Salary range
+ *                 example: "$120,000 - $160,000"
+ *               applicationDeadline:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Application deadline
+ *                 example: "2024-12-31T23:59:59.000Z"
+ *               status:
+ *                 type: string
+ *                 description: Job status
+ *                 example: "active"
+ *     responses:
+ *       200:
+ *         description: Job updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     job:
+ *                       $ref: '#/components/schemas/Job'
+ *       404:
+ *         description: Job not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/jobs/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -249,7 +568,40 @@ router.put('/jobs/:id', async (req, res) => {
   }
 });
 
-// Delete job (admin)
+/**
+ * @swagger
+ * /career/jobs/{id}:
+ *   delete:
+ *     summary: Delete a job (Admin)
+ *     tags: [Career]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Job ID
+ *     responses:
+ *       200:
+ *         description: Job deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Job deleted successfully"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/jobs/:id', async (req, res) => {
   try {
     const { id } = req.params;

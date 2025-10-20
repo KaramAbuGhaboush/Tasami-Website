@@ -253,7 +253,8 @@ router.post('/login', async (req, res) => {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: user.role
+          role: user.role,
+          weeklyGoal: user.weeklyGoal
         },
         token
       }
@@ -359,6 +360,7 @@ router.get('/me', async (req: AuthRequest, res) => {
         email: true,
         name: true,
         role: true,
+        weeklyGoal: true,
         createdAt: true
       }
     });

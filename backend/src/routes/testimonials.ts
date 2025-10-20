@@ -211,7 +211,85 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create testimonial (admin)
+/**
+ * @swagger
+ * /testimonials:
+ *   post:
+ *     summary: Create a new testimonial (Admin)
+ *     tags: [Testimonials]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - quote
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Client name
+ *                 example: "John Smith"
+ *               role:
+ *                 type: string
+ *                 description: Client role/position
+ *                 example: "CEO, TechCorp"
+ *               company:
+ *                 type: string
+ *                 description: Client company
+ *                 example: "TechCorp Solutions"
+ *               quote:
+ *                 type: string
+ *                 description: Testimonial content
+ *                 example: "Tasami transformed our entire operation with their AI solutions."
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 description: Client rating
+ *                 example: 5
+ *               initials:
+ *                 type: string
+ *                 description: Client initials
+ *                 example: "JS"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether testimonial is featured
+ *                 example: true
+ *               status:
+ *                 type: string
+ *                 description: Testimonial status
+ *                 example: "active"
+ *     responses:
+ *       201:
+ *         description: Testimonial created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     testimonial:
+ *                       $ref: '#/components/schemas/Testimonial'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/', async (req, res) => {
   try {
     const testimonialData = req.body;
@@ -258,7 +336,89 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update testimonial (admin)
+/**
+ * @swagger
+ * /testimonials/{id}:
+ *   put:
+ *     summary: Update a testimonial (Admin)
+ *     tags: [Testimonials]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Testimonial ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Client name
+ *                 example: "John Smith"
+ *               role:
+ *                 type: string
+ *                 description: Client role/position
+ *                 example: "CEO, TechCorp"
+ *               company:
+ *                 type: string
+ *                 description: Client company
+ *                 example: "TechCorp Solutions"
+ *               quote:
+ *                 type: string
+ *                 description: Testimonial content
+ *                 example: "Tasami transformed our entire operation with their AI solutions."
+ *               rating:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 description: Client rating
+ *                 example: 5
+ *               initials:
+ *                 type: string
+ *                 description: Client initials
+ *                 example: "JS"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether testimonial is featured
+ *                 example: true
+ *               status:
+ *                 type: string
+ *                 description: Testimonial status
+ *                 example: "active"
+ *     responses:
+ *       200:
+ *         description: Testimonial updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     testimonial:
+ *                       $ref: '#/components/schemas/Testimonial'
+ *       404:
+ *         description: Testimonial not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -314,7 +474,46 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete testimonial (admin)
+/**
+ * @swagger
+ * /testimonials/{id}:
+ *   delete:
+ *     summary: Delete a testimonial (Admin)
+ *     tags: [Testimonials]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Testimonial ID
+ *     responses:
+ *       200:
+ *         description: Testimonial deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Testimonial deleted successfully"
+ *       404:
+ *         description: Testimonial not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

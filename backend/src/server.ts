@@ -15,6 +15,8 @@ import careerRoutes from './routes/career';
 import contactRoutes from './routes/contact';
 import testimonialRoutes from './routes/testimonials';
 import categoryRoutes from './routes/categories';
+import timeEntriesRoutes from './routes/timeEntries';
+import employeesRoutes from './routes/employees';
 
 // Load environment variables
 dotenv.config();
@@ -50,6 +52,31 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Logging middleware
 app.use(morgan('combined'));
 
+/**
+ * @swagger
+ * /health:
+ *   get:
+ *     summary: Health check endpoint
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Server is healthy
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "OK"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-01-01T00:00:00.000Z"
+ *                 uptime:
+ *                   type: number
+ *                   example: 3600.123
+ */
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -65,6 +92,31 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs, {
   customSiteTitle: 'Tasami API Documentation'
 }));
 
+/**
+ * @swagger
+ * /api/test:
+ *   get:
+ *     summary: Test API endpoint
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: API is working
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Backend is working!"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-01-01T00:00:00.000Z"
+ */
 // Basic API routes
 app.get('/api/test', (req, res) => {
   res.json({
@@ -82,6 +134,8 @@ app.use('/api/career', careerRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/categories', categoryRoutes);
+app.use('/api/time-entries', timeEntriesRoutes);
+app.use('/api/employees', employeesRoutes);
 
 
 // 404 handler
@@ -105,6 +159,10 @@ app.listen(PORT, () => {
   console.log(`   - GET  /api/projects`);
   console.log(`   - GET  /api/career/jobs`);
   console.log(`   - POST /api/contact/messages`);
+  console.log(`   - POST /api/time-entries (Employee)`);
+  console.log(`   - GET  /api/time-entries (Employee)`);
+  console.log(`   - GET  /api/employees (Admin)`);
+  console.log(`   - POST /api/employees (Admin)`);
 });
 
 export default app;

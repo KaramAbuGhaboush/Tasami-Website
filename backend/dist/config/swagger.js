@@ -204,8 +204,97 @@ const options = {
                         updatedAt: { type: 'string', format: 'date-time' },
                     },
                 },
+                ProjectCategory: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        slug: { type: 'string' },
+                        description: { type: 'string' },
+                        color: { type: 'string' },
+                        icon: { type: 'string' },
+                        featured: { type: 'boolean' },
+                        sortOrder: { type: 'number' },
+                        status: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                TimeEntry: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        date: { type: 'string', format: 'date-time' },
+                        hours: { type: 'integer' },
+                        minutes: { type: 'integer' },
+                        project: { type: 'string' },
+                        description: { type: 'string' },
+                        userId: { type: 'string' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                Employee: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        email: { type: 'string' },
+                        role: { type: 'string', enum: ['employee', 'admin'] },
+                        isActive: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' },
+                    },
+                },
+                WeeklySummary: {
+                    type: 'object',
+                    properties: {
+                        totalHours: { type: 'number' },
+                        goal: { type: 'number' },
+                        remaining: { type: 'number' },
+                        progressPercentage: { type: 'number' },
+                    },
+                },
             },
         },
+        tags: [
+            {
+                name: 'Authentication',
+                description: 'User authentication and authorization endpoints'
+            },
+            {
+                name: 'Blog',
+                description: 'Blog management endpoints'
+            },
+            {
+                name: 'Career',
+                description: 'Job and career management endpoints'
+            },
+            {
+                name: 'Contact',
+                description: 'Contact message management endpoints'
+            },
+            {
+                name: 'Projects',
+                description: 'Project management endpoints'
+            },
+            {
+                name: 'Testimonials',
+                description: 'Testimonial management endpoints'
+            },
+            {
+                name: 'Categories',
+                description: 'Category management endpoints'
+            },
+            {
+                name: 'Time Entries',
+                description: 'Employee time tracking endpoints'
+            },
+            {
+                name: 'Employees',
+                description: 'Employee management endpoints (Admin only)'
+            }
+        ],
     },
     apis: ['./src/routes/*.ts'],
 };

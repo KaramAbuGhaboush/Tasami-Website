@@ -270,7 +270,78 @@ router.get('/categories', async (req, res) => {
   }
 });
 
-// Create category (admin)
+/**
+ * @swagger
+ * /blog/categories:
+ *   post:
+ *     summary: Create a new blog category (Admin)
+ *     tags: [Blog]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *                 example: "Technology"
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *                 example: "Articles about technology trends"
+ *               color:
+ *                 type: string
+ *                 description: Category color
+ *                 example: "#6812F7"
+ *               icon:
+ *                 type: string
+ *                 description: Category icon
+ *                 example: "📱"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether category is featured
+ *                 example: false
+ *               seoTitle:
+ *                 type: string
+ *                 description: SEO title
+ *                 example: "Technology Articles"
+ *               seoDescription:
+ *                 type: string
+ *                 description: SEO description
+ *                 example: "Latest technology trends and insights"
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       $ref: '#/components/schemas/BlogCategory'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/categories', async (req, res) => {
   try {
     const categoryData = req.body;
@@ -315,7 +386,83 @@ router.post('/categories', async (req, res) => {
   }
 });
 
-// Update category (admin)
+/**
+ * @swagger
+ * /blog/categories/{id}:
+ *   put:
+ *     summary: Update a blog category (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *                 example: "Technology"
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *                 example: "Articles about technology trends"
+ *               color:
+ *                 type: string
+ *                 description: Category color
+ *                 example: "#6812F7"
+ *               icon:
+ *                 type: string
+ *                 description: Category icon
+ *                 example: "📱"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether category is featured
+ *                 example: false
+ *               seoTitle:
+ *                 type: string
+ *                 description: SEO title
+ *                 example: "Technology Articles"
+ *               seoDescription:
+ *                 type: string
+ *                 description: SEO description
+ *                 example: "Latest technology trends and insights"
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       $ref: '#/components/schemas/BlogCategory'
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -369,7 +516,46 @@ router.put('/categories/:id', async (req, res) => {
   }
 });
 
-// Delete category (admin)
+/**
+ * @swagger
+ * /blog/categories/{id}:
+ *   delete:
+ *     summary: Delete a blog category (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Category deleted successfully"
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/categories/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -455,7 +641,82 @@ router.get('/authors', async (req, res) => {
   }
 });
 
-// Create author (admin)
+/**
+ * @swagger
+ * /blog/authors:
+ *   post:
+ *     summary: Create a new blog author (Admin)
+ *     tags: [Blog]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Author name
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Author email
+ *                 example: "john@example.com"
+ *               role:
+ *                 type: string
+ *                 description: Author role
+ *                 example: "Senior Writer"
+ *               avatar:
+ *                 type: string
+ *                 description: Author avatar
+ *                 example: "👨‍💻"
+ *               bio:
+ *                 type: string
+ *                 description: Author biography
+ *                 example: "Technology writer with 10 years experience"
+ *               socialLinks:
+ *                 type: object
+ *                 description: Social media links
+ *                 example: {"twitter": "@johndoe", "linkedin": "johndoe"}
+ *               expertise:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Areas of expertise
+ *                 example: ["JavaScript", "React", "Node.js"]
+ *     responses:
+ *       201:
+ *         description: Author created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     author:
+ *                       $ref: '#/components/schemas/BlogAuthor'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/authors', async (req, res) => {
   try {
     const authorData = req.body;
@@ -494,7 +755,86 @@ router.post('/authors', async (req, res) => {
   }
 });
 
-// Update author (admin)
+/**
+ * @swagger
+ * /blog/authors/{id}:
+ *   put:
+ *     summary: Update a blog author (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Author ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Author name
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Author email
+ *                 example: "john@example.com"
+ *               role:
+ *                 type: string
+ *                 description: Author role
+ *                 example: "Senior Writer"
+ *               avatar:
+ *                 type: string
+ *                 description: Author avatar
+ *                 example: "👨‍💻"
+ *               bio:
+ *                 type: string
+ *                 description: Author biography
+ *                 example: "Technology writer with 10 years experience"
+ *               socialLinks:
+ *                 type: object
+ *                 description: Social media links
+ *                 example: {"twitter": "@johndoe", "linkedin": "johndoe"}
+ *               expertise:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Areas of expertise
+ *                 example: ["JavaScript", "React", "Node.js"]
+ *     responses:
+ *       200:
+ *         description: Author updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     author:
+ *                       $ref: '#/components/schemas/BlogAuthor'
+ *       404:
+ *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/authors/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -538,7 +878,46 @@ router.put('/authors/:id', async (req, res) => {
   }
 });
 
-// Delete author (admin)
+/**
+ * @swagger
+ * /blog/authors/{id}:
+ *   delete:
+ *     summary: Delete a blog author (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Author ID
+ *     responses:
+ *       200:
+ *         description: Author deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Author deleted successfully"
+ *       404:
+ *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/authors/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -573,7 +952,94 @@ router.delete('/authors/:id', async (req, res) => {
   }
 });
 
-// Create article (admin)
+/**
+ * @swagger
+ * /blog/articles:
+ *   post:
+ *     summary: Create a new blog article (Admin)
+ *     tags: [Blog]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - excerpt
+ *               - content
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Article title
+ *                 example: "Getting Started with React"
+ *               excerpt:
+ *                 type: string
+ *                 description: Article excerpt
+ *                 example: "Learn the basics of React development"
+ *               content:
+ *                 type: string
+ *                 description: Article content
+ *                 example: "<p>React is a JavaScript library...</p>"
+ *               image:
+ *                 type: string
+ *                 description: Article image URL
+ *                 example: "https://example.com/image.jpg"
+ *               readTime:
+ *                 type: string
+ *                 description: Estimated read time
+ *                 example: "5 min read"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether article is featured
+ *                 example: false
+ *               status:
+ *                 type: string
+ *                 description: Article status
+ *                 example: "draft"
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Article tags
+ *                 example: ["React", "JavaScript", "Frontend"]
+ *               authorId:
+ *                 type: string
+ *                 description: Author ID
+ *                 example: "cmguvvn6f0001rvckzouydzg1"
+ *               categoryId:
+ *                 type: string
+ *                 description: Category ID
+ *                 example: "cmguvvn6o0003rvckscjhhuvh"
+ *     responses:
+ *       201:
+ *         description: Article created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     article:
+ *                       $ref: '#/components/schemas/BlogArticle'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/articles', async (req, res) => {
   try {
     const articleData = req.body;
@@ -646,7 +1112,97 @@ router.post('/articles', async (req, res) => {
   }
 });
 
-// Update article (admin)
+/**
+ * @swagger
+ * /blog/articles/{id}:
+ *   put:
+ *     summary: Update a blog article (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Article ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Article title
+ *                 example: "Getting Started with React"
+ *               excerpt:
+ *                 type: string
+ *                 description: Article excerpt
+ *                 example: "Learn the basics of React development"
+ *               content:
+ *                 type: string
+ *                 description: Article content
+ *                 example: "<p>React is a JavaScript library...</p>"
+ *               image:
+ *                 type: string
+ *                 description: Article image URL
+ *                 example: "https://example.com/image.jpg"
+ *               readTime:
+ *                 type: string
+ *                 description: Estimated read time
+ *                 example: "5 min read"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether article is featured
+ *                 example: false
+ *               status:
+ *                 type: string
+ *                 description: Article status
+ *                 example: "published"
+ *               tags:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Article tags
+ *                 example: ["React", "JavaScript", "Frontend"]
+ *               authorId:
+ *                 type: string
+ *                 description: Author ID
+ *                 example: "cmguvvn6f0001rvckzouydzg1"
+ *               categoryId:
+ *                 type: string
+ *                 description: Category ID
+ *                 example: "cmguvvn6o0003rvckscjhhuvh"
+ *     responses:
+ *       200:
+ *         description: Article updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     article:
+ *                       $ref: '#/components/schemas/BlogArticle'
+ *       404:
+ *         description: Article not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/articles/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -726,7 +1282,46 @@ router.put('/articles/:id', async (req, res) => {
   }
 });
 
-// Delete article (admin)
+/**
+ * @swagger
+ * /blog/articles/{id}:
+ *   delete:
+ *     summary: Delete a blog article (Admin)
+ *     tags: [Blog]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Article ID
+ *     responses:
+ *       200:
+ *         description: Article deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Article deleted successfully"
+ *       404:
+ *         description: Article not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/articles/:id', async (req, res) => {
   try {
     const { id } = req.params;

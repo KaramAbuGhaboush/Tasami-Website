@@ -4,7 +4,49 @@ import { PrismaClient } from '@prisma/client';
 const router = express.Router();
 const prisma = new PrismaClient();
 
-// Get all categories (public)
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Get all project categories
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *         description: Filter by featured status
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           default: active
+ *         description: Filter by category status
+ *     responses:
+ *       200:
+ *         description: List of project categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/ProjectCategory'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/', async (req, res) => {
   try {
     const { featured, status = 'active' } = req.query;
@@ -30,7 +72,48 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get single category (public)
+/**
+ * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Get a single project category by ID
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       $ref: '#/components/schemas/ProjectCategory'
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -60,7 +143,78 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create category (admin)
+/**
+ * @swagger
+ * /categories:
+ *   post:
+ *     summary: Create a new project category (Admin)
+ *     tags: [Categories]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *                 example: "Web Development"
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *                 example: "Modern web applications and platforms"
+ *               color:
+ *                 type: string
+ *                 description: Category color
+ *                 example: "#6812F7"
+ *               icon:
+ *                 type: string
+ *                 description: Category icon
+ *                 example: "🌐"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether category is featured
+ *                 example: false
+ *               sortOrder:
+ *                 type: number
+ *                 description: Sort order for display
+ *                 example: 0
+ *               status:
+ *                 type: string
+ *                 description: Category status
+ *                 example: "active"
+ *     responses:
+ *       201:
+ *         description: Category created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       $ref: '#/components/schemas/ProjectCategory'
+ *       400:
+ *         description: Bad request - validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.post('/', async (req, res) => {
   try {
     const categoryData = req.body;
@@ -106,7 +260,83 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update category (admin)
+/**
+ * @swagger
+ * /categories/{id}:
+ *   put:
+ *     summary: Update a project category (Admin)
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Category name
+ *                 example: "Web Development"
+ *               description:
+ *                 type: string
+ *                 description: Category description
+ *                 example: "Modern web applications and platforms"
+ *               color:
+ *                 type: string
+ *                 description: Category color
+ *                 example: "#6812F7"
+ *               icon:
+ *                 type: string
+ *                 description: Category icon
+ *                 example: "🌐"
+ *               featured:
+ *                 type: boolean
+ *                 description: Whether category is featured
+ *                 example: false
+ *               sortOrder:
+ *                 type: number
+ *                 description: Sort order for display
+ *                 example: 0
+ *               status:
+ *                 type: string
+ *                 description: Category status
+ *                 example: "active"
+ *     responses:
+ *       200:
+ *         description: Category updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     category:
+ *                       $ref: '#/components/schemas/ProjectCategory'
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -161,7 +391,46 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete category (admin)
+/**
+ * @swagger
+ * /categories/{id}:
+ *   delete:
+ *     summary: Delete a project category (Admin)
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Category ID
+ *     responses:
+ *       200:
+ *         description: Category deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Category deleted successfully"
+ *       404:
+ *         description: Category not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;

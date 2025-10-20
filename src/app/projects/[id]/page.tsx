@@ -2,7 +2,7 @@
 
 import { use } from 'react'
 import { useProject } from '@/hooks/useProject'
-import { ProjectComponent } from '@/components/Project'
+import { ProjectCaseStudy } from '@/components/ProjectCaseStudy'
 
 export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -12,5 +12,5 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     return null
   }
 
-  return <ProjectComponent project={project} />
+  return <ProjectCaseStudy project={project} />
 }

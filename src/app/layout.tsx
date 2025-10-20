@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ConditionalNavbar, { ConditionalFooter } from "@/components/ConditionalNavbar";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Tasami - AI, Automation, Design & Marketing Solutions",
@@ -17,9 +18,11 @@ export default function RootLayout({
       <body
         className="antialiased"
       >
-        <ConditionalNavbar />
-        {children}
-        <ConditionalFooter />
+        <AuthProvider>
+          <ConditionalNavbar />
+          {children}
+          <ConditionalFooter />
+        </AuthProvider>
       </body>
     </html>
   );

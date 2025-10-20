@@ -16,6 +16,27 @@ export interface ClientTestimonial {
   position: string;
 }
 
+export interface ContentBlock {
+  id: string;
+  type: 'paragraph' | 'image' | 'imageGrid' | 'heading';
+  order: number;
+  content?: string;
+  src?: string;
+  alt?: string;
+  width?: number;
+  height?: number;
+  caption?: string;
+  level?: 2 | 3 | 4;
+  columns?: 2 | 3 | 4;
+  images?: Array<{
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+    caption?: string;
+  }>;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -29,6 +50,32 @@ export interface Project {
   timeline: string;
   teamSize: string;
   clientTestimonial: ClientTestimonial;
+  // Additional fields for case study format
+  company?: string;
+  services?: string[];
+  contentBlocks?: ContentBlock[];
+  projectBreakdown?: {
+    userResearch?: {
+      title: string;
+      description: string;
+      image: string;
+    };
+    uiDesign?: {
+      title: string;
+      description: string;
+      image: string;
+    };
+    development?: {
+      title: string;
+      description: string;
+      image: string;
+    };
+    testing?: {
+      title: string;
+      description: string;
+      image: string;
+    };
+  };
 }
 
 // Project data - in a real app, this would come from a database or API
@@ -57,6 +104,84 @@ const projects: Record<string, Project> = {
     ],
     timeline: "6 months",
     teamSize: "8 developers",
+    company: "ShopTech Solutions",
+    services: ["User Research", "UI Design", "Development"],
+    contentBlocks: [
+      {
+        id: "block-1",
+        type: "paragraph",
+        order: 1,
+        content: "This project involved creating a comprehensive e-commerce platform with advanced AI capabilities. We focused on delivering a seamless user experience while implementing cutting-edge technology solutions."
+      },
+      {
+        id: "block-2",
+        type: "image",
+        order: 2,
+        src: "/api/placeholder/1200/600",
+        alt: "Main Dashboard View",
+        width: 1200,
+        height: 600,
+        caption: "Main dashboard showing AI-powered product recommendations"
+      },
+      {
+        id: "block-3",
+        type: "heading",
+        order: 3,
+        content: "Key Features",
+        level: 3
+      },
+      {
+        id: "block-4",
+        type: "imageGrid",
+        order: 4,
+        columns: 3,
+        images: [
+          {
+            src: "/api/placeholder/400/300",
+            alt: "Mobile App Screenshot 1",
+            caption: "Mobile shopping experience"
+          },
+          {
+            src: "/api/placeholder/400/300",
+            alt: "Mobile App Screenshot 2",
+            caption: "AI recommendations"
+          },
+          {
+            src: "/api/placeholder/400/300",
+            alt: "Mobile App Screenshot 3",
+            caption: "Checkout process"
+          }
+        ]
+      },
+      {
+        id: "block-5",
+        type: "paragraph",
+        order: 5,
+        content: "The implementation resulted in significant improvements across all key metrics, including a 40% increase in conversion rates and 60% reduction in customer support tickets."
+      }
+    ],
+    projectBreakdown: {
+      userResearch: {
+        title: "User Research",
+        description: "We conducted comprehensive user research to understand the target audience and their specific needs.",
+        image: "/api/placeholder/400/300"
+      },
+      uiDesign: {
+        title: "UI Design",
+        description: "We created a comprehensive design system that ensures consistency and scalability across all touchpoints.",
+        image: "/api/placeholder/400/300"
+      },
+      development: {
+        title: "Development",
+        description: "Our development team implemented the solution using modern technologies and best practices.",
+        image: "/api/placeholder/400/300"
+      },
+      testing: {
+        title: "Testing & Quality Assurance",
+        description: "Comprehensive testing ensures the solution meets all requirements and performs optimally.",
+        image: "/api/placeholder/400/300"
+      }
+    },
     clientTestimonial: {
       quote: "The AI-powered platform transformed our business completely. Sales increased by 40% within the first quarter, and our customers love the personalized experience.",
       author: "Sarah Johnson",

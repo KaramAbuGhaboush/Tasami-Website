@@ -29,7 +29,37 @@ const prisma = new PrismaClient();
  *                     messages:
  *                       type: array
  *                       items:
- *                         $ref: '#/components/schemas/ContactMessage'
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             example: "cmgzjs9c30000rvdcta7cgkks"
+ *                           name:
+ *                             type: string
+ *                             example: "John Doe"
+ *                           email:
+ *                             type: string
+ *                             example: "john@example.com"
+ *                           company:
+ *                             type: string
+ *                             example: "Test Corp"
+ *                           message:
+ *                             type: string
+ *                             example: "I need a new website for my business"
+ *                           service:
+ *                             type: string
+ *                             example: "Web Development"
+ *                           budget:
+ *                             type: string
+ *                             example: "$10,000 - $25,000"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-10-20T19:47:54.813Z"
+ *                           updatedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2025-10-20T19:47:54.813Z"
  *       401:
  *         description: Unauthorized
  *         content:
@@ -46,6 +76,17 @@ const prisma = new PrismaClient();
 router.get('/messages', async (req, res) => {
   try {
     const messages = await prisma.contactMessage.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        company: true,
+        message: true,
+        service: true,
+        budget: true,
+        createdAt: true,
+        updatedAt: true
+      },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -78,6 +119,8 @@ router.get('/messages', async (req, res) => {
  *               - name
  *               - email
  *               - message
+ *               - service
+ *               - budget
  *             properties:
  *               name:
  *                 type: string
@@ -88,29 +131,21 @@ router.get('/messages', async (req, res) => {
  *                 format: email
  *                 description: Contact person's email
  *                 example: "john@example.com"
- *               phone:
- *                 type: string
- *                 description: Contact person's phone number
- *                 example: "+1234567890"
  *               company:
  *                 type: string
  *                 description: Company name
  *                 example: "Acme Corp"
- *               subject:
- *                 type: string
- *                 description: Message subject
- *                 example: "Project Inquiry"
  *               message:
  *                 type: string
  *                 description: Message content
  *                 example: "I'm interested in your services"
  *               service:
  *                 type: string
- *                 description: Service of interest
+ *                 description: Service of interest (required)
  *                 example: "Web Development"
  *               budget:
  *                 type: string
- *                 description: Project budget range
+ *                 description: Project budget range (required)
  *                 example: "$10,000 - $50,000"
  *     responses:
  *       201:
@@ -123,11 +158,44 @@ router.get('/messages', async (req, res) => {
  *                 success:
  *                   type: boolean
  *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Message sent successfully"
  *                 data:
  *                   type: object
  *                   properties:
- *                     message:
- *                       $ref: '#/components/schemas/ContactMessage'
+ *                     contactMessage:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: "cmgzk0v1d0000rvga9pjnp4le"
+ *                         name:
+ *                           type: string
+ *                           example: "Jane Smith"
+ *                         email:
+ *                           type: string
+ *                           example: "jane@example.com"
+ *                         company:
+ *                           type: string
+ *                           example: "Tech Corp"
+ *                         message:
+ *                           type: string
+ *                           example: "I need a mobile app for my business"
+ *                         service:
+ *                           type: string
+ *                           example: "Mobile App Development"
+ *                         budget:
+ *                           type: string
+ *                           example: "$25,000 - $50,000"
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-10-20T19:54:36.192Z"
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-10-20T19:54:36.192Z"
  *       400:
  *         description: Bad request - validation error
  *         content:
@@ -146,34 +214,50 @@ router.post('/messages', async (req, res) => {
     const {
       name,
       email,
-      phone,
       company,
-      subject,
       message,
       service,
       budget
     } = req.body;
 
+    // Validate required fields (matching form requirements)
+    if (!name || !email || !message || !service || !budget) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email, message, service, and budget are required'
+      });
+    }
+
     const contactMessage = await prisma.contactMessage.create({
       data: {
         name,
         email,
-        phone,
-        company,
-        subject,
+        company: company || null,
         message,
         service,
         budget,
         status: 'new',
-        priority: 'unchecked',
         source: 'website'
       }
     });
 
+    // Return only specified fields
+    const responseMessage = {
+      id: contactMessage.id,
+      name: contactMessage.name,
+      email: contactMessage.email,
+      company: contactMessage.company,
+      message: contactMessage.message,
+      service: contactMessage.service,
+      budget: contactMessage.budget,
+      createdAt: contactMessage.createdAt,
+      updatedAt: contactMessage.updatedAt
+    };
+
     return res.status(201).json({
       success: true,
       message: 'Message sent successfully',
-      data: { contactMessage }
+      data: { contactMessage: responseMessage }
     });
   } catch (error) {
     console.error('Submit contact message error:', error);
@@ -184,7 +268,90 @@ router.post('/messages', async (req, res) => {
   }
 });
 
-// Update contact message (admin)
+/**
+ * @swagger
+ * /contact/messages/{id}:
+ *   put:
+ *     summary: Update a contact message (Admin)
+ *     tags: [Contact]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Message ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: Message status
+ *                 example: "read"
+ *                 enum: ["new", "read", "replied", "closed"]
+ *     responses:
+ *       200:
+ *         description: Message updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                           example: "cmgzk0v1d0000rvga9pjnp4le"
+ *                         name:
+ *                           type: string
+ *                           example: "Jane Smith"
+ *                         email:
+ *                           type: string
+ *                           example: "jane@example.com"
+ *                         company:
+ *                           type: string
+ *                           example: "Tech Corp"
+ *                         message:
+ *                           type: string
+ *                           example: "I need a mobile app for my business"
+ *                         service:
+ *                           type: string
+ *                           example: "Mobile App Development"
+ *                         budget:
+ *                           type: string
+ *                           example: "$25,000 - $50,000"
+ *                         createdAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-10-20T19:54:36.192Z"
+ *                         updatedAt:
+ *                           type: string
+ *                           format: date-time
+ *                           example: "2025-10-20T19:54:41.202Z"
+ *       404:
+ *         description: Message not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.put('/messages/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -205,16 +372,26 @@ router.put('/messages/:id', async (req, res) => {
     const updatedMessage = await prisma.contactMessage.update({
       where: { id },
       data: {
-        status: messageData.status || existingMessage.status,
-        priority: messageData.priority || existingMessage.priority,
-        assignedTo: messageData.assignedTo || existingMessage.assignedTo,
-        notes: messageData.notes || existingMessage.notes
+        status: messageData.status || existingMessage.status
       }
     });
 
+    // Return only specified fields
+    const responseMessage = {
+      id: updatedMessage.id,
+      name: updatedMessage.name,
+      email: updatedMessage.email,
+      company: updatedMessage.company,
+      message: updatedMessage.message,
+      service: updatedMessage.service,
+      budget: updatedMessage.budget,
+      createdAt: updatedMessage.createdAt,
+      updatedAt: updatedMessage.updatedAt
+    };
+
     return res.json({
       success: true,
-      data: { message: updatedMessage }
+      data: { message: responseMessage }
     });
   } catch (error) {
     console.error('Update contact message error:', error);
@@ -225,7 +402,46 @@ router.put('/messages/:id', async (req, res) => {
   }
 });
 
-// Delete contact message (admin)
+/**
+ * @swagger
+ * /contact/messages/{id}:
+ *   delete:
+ *     summary: Delete a contact message (Admin)
+ *     tags: [Contact]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Message ID
+ *     responses:
+ *       200:
+ *         description: Message deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Message deleted successfully"
+ *       404:
+ *         description: Message not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 router.delete('/messages/:id', async (req, res) => {
   try {
     const { id } = req.params;

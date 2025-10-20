@@ -14,9 +14,13 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     console.log('API Request:', { url, baseUrl: this.baseUrl, endpoint, options });
     
+    // Get token from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers,
       },
       ...options,
@@ -708,6 +712,183 @@ class ApiClient {
       message: string;
     }>(`/categories/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  // Time Tracking API
+  async getTimeEntries(params?: {
+    filter?: 'today' | 'week' | 'all';
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.filter) searchParams.append('filter', params.filter);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/time-entries${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: { 
+        items: any[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(endpoint);
+  }
+
+  async createTimeEntry(entryData: {
+    date: string;
+    hours: number;
+    minutes: number;
+    project: string;
+    description?: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: any;
+      message: string;
+    }>('/time-entries', {
+      method: 'POST',
+      body: JSON.stringify(entryData),
+    });
+  }
+
+  async updateTimeEntry(id: string, entryData: {
+    date?: string;
+    hours?: number;
+    minutes?: number;
+    project?: string;
+    description?: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: { timeEntry: any };
+    }>(`/time-entries/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(entryData),
+    });
+  }
+
+  async deleteTimeEntry(id: string) {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>(`/time-entries/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getWeeklySummary() {
+    return this.request<{
+      success: boolean;
+      data: {
+        totalHours: number;
+        totalMinutes: number;
+        entries: any[];
+        goal: number;
+        progress: number;
+      };
+    }>('/time-entries/weekly-summary');
+  }
+
+  // Authentication API
+  async login(credentials: {
+    email: string;
+    password: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: {
+        token: string;
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+        };
+      };
+    }>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  async register(userData: {
+    email: string;
+    password: string;
+    name?: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: {
+        token: string;
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+        };
+      };
+    }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async getCurrentUser() {
+    return this.request<{
+      success: boolean;
+      data: {
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          weeklyGoal: number;
+        };
+      };
+    }>('/auth/me');
+  }
+
+  // User Profile API
+  async getUserProfile() {
+    return this.request<{
+      success: boolean;
+      data: {
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          weeklyGoal: number;
+          isActive: boolean;
+          createdAt: string;
+        };
+      };
+    }>('/time-entries/profile');
+  }
+
+  async updateWeeklyGoal(weeklyGoal: number) {
+    return this.request<{
+      success: boolean;
+      data: {
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+          weeklyGoal: number;
+          isActive: boolean;
+          createdAt: string;
+        };
+      };
+      message: string;
+    }>('/time-entries/profile/weekly-goal', {
+      method: 'PUT',
+      body: JSON.stringify({ weeklyGoal }),
     });
   }
 }
