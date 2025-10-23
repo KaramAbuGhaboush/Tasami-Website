@@ -66,9 +66,6 @@ const prisma = new PrismaClient();
  *                         createdAt:
  *                           type: string
  *                           format: date-time
- *                     token:
- *                       type: string
- *                       description: JWT authentication token
  *       400:
  *         description: Bad request - user already exists or validation error
  *         content:
@@ -119,19 +116,11 @@ router.post('/register', async (req, res) => {
       }
     });
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
-
     return res.status(201).json({
       success: true,
       message: 'User created successfully',
       data: {
-        user,
-        token
+        user
       }
     });
   } catch (error) {

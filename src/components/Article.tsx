@@ -1,5 +1,31 @@
 import Link from 'next/link'
 import { Article } from '@/hooks/useArticle'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeHighlight from 'rehype-highlight'
+
+  // Helper function to get the correct image source
+  const getImageSrc = (image: string) => {
+    if (!image) return null;
+
+    // If it's a full URL (http, https, or blob), return as is
+    if (image.startsWith('http') || image.startsWith('blob:')) {
+      return image;
+    }
+
+    // If it's a base64 image, return as is
+    if (image.startsWith('data:image/')) {
+      return image;
+    }
+
+    // If it's a filename (contains extension), construct the full URL
+    if (image.includes('.') && image.length > 10) {
+      return `http://localhost:3002/uploads/images/${image}`;
+    }
+
+    // For anything else (like emojis), return null to show as emoji
+    return null;
+  };
 
 interface ArticleProps {
   article: Article;
@@ -113,10 +139,10 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
           </div>
 
           {/* Article Image */}
-          {article.image && (article.image.startsWith('http') || article.image.startsWith('blob:')) ? (
-            <div className="aspect-video relative rounded-3xl overflow-hidden mb-12">
+          {getImageSrc(article.image) ? (
+            <div className="aspect-video relative rounded-3xl overflow-hidden">
               <img 
-                src={article.image} 
+                src={getImageSrc(article.image)!} 
                 alt={article.title}
                 className="w-full h-full object-cover"
               />
@@ -127,7 +153,7 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
               </div>
             </div>
           ) : (
-            <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-3xl flex items-center justify-center mb-12">
+            <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-3xl flex items-center justify-center">
               <div className="text-center text-white">
                 <div className="text-8xl mb-4">{article.image || '📝'}</div>
                 <div className="text-2xl font-semibold">{article.category.name}</div>
@@ -138,12 +164,43 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
       </section>
 
       {/* Article Content */}
-      <section className="py-12">
+      <section className="pb-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div 
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+          <div className="prose prose-lg max-w-none">
+            {article.content && article.content.includes('<') ? (
+              // If content contains HTML tags, render as HTML (for backward compatibility)
+              <div dangerouslySetInnerHTML={{ __html: article.content }} />
+            ) : (
+              // Otherwise, render as markdown
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeHighlight]}
+                components={{
+                  p: ({ children }) => <p className="mb-4">{children}</p>,
+                  h1: ({ children }) => <h1 className="text-3xl font-bold mb-6 mt-8">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-2xl font-bold mb-4 mt-6">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-xl font-bold mb-3 mt-5">{children}</h3>,
+                  ul: ({ children }) => <ul className="mb-4 pl-6 list-disc">{children}</ul>,
+                  ol: ({ children }) => <ol className="mb-4 pl-6 list-decimal">{children}</ol>,
+                  li: ({ children }) => <li className="mb-1">{children}</li>,
+                  blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-4">{children}</blockquote>,
+                  code: ({ children, className }) => {
+                    const match = /language-(\w+)/.exec(className || '');
+                    return match ? (
+                      <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">
+                        <code className={className}>{children}</code>
+                      </pre>
+                    ) : (
+                      <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>
+                    );
+                  },
+                  pre: ({ children }) => <pre className="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4">{children}</pre>
+                }}
+              >
+                {article.content || 'No content available'}
+              </ReactMarkdown>
+            )}
+          </div>
         </div>
       </section>
 

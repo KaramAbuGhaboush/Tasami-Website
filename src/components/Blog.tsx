@@ -11,6 +11,29 @@ interface BlogProps {
   handleRetry: () => void;
 }
 
+  // Helper function to get the correct image source
+  const getImageSrc = (image: string) => {
+    if (!image) return null;
+
+    // If it's a full URL (http, https, or blob), return as is
+    if (image.startsWith('http') || image.startsWith('blob:')) {
+      return image;
+    }
+
+    // If it's a base64 image, return as is
+    if (image.startsWith('data:image/')) {
+      return image;
+    }
+
+    // If it's a filename (contains extension), construct the full URL
+    if (image.includes('.') && image.length > 10) {
+      return `http://localhost:3002/uploads/images/${image}`;
+    }
+
+    // For anything else (like emojis), return null to show as emoji
+    return null;
+  };
+
 export function Blog({
   blogPosts,
   categories,
@@ -85,12 +108,27 @@ export function Blog({
             {featuredPost && (
               <Link href={`/article/${featuredPost.slug}`} className="relative group cursor-pointer">
                 <div className="luxury-card rounded-3xl overflow-hidden group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2">
-                  <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
-                    <div className="text-center text-white">
-                      <div className="text-6xl mb-4">{featuredPost.image}</div>
-                      <div className="text-lg font-semibold">{featuredPost.category.name}</div>
+                  {getImageSrc(featuredPost.image) ? (
+                    <div className="aspect-video relative">
+                      <img 
+                        src={getImageSrc(featuredPost.image)!} 
+                        alt={featuredPost.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-4 left-4">
+                        <div className="bg-white/90 backdrop-blur-sm text-[#6812F7] px-4 py-2 rounded-full text-sm font-semibold">
+                          {featuredPost.category.name}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
+                      <div className="text-center text-white">
+                        <div className="text-6xl mb-4">{featuredPost.image || '📝'}</div>
+                        <div className="text-lg font-semibold">{featuredPost.category.name}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Link>
             )}
@@ -140,19 +178,38 @@ export function Blog({
             {regularPosts.map((post, index) => (
               <article key={post.id} className="">
                 {/* Image Section */}
-                <Link href={`/article/${post.slug}`} className="relative h-48 overflow-hidden group block">
-                  <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center rounded-2xl">
-                    <div className="text-6xl text-white">{post.image}</div>
-                  </div>
-                  {/* Category Badge */}
-                  <div className="absolute top-4 left-4">
-                    <span 
-                      className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
-                      style={{ color: post.category.color }}
-                    >
-                      {post.category.name}
-                    </span>
-                  </div>
+                <Link href={`/article/${post.slug}`} className="relative group block">
+                  {getImageSrc(post.image) ? (
+                    <div className="aspect-video relative rounded-2xl overflow-hidden">
+                      <img 
+                        src={getImageSrc(post.image)!} 
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span 
+                          className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
+                          style={{ color: post.category.color }}
+                        >
+                          {post.category.name}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center rounded-2xl">
+                      <div className="text-6xl text-white">{post.image || '📝'}</div>
+                      {/* Category Badge for emoji images */}
+                      <div className="absolute top-4 left-4">
+                        <span 
+                          className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
+                          style={{ color: post.category.color }}
+                        >
+                          {post.category.name}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </Link>
                 
                 {/* Title Section - No Background */}

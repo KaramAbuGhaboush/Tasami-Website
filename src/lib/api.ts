@@ -14,7 +14,7 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     console.log('API Request:', { url, baseUrl: this.baseUrl, endpoint, options });
     
-    // Get token from localStorage
+    // Get token from localStorage (only in browser)
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     
     const config: RequestInit = {
@@ -100,6 +100,16 @@ class ApiClient {
       success: boolean;
       data: { authors: any[] };
     }>('/blog/authors');
+  }
+
+  async uploadBlogImage(file: File) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    return this.request<{ success: boolean; data: { filename: string; url: string } }>('/blog/upload-image', {
+      method: 'POST',
+      body: formData,
+    });
   }
 
   async createArticle(articleData: {

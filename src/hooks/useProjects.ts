@@ -42,7 +42,12 @@ export function useProjects(category?: string): UseProjectsReturn {
       const response = await apiClient.getProjects({ category });
       
       if (response.success) {
-        setProjects(response.data.projects);
+        // Transform projects to extract category name from category object
+        const transformedProjects = response.data.projects.map((project: any) => ({
+          ...project,
+          category: project.category?.name || project.category || 'Uncategorized'
+        }));
+        setProjects(transformedProjects);
       } else {
         setError('Failed to fetch projects');
       }

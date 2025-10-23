@@ -1,5 +1,7 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import upload from '../middleware/upload';
+import path from 'path';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -1349,6 +1351,86 @@ router.delete('/articles/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Delete article error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /blog/upload-image:
+ *   post:
+ *     summary: Upload an image for blog articles (Admin)
+ *     tags: [Blog]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - image
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload
+ *     responses:
+ *       200:
+ *         description: Image uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     filename:
+ *                       type: string
+ *                       example: "blog-1234567890-123456789.jpg"
+ *                     url:
+ *                       type: string
+ *                       example: "http://localhost:3002/uploads/images/blog-1234567890-123456789.jpg"
+ *       400:
+ *         description: Bad request - no file uploaded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/upload-image', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file uploaded'
+      });
+    }
+
+    const filename = req.file.filename;
+    const imageUrl = `http://localhost:3002/uploads/images/${filename}`;
+
+    return res.json({
+      success: true,
+      data: {
+        filename: filename,
+        url: imageUrl
+      }
+    });
+  } catch (error) {
+    console.error('Upload image error:', error);
     return res.status(500).json({
       success: false,
       message: 'Internal server error'

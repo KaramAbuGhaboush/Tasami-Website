@@ -146,14 +146,59 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
               </div>
             )}
 
-            {/* Contact CTA */}
-            <section className="py-16 bg-blue-600 rounded-2xl text-center">
-              <h2 className="text-4xl font-bold text-white mb-6">Ready to Start Your Project?</h2>
-              <p className="text-xl text-blue-100 mb-8">Let's transform your ideas into reality with cutting-edge technology and innovative solutions.</p>
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                Start Your Project
-              </button>
+            {/* Client Testimonial */}
+            {project.clientTestimonial && (
+              <section className="py-20 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-3xl mb-12 relative overflow-hidden">
+                {/* Background decoration */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full -translate-y-32 translate-x-32"></div>
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-indigo-400/10 to-blue-400/10 rounded-full translate-y-24 -translate-x-24"></div>
+                
+                <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
+                  {/* Quote icon with enhanced styling */}
+                  <div className="mb-12">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl shadow-lg shadow-blue-500/25">
+                      <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  {/* Testimonial quote with enhanced typography */}
+                  <blockquote className="text-3xl md:text-4xl lg:text-5xl font-light text-gray-800 mb-12 leading-tight max-w-4xl mx-auto">
+                    <span className="text-blue-600 font-bold">"</span>
+                    {project.clientTestimonial.quote}
+                    <span className="text-blue-600 font-bold">"</span>
+                  </blockquote>
+                  
+                  {/* Author section with enhanced design */}
+                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                    {/* Avatar with gradient background */}
+                    <div className="relative">
+                      <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/25">
+                        {project.clientTestimonial.author.charAt(0)}
+                      </div>
+                      {/* Decorative ring */}
+                      <div className="absolute inset-0 rounded-full border-2 border-white/20 scale-110"></div>
+                    </div>
+                    
+                    {/* Author info with enhanced styling */}
+                    <div className="text-center sm:text-left">
+                      <p className="font-bold text-gray-900 text-xl mb-1">{project.clientTestimonial.author}</p>
+                      <p className="text-gray-600 text-lg font-medium">{project.clientTestimonial.position}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Decorative elements */}
+                  <div className="mt-12 flex justify-center space-x-2">
+                    <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                    <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
+                  </div>
+                </div>
             </section>
+            )}
+
           </div>
         </div>
       </div>

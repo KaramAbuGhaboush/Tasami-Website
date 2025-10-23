@@ -48,7 +48,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 
 - **`Project`** - Company projects with technologies and results
   - Fields: `id`, `title`, `description`, `headerImage`, `challenge`, `solution`, `timeline`, `teamSize`, `status`
-  - Relationships: Many-to-One with `ProjectCategory`, One-to-Many with `ProjectTechnology`, `ProjectResult`, `ProjectTestimonial`
+  - Relationships: Many-to-One with `ProjectCategory`, One-to-Many with `ProjectTechnology`, `ProjectResult`, `ProjectTestimonial`, `ContentBlock`
 
 - **`ProjectTechnology`** - Technologies used in projects
   - Fields: `id`, `name`, `description`, `projectId`
@@ -61,6 +61,10 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - **`ProjectTestimonial`** - Client testimonials for projects
   - Fields: `id`, `quote`, `author`, `position`, `projectId`
   - Relationships: One-to-One with `Project`
+
+- **`ContentBlock`** - Dynamic content blocks for projects
+  - Fields: `id`, `type`, `order`, `content`, `src`, `alt`, `width`, `height`, `caption`, `level`, `columns`, `images`, `projectId`
+  - Relationships: Many-to-One with `Project`
 
 #### **Career & HR System**
 - **`Job`** - Career opportunities
@@ -88,8 +92,8 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
   - Relationships: Many-to-One with `Employee`
 
 ### 📊 **Database Statistics**
-- **Total Models**: 15
-- **Total Relationships**: 8
+- **Total Models**: 16
+- **Total Relationships**: 9
 - **Primary Keys**: All models use `cuid()` for unique IDs
 - **Timestamps**: All models have `createdAt` and `updatedAt`
 - **Soft Deletes**: Status-based filtering instead of hard deletes
@@ -105,12 +109,13 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 7. **ProjectTechnology** - Technologies used in projects
 8. **ProjectResult** - Project outcomes and metrics
 9. **ProjectTestimonial** - Client testimonials for projects
-10. **Job** - Career opportunities
-11. **ContactMessage** - Contact form submissions
-12. **Testimonial** - General marketing testimonials
-13. **Employee** - Internal employee management
-14. **Salary** - Employee salary tracking
-15. **TimeEntry** - Employee time tracking entries
+10. **ContentBlock** - Dynamic content blocks for projects
+11. **Job** - Career opportunities
+12. **ContactMessage** - Contact form submissions
+13. **Testimonial** - General marketing testimonials
+14. **Employee** - Internal employee management
+15. **Salary** - Employee salary tracking
+16. **TimeEntry** - Employee time tracking entries
 
 ### 🔗 **Database Relationships Diagram**
 
@@ -242,11 +247,11 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 
 ## Available Endpoints
 
-### 🎉 **COMPLETE SWAGGER DOCUMENTATION** (38 endpoints)
+### 🎉 **COMPLETE SWAGGER DOCUMENTATION** (42 endpoints)
 
 **📊 FINAL STATUS:**
-- **Total endpoints in code**: 38 endpoints
-- **Swagger documented**: 38 endpoints ✅ **100% COMPLETE!**
+- **Total endpoints in code**: 42 endpoints
+- **Swagger documented**: 42 endpoints ✅ **100% COMPLETE!**
 - **Missing from Swagger**: 0 endpoints ✅ **NONE!**
 
 **📚 SWAGGER DOCUMENTATION STATUS:**
@@ -256,11 +261,11 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 
 ---
 
-## ✅ **ALL ENDPOINTS DOCUMENTED IN SWAGGER** (52 total)
+## ✅ **ALL ENDPOINTS DOCUMENTED IN SWAGGER** (56 total)
 
 ### Authentication (`/api/auth`) - 3 endpoints
-- `POST /register` - Register a new user
-- `POST /login` - User login  
+- `POST /register` - Register a new user (no token returned - for admin-created users)
+- `POST /login` - User login (returns JWT token)
 - `GET /me` - Get current user profile (requires authentication)
 
 ### Blog Management (`/api/blog`) - 13 endpoints
@@ -326,9 +331,18 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `GET /:id/time-entries` - Get employee's time entries (Admin)
 - `GET /:id/weekly-summary` - Get employee's weekly summary (Admin)
 
-### Project Management (`/api/projects`) - 2 endpoints
+### Project Management (`/api/projects`) - 8 endpoints
+**Public Endpoints:**
 - `GET /` - Get all projects (with category filtering)
-- `GET /:id` - Get project by ID
+- `GET /:id` - Get project by ID with content blocks
+- `POST /` - Create new project (with technologies, results, and testimonial)
+- `PUT /:id` - Update project (with technologies, results, and testimonial)
+
+**Content Block Management:**
+- `POST /:id/content-blocks` - Create new content block for project
+- `PUT /:id/content-blocks/:blockId` - Update content block
+- `DELETE /:id/content-blocks/:blockId` - Delete content block
+- `PUT /:id/content-blocks/reorder` - Reorder content blocks
 
 ### Testimonial Management (`/api/testimonials`) - 5 endpoints
 **Public Endpoints:**
@@ -409,6 +423,11 @@ All API responses follow this consistent format:
 - Token expires in 7 days
 - Password hashing uses bcrypt with 12 salt rounds
 
+## User Creation Flow
+- **Admin creates users**: Use `/api/employees` endpoint (Admin only, no token returned)
+- **Public registration**: Use `/api/auth/register` endpoint (no token returned, for admin-created users)
+- **User login**: Use `/api/auth/login` endpoint (returns JWT token for authentication)
+
 ## Security Features
 - **Helmet**: Security headers
 - **CORS**: Configured for frontend domains
@@ -488,20 +507,20 @@ Several admin endpoints work but lack Swagger annotations:
 
 ## 📊 **Current API Summary**
 
-### ✅ **Swagger Documented** (52 endpoints) - **100% COMPLETE!**
+### ✅ **Swagger Documented** (54 endpoints) - **100% COMPLETE!**
 - **Authentication**: 3 endpoints ✅
 - **Blog**: 13 endpoints ✅ (4 public + 9 admin)
 - **Career**: 6 endpoints ✅ (3 public + 3 admin)  
 - **Contact**: 4 endpoints ✅ (1 public + 3 admin)
 - **Employee Time Tracking**: 7 endpoints ✅ (7 employee)
 - **Employee Management**: 7 endpoints ✅ (7 admin)
-- **Projects**: 2 endpoints ✅ (2 public)
+- **Projects**: 4 endpoints ✅ (4 public)
 - **Testimonials**: 5 endpoints ✅ (2 public + 3 admin)
 - **Categories**: 5 endpoints ✅ (2 public + 3 admin)
 
 ### 📈 **Total API Coverage**
-- **Total Endpoints in Code**: 52 endpoints
-- **Swagger Documented**: 52 endpoints (100%) ✅ **ALL ENDPOINTS DOCUMENTED!**
+- **Total Endpoints in Code**: 54 endpoints
+- **Swagger Documented**: 54 endpoints (100%) ✅ **ALL ENDPOINTS DOCUMENTED!**
 - **Missing from Swagger**: 0 endpoints (0%)
 - **Complete Swagger documentation coverage achieved!**
 

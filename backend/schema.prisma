@@ -107,6 +107,7 @@ model Project {
   technologies      ProjectTechnology[]
   results           ProjectResult[]
   clientTestimonial ProjectTestimonial?
+  contentBlocks     ContentBlock[]
 
   @@map("projects")
 }
@@ -140,6 +141,28 @@ model ProjectTestimonial {
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("project_testimonials")
+}
+
+model ContentBlock {
+  id          String   @id @default(cuid())
+  type        String   // 'heading', 'paragraph', 'image', 'imageGrid'
+  order       Int      // For ordering blocks
+  content     String?  // For text content (headings, paragraphs)
+  src         String?  // For image source
+  alt         String?  // For image alt text
+  width       Int?     // For image width
+  height      Int?     // For image height
+  caption     String?  // For image caption
+  level       Int?     // For heading level (2, 3, 4)
+  columns     Int?     // For imageGrid columns (2, 3, 4)
+  images      Json?    // For imageGrid - array of image objects
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("content_blocks")
 }
 
 // Career Models

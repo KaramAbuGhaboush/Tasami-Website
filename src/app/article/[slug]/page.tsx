@@ -15,9 +15,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   let article: Article | null = null
   
   try {
-    const response = await apiClient.getBlogArticle(slug)
-    if (response.success) {
-      article = response.data.article
+    // Use direct fetch for SSR instead of apiClient
+    const response = await fetch(`http://localhost:3002/api/blog/articles/${slug}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
+        article = data.data.article
+      }
     }
   } catch (error) {
     console.error('Error fetching article from backend:', error)
@@ -39,11 +48,20 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
 export async function generateStaticParams() {
   try {
-    const response = await apiClient.getBlogArticles()
-    if (response.success) {
-      return response.data.articles.map((article: Article) => ({
-        slug: article.slug,
-      }))
+    // Use direct fetch for SSR instead of apiClient
+    const response = await fetch('http://localhost:3002/api/blog/articles', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    
+    if (response.ok) {
+      const data = await response.json()
+      if (data.success) {
+        return data.data.articles.map((article: Article) => ({
+          slug: article.slug,
+        }))
+      }
     }
   } catch (error) {
     console.error('Error fetching articles for static params:', error)
