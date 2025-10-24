@@ -42,9 +42,10 @@ export function useProjects(category?: string): UseProjectsReturn {
       const response = await apiClient.getProjects({ category });
       
       if (response.success) {
-        // Transform projects to extract category name from category object
+        // Transform projects to extract category name from category object and map headerImage to image
         const transformedProjects = response.data.projects.map((project: any) => ({
           ...project,
+          image: project.headerImage || project.image || '/api/placeholder/400/300',
           category: project.category?.name || project.category || 'Uncategorized'
         }));
         setProjects(transformedProjects);

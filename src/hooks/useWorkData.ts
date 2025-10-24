@@ -33,7 +33,15 @@ export const useWorkData = () => {
       try {
         const response = await apiClient.getProjects();
         if (response.success) {
-          setProjects(response.data.projects);
+          // Transform projects to map headerImage to image and extract category name
+          const transformedProjects = response.data.projects.map((project: any) => ({
+            ...project,
+            image: project.headerImage || project.image || '/api/placeholder/400/300',
+            category: project.category?.name || project.category || 'Uncategorized',
+            technologies: project.technologies?.map((tech: any) => tech.name) || [],
+            results: project.results?.map((result: any) => result.description) || []
+          }));
+          setProjects(transformedProjects);
         }
       } catch (err) {
         console.error('Error fetching projects:', err);

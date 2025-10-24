@@ -36,6 +36,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = localStorage.getItem('token')
       if (token) {
+        // Check if token is expired before making API call
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          const currentTime = Date.now() / 1000
+          
+          if (payload.exp && payload.exp < currentTime) {
+            // Token is expired
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            setLoading(false)
+            return
+          }
+        } catch (e) {
+          // Invalid token format
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          setLoading(false)
+          return
+        }
+
         const response = await apiClient.getCurrentUser()
         if (response.success) {
           setUser(response.data.user)

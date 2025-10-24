@@ -130,7 +130,13 @@ export function usePortfolioAdmin() {
       const projectsData = await projectsRes.json()
       const categoriesData = await categoriesRes.json()
 
-      setProjects(projectsData.data?.projects || [])
+      // Ensure all projects have contentBlocks as an array
+      const projects = (projectsData.data?.projects || []).map((project: any) => ({
+        ...project,
+        contentBlocks: project.contentBlocks || []
+      }))
+
+      setProjects(projects)
       setCategories(categoriesData.data?.categories || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
@@ -158,7 +164,11 @@ export function usePortfolioAdmin() {
       }
 
       const result = await response.json()
-      setProjects(prev => [...prev, result.data.project])
+      const newProject = {
+        ...result.data.project,
+        contentBlocks: result.data.project.contentBlocks || []
+      }
+      setProjects(prev => [...prev, newProject])
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create project')
@@ -184,7 +194,11 @@ export function usePortfolioAdmin() {
       }
 
       const result = await response.json()
-      setProjects(prev => prev.map(p => p.id === id ? result.data.project : p))
+      const updatedProject = {
+        ...result.data.project,
+        contentBlocks: result.data.project.contentBlocks || []
+      }
+      setProjects(prev => prev.map(p => p.id === id ? updatedProject : p))
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update project')

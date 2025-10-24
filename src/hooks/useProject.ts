@@ -106,7 +106,7 @@ export function useProject(projectId: string): UseProjectReturn {
             id: data.data.project.id,
             title: data.data.project.title,
             category: data.data.project.category?.name || data.data.project.category || 'Uncategorized',
-            headerImage: data.data.project.image,
+            headerImage: data.data.project.headerImage,
             description: data.data.project.description,
             challenge: data.data.project.challenge || '',
             solution: data.data.project.solution || '',

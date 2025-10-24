@@ -5,6 +5,29 @@ interface ProjectCaseStudyProps {
   project: Project;
 }
 
+// Helper function to get the correct image source
+const getImageSrc = (image: string | null | undefined) => {
+  if (!image) return null;
+
+  // If it's a full URL (http, https, or blob), return as is
+  if (image.startsWith('http') || image.startsWith('blob:')) {
+    return image;
+  }
+
+  // If it's a base64 image, return as is
+  if (image.startsWith('data:image/')) {
+    return image;
+  }
+
+  // If it's a filename (contains extension), construct the full URL
+  if (image.includes('.') && image.length > 10) {
+    return `http://localhost:3002/uploads/images/${image}`;
+  }
+
+  // For anything else, return null
+  return null;
+};
+
 export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
   return (
     <div className="min-h-screen bg-white">
@@ -77,20 +100,31 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
 
             {/* Hero Image */}
             <div className="mb-16">
-              <div className="relative w-full h-96 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-black/20"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="w-32 h-32 bg-white/20 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
+              {getImageSrc(project.headerImage) ? (
+                <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
+                  <img 
+                    src={getImageSrc(project.headerImage)!} 
+                    alt={project.title}
+                    className="w-full h-auto object-cover"
+                    style={{ maxHeight: '600px' }}
+                  />
+                </div>
+              ) : (
+                <div className="relative w-full h-96 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl overflow-hidden">
+                  <div className="absolute inset-0 bg-black/20"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <div className="w-32 h-32 bg-white/20 rounded-2xl mx-auto mb-6 flex items-center justify-center">
+                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h2 className="text-4xl font-bold mb-4">Project Showcase</h2>
+                      <p className="text-xl opacity-90">Interactive project demonstration</p>
                     </div>
-                    <h2 className="text-4xl font-bold mb-4">Project Showcase</h2>
-                    <p className="text-xl opacity-90">Interactive project demonstration</p>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Dynamic Content Blocks - Free Form Article */}

@@ -5,6 +5,29 @@ interface ProjectProps {
   project: Project;
 }
 
+// Helper function to get the correct image source
+const getImageSrc = (image: string | null | undefined) => {
+  if (!image) return null;
+
+  // If it's a full URL (http, https, or blob), return as is
+  if (image.startsWith('http') || image.startsWith('blob:')) {
+    return image;
+  }
+
+  // If it's a base64 image, return as is
+  if (image.startsWith('data:image/')) {
+    return image;
+  }
+
+  // If it's a filename (contains extension), construct the full URL
+  if (image.includes('.') && image.length > 10) {
+    return `http://localhost:3002/uploads/images/${image}`;
+  }
+
+  // For anything else, return null
+  return null;
+};
+
 export function ProjectComponent({ project }: ProjectProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F2F3FF] via-white to-[#DFC7FE]/20">
@@ -69,24 +92,36 @@ export function ProjectComponent({ project }: ProjectProps) {
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative">
-            {/* Main Visual Container */}
-            <div className="bg-gradient-to-br from-[#6812F7] via-[#9253F0] to-[#DFC7FE] rounded-3xl p-8 md:p-16 shadow-2xl hover-lift">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 flex items-center justify-center min-h-[500px] relative overflow-hidden">
-                {/* Animated Background Elements */}
-                <div className="absolute top-10 right-10 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="absolute bottom-10 left-10 w-24 h-24 bg-white/15 rounded-full blur-lg float-animation"></div>
-                
-                <div className="text-white text-center relative z-10">
-                  <div className="w-32 h-32 bg-white/20 rounded-3xl mx-auto mb-6 flex items-center justify-center hover-lift">
-                    <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
+            {getImageSrc(project.headerImage) ? (
+              /* Project Image Display */
+              <div className="rounded-3xl overflow-hidden shadow-2xl hover-lift">
+                <img 
+                  src={getImageSrc(project.headerImage)!} 
+                  alt={project.title}
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '600px' }}
+                />
+              </div>
+            ) : (
+              /* Fallback Placeholder */
+              <div className="bg-gradient-to-br from-[#6812F7] via-[#9253F0] to-[#DFC7FE] rounded-3xl p-8 md:p-16 shadow-2xl hover-lift">
+                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 flex items-center justify-center min-h-[500px] relative overflow-hidden">
+                  {/* Animated Background Elements */}
+                  <div className="absolute top-10 right-10 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
+                  <div className="absolute bottom-10 left-10 w-24 h-24 bg-white/15 rounded-full blur-lg float-animation"></div>
+                  
+                  <div className="text-white text-center relative z-10">
+                    <div className="w-32 h-32 bg-white/20 rounded-3xl mx-auto mb-6 flex items-center justify-center hover-lift">
+                      <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4">Project Showcase</h3>
+                    <p className="text-lg opacity-90">Interactive project demonstration</p>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold mb-4">Project Showcase</h3>
-                  <p className="text-lg opacity-90">Interactive project demonstration</p>
                 </div>
               </div>
-            </div>
+            )}
             
             {/* Floating Elements */}
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-[#DFC7FE] to-[#9253F0] rounded-2xl rotate-12 float-animation"></div>

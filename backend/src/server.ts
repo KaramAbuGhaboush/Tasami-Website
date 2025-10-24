@@ -7,6 +7,9 @@ import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpecs from './config/swagger';
 import path from 'path';
+import { securityHeaders, generalRateLimit, authRateLimit, securityMonitoring, requestLogger } from './middleware/security';
+import { securityConfig } from './config/security';
+import { performanceMiddleware, getPerformanceStats } from './utils/performance';
 
 // Import routes
 import authRoutes from './routes/auth';
@@ -25,36 +28,28 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Security middleware
-app.use(helmet());
+// Enhanced security middleware
+app.use(securityHeaders);
 
 // CORS configuration
-app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:3000'
-  ],
-  credentials: true
-}));
+app.use(cors(securityConfig.cors));
+
+// Request logging
+if (securityConfig.monitoring.performanceEnabled) {
+  app.use(requestLogger);
+}
+
+// Performance monitoring
+app.use(performanceMiddleware);
+
+// Security monitoring
+if (securityConfig.monitoring.securityEnabled) {
+  app.use(securityMonitoring);
+}
 
 // Rate limiting
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs (increased for dashboard)
-  message: 'Too many requests from this IP, please try again later.'
-});
-
-// Specific rate limiter for auth endpoints
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // limit each IP to 10 login attempts per windowMs
-  message: 'Too many login attempts from this IP, please try again later.',
-  skipSuccessfulRequests: true // Don't count successful requests
-});
-
-app.use('/api/', generalLimiter);
-app.use('/api/auth/', authLimiter);
+app.use('/api/', generalRateLimit);
+app.use('/api/auth/', authRateLimit);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -98,6 +93,23 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
+});
+
+// Performance stats endpoint
+app.get('/api/performance', (req, res) => {
+  try {
+    const stats = getPerformanceStats();
+    res.json({
+      success: true,
+      data: stats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get performance stats'
+    });
+  }
 });
 
 // Swagger Documentation

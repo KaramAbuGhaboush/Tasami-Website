@@ -273,9 +273,12 @@ export function Career({
                 </div>
 
                 <div className="mt-6 flex flex-col sm:flex-row gap-4">
-                  <button className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300">
+                  <a 
+                    href={`mailto:admin@tasami.co?subject=Application for ${encodeURIComponent(job.title)} position`}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 text-center"
+                  >
                     Apply Now
-                  </button>
+                  </a>
                   <button className="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-full font-semibold hover:border-blue-600 hover:text-blue-600 transition-all duration-300">
                     Learn More
                   </button>

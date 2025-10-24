@@ -25,6 +25,10 @@ model User {
 
   timeEntries TimeEntry[]
 
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -62,6 +66,9 @@ model BlogCategory {
 
   articles      BlogArticle[]
 
+  @@index([slug])
+  @@index([featured])
+  @@index([createdAt])
   @@map("blog_categories")
 }
 
@@ -87,6 +94,13 @@ model BlogArticle {
   categoryId      String
   category        BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([createdAt])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([views])
   @@map("blog_articles")
 }
 

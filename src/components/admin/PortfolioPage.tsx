@@ -124,6 +124,7 @@ export function PortfolioPage() {
   const [newBlockImagePreview, setNewBlockImagePreview] = useState('')
   const [isUploadingImage, setIsUploadingImage] = useState(false)
 
+
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -173,7 +174,7 @@ export function PortfolioPage() {
       technologies: projectForm.technologies,
       results: projectForm.results,
       testimonial: projectForm.testimonial.quote ? projectForm.testimonial : undefined,
-      contentBlocks: contentBlocks.map(block => ({
+      contentBlocks: Array.isArray(contentBlocks) ? contentBlocks.map(block => ({
         type: block.type,
         order: block.order,
         content: block.content,
@@ -183,11 +184,14 @@ export function PortfolioPage() {
         caption: block.caption,
         columns: block.columns,
         images: block.images
-      }))
+      })) : []
     }
     
     const success = await createProject(projectData)
     if (success) {
+      // Refresh all data to get the latest content blocks
+      await fetchAll()
+      
       // Reset form
       setProjectForm({
         title: '',
@@ -451,11 +455,38 @@ export function PortfolioPage() {
       return
     }
 
+    // For new projects (not yet saved), add to local state
     if (!editingProject) {
-      alert('Please save the project first before adding content blocks')
+      const newBlock: ContentBlock = {
+        id: `temp-${Date.now()}`,
+        type: newBlockType,
+        order: contentBlocks.length,
+        content: newBlockContent,
+        level: newBlockType === 'heading' ? newBlockLevel : undefined,
+        src: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockImage : undefined,
+        alt: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockAlt : undefined,
+        caption: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockCaption : undefined,
+        columns: newBlockType === 'imageGrid' ? newBlockColumns : undefined,
+        images: newBlockType === 'imageGrid' ? [] : undefined,
+        projectId: '', // Will be set when project is created
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      setContentBlocks([...contentBlocks, newBlock])
+      
+      // Reset form
+      setNewBlockContent('')
+      setNewBlockImage('')
+      setNewBlockAlt('')
+      setNewBlockCaption('')
+      setNewBlockImageFile(null)
+      setNewBlockImagePreview('')
+      setIsUploadingImage(false)
       return
     }
 
+    // For existing projects, create via API
     const blockData = {
       type: newBlockType,
       order: contentBlocks.length,
@@ -482,22 +513,32 @@ export function PortfolioPage() {
   }
 
   const handleRemoveContentBlock = async (blockId: string) => {
-    if (!editingProject) return
-    
     if (confirm('Are you sure you want to delete this content block?')) {
+      // For new projects (not yet saved), remove from local state
+      if (!editingProject) {
+        setContentBlocks(contentBlocks.filter(block => block.id !== blockId))
+        return
+      }
+      
+      // For existing projects, delete via API
       await deleteContentBlock(editingProject.id, blockId)
     }
   }
 
   const handleUpdateContentBlock = async (blockId: string, field: keyof ContentBlock, value: any) => {
-    if (!editingProject) return
+    // For new projects (not yet saved), update local state
+    if (!editingProject) {
+      setContentBlocks(contentBlocks.map(block => 
+        block.id === blockId ? { ...block, [field]: value } : block
+      ))
+      return
+    }
     
+    // For existing projects, update via API
     await updateContentBlock(editingProject.id, blockId, { [field]: value })
   }
 
   const handleReorderContentBlocks = async (fromIndex: number, toIndex: number) => {
-    if (!editingProject) return
-    
     const newBlocks = [...contentBlocks]
     const [movedBlock] = newBlocks.splice(fromIndex, 1)
     newBlocks.splice(toIndex, 0, movedBlock)
@@ -510,13 +551,15 @@ export function PortfolioPage() {
     
     setContentBlocks(reorderedBlocks)
     
-    // Update via API
-    const blocksToUpdate = reorderedBlocks.map(block => ({
-      id: block.id,
-      order: block.order
-    }))
-    
-    await reorderContentBlocks(editingProject.id, blocksToUpdate)
+    // For existing projects, update via API
+    if (editingProject) {
+      const blocksToUpdate = reorderedBlocks.map(block => ({
+        id: block.id,
+        order: block.order
+      }))
+      
+      await reorderContentBlocks(editingProject.id, blocksToUpdate)
+    }
   }
 
   const handleEditProject = (project: Project) => {
@@ -540,7 +583,7 @@ export function PortfolioPage() {
       } : { quote: '', author: '', position: '' }
     })
     setImagePreview(project.headerImage || '')
-    setContentBlocks(project.contentBlocks || [])
+    setContentBlocks(Array.isArray(project.contentBlocks) ? project.contentBlocks : [])
     setProjectDialogOpen(true)
   }
 
@@ -1301,9 +1344,14 @@ export function PortfolioPage() {
                         </div>
 
                         {/* Content Blocks List */}
-                        {contentBlocks.length > 0 && (
-                          <div className="space-y-3">
-                            <h4 className="text-sm font-medium text-gray-700">Content Blocks ({contentBlocks.length})</h4>
+                        <div className="space-y-3">
+                          <h4 className="text-sm font-medium text-gray-700">
+                            Content Blocks ({Array.isArray(contentBlocks) ? contentBlocks.length : 0})
+                            {!editingProject && (!Array.isArray(contentBlocks) || contentBlocks.length === 0) && (
+                              <span className="text-gray-500 text-xs ml-2">(Add blocks before creating the project)</span>
+                            )}
+                          </h4>
+                          {Array.isArray(contentBlocks) && contentBlocks.length > 0 ? (
                             <div className="space-y-2">
                               {contentBlocks
                                 .sort((a, b) => a.order - b.order)
@@ -1368,8 +1416,19 @@ export function PortfolioPage() {
                                 </div>
                               ))}
                             </div>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="text-center py-8 text-gray-500">
+                              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                              <p className="text-sm">No content blocks yet</p>
+                              <p className="text-xs text-gray-400 mt-1">
+                                {!editingProject 
+                                  ? 'Add content blocks above before creating the project'
+                                  : 'Add content blocks above to enhance your project'
+                                }
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

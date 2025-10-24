@@ -2,6 +2,7 @@ import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import upload from '../middleware/upload';
 import path from 'path';
+import { cacheConfigs, invalidateCache } from '../middleware/cache';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -68,7 +69,7 @@ const prisma = new PrismaClient();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/articles', async (req, res) => {
+router.get('/articles', cacheConfigs.blogArticles, async (req, res) => {
   try {
     const { page = 1, limit = 10, category, featured, status = 'published' } = req.query;
     
@@ -1175,6 +1176,9 @@ router.post('/articles', async (req, res) => {
         }
       }
     });
+
+    // Invalidate blog cache after creating new article
+    invalidateCache.blog();
 
     return res.status(201).json({
       success: true,
