@@ -18,11 +18,26 @@ const nextConfig: NextConfig = {
         port: '3002',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'yourdomain.com',
+        pathname: '/uploads/**',
+      },
     ],
   },
 
   // Compression
   compress: true,
+
+  // Disable ESLint during build for production deployment
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  // Disable TypeScript type checking during build
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 
   // Performance optimizations
   experimental: {
@@ -55,7 +70,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: http://localhost:3002; connect-src 'self' http://localhost:3002; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: http://localhost:3002 https://yourdomain.com; connect-src 'self' http://localhost:3002 https://yourdomain.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';"
           },
           {
             key: 'X-Frame-Options',

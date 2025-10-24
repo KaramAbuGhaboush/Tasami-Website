@@ -1,0 +1,9 @@
+# Backend .htaccess - Block direct access
+RewriteEngine On
+
+# Block all direct access to backend files
+RewriteRule ^(.*)$ - [F,L]
+
+# Allow only API endpoints
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^(.*)$ - [L]

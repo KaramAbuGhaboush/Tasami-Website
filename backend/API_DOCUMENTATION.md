@@ -1,7 +1,7 @@
 # Tasami API Documentation
 
 ## Overview
-This backend API provides comprehensive endpoints for the Tasami website, including blog management, job positions, contact messages, projects, testimonials, user authentication, and more.
+This backend API provides comprehensive endpoints for the Tasami website, including blog management, job positions, contact messages, projects, testimonials, user authentication, employee management, and time tracking.
 
 ## Interactive Documentation
 The API documentation is available through Swagger UI at:
@@ -21,33 +21,33 @@ http://localhost:3002/api
 
 ### 🔗 **Complete Database Schema**
 
-The database uses **SQLite** with **Prisma ORM** and contains **15 interconnected models**:
+The database uses **SQLite** with **Prisma ORM** and contains **16 interconnected models**:
 
 #### **Authentication & User Management**
 - **`User`** - User accounts and authentication
-  - Fields: `id`, `email`, `name`, `password`, `role`, `isActive`, `weeklyGoal`, `createdAt`, `updatedAt`
+  - Fields: `id`, `email`, `name`, `password`, `role`, `isActive`, `weeklyGoal`, `department`, `phone`, `createdAt`, `updatedAt`
   - Relationships: One-to-Many with `TimeEntry`
 
 #### **Blog System**
 - **`BlogAuthor`** - Blog content authors
-  - Fields: `id`, `name`, `role`, `email`, `avatar`, `bio`, `socialLinks`, `expertise`, `joinDate`
+  - Fields: `id`, `name`, `role`, `email`, `avatar`, `bio`, `socialLinks`, `expertise`, `joinDate`, `createdAt`, `updatedAt`
   - Relationships: One-to-Many with `BlogArticle`
 
 - **`BlogCategory`** - Blog article categories  
-  - Fields: `id`, `name`, `slug`, `description`, `color`, `icon`, `seoTitle`, `seoDescription`, `featured`
+  - Fields: `id`, `name`, `slug`, `description`, `color`, `icon`, `seoTitle`, `seoDescription`, `featured`, `createdAt`, `updatedAt`
   - Relationships: One-to-Many with `BlogArticle`
 
 - **`BlogArticle`** - Blog posts with full content management
-  - Fields: `id`, `title`, `excerpt`, `content`, `slug`, `image`, `readTime`, `featured`, `status`, `views`, `tags`, `relatedArticles`
+  - Fields: `id`, `title`, `excerpt`, `content`, `slug`, `image`, `readTime`, `featured`, `status`, `views`, `tags`, `relatedArticles`, `createdAt`, `updatedAt`
   - Relationships: Many-to-One with `BlogAuthor` and `BlogCategory`
 
 #### **Project Management System**
 - **`ProjectCategory`** - Project categorization
-  - Fields: `id`, `name`, `slug`, `description`, `color`, `icon`, `featured`, `sortOrder`, `status`
+  - Fields: `id`, `name`, `slug`, `description`, `color`, `icon`, `featured`, `sortOrder`, `status`, `createdAt`, `updatedAt`
   - Relationships: One-to-Many with `Project`
 
 - **`Project`** - Company projects with technologies and results
-  - Fields: `id`, `title`, `description`, `headerImage`, `challenge`, `solution`, `timeline`, `teamSize`, `status`
+  - Fields: `id`, `title`, `description`, `headerImage`, `challenge`, `solution`, `timeline`, `teamSize`, `status`, `createdAt`, `updatedAt`
   - Relationships: Many-to-One with `ProjectCategory`, One-to-Many with `ProjectTechnology`, `ProjectResult`, `ProjectTestimonial`, `ContentBlock`
 
 - **`ProjectTechnology`** - Technologies used in projects
@@ -63,12 +63,12 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
   - Relationships: One-to-One with `Project`
 
 - **`ContentBlock`** - Dynamic content blocks for projects
-  - Fields: `id`, `type`, `order`, `content`, `src`, `alt`, `width`, `height`, `caption`, `level`, `columns`, `images`, `projectId`
+  - Fields: `id`, `type`, `order`, `content`, `src`, `alt`, `width`, `height`, `caption`, `level`, `columns`, `images`, `projectId`, `createdAt`, `updatedAt`
   - Relationships: Many-to-One with `Project`
 
 #### **Career & HR System**
 - **`Job`** - Career opportunities
-  - Fields: `id`, `title`, `department`, `location`, `type`, `experience`, `description`, `requirements`, `benefits`, `status`, `postedDate`, `applicationDeadline`, `applications`, `salary`, `skills`, `team`
+  - Fields: `id`, `title`, `department`, `location`, `type`, `experience`, `description`, `requirements`, `benefits`, `status`, `postedDate`, `applicationDeadline`, `applications`, `salary`, `team`, `createdAt`, `updatedAt`
   - Relationships: None (standalone)
 
 #### **Communication System**
@@ -79,17 +79,22 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
   - Relationships: None (standalone)
 
 - **`Testimonial`** - Client testimonials
-  - Fields: `id`, `name`, `role`, `company`, `quote`, `rating`, `initials`, `featured`, `status`
+  - Fields: `id`, `name`, `role`, `company`, `quote`, `rating`, `initials`, `featured`, `status`, `createdAt`, `updatedAt`
   - Relationships: None (standalone)
 
 #### **Internal HR System**
 - **`Employee`** - Internal employee management
-  - Fields: `id`, `name`, `position`, `email`, `department`, `salary`, `hireDate`, `status`, `benefits`
+  - Fields: `id`, `name`, `position`, `email`, `department`, `salary`, `hireDate`, `status`, `benefits`, `createdAt`, `updatedAt`
   - Relationships: One-to-Many with `Salary`
 
 - **`Salary`** - Employee salary tracking
-  - Fields: `id`, `amount`, `frequency`, `lastPaid`, `nextPayment`, `status`, `deductions`, `netPay`, `employeeId`
+  - Fields: `id`, `amount`, `frequency`, `lastPaid`, `nextPayment`, `status`, `deductions`, `netPay`, `employeeId`, `createdAt`, `updatedAt`
   - Relationships: Many-to-One with `Employee`
+
+#### **Time Tracking System**
+- **`TimeEntry`** - Employee time tracking entries
+  - Fields: `id`, `date`, `hours`, `minutes`, `project`, `description`, `userId`, `createdAt`, `updatedAt`
+  - Relationships: Many-to-One with `User`
 
 ### 📊 **Database Statistics**
 - **Total Models**: 16
@@ -97,7 +102,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - **Primary Keys**: All models use `cuid()` for unique IDs
 - **Timestamps**: All models have `createdAt` and `updatedAt`
 - **Soft Deletes**: Status-based filtering instead of hard deletes
-- **JSON Fields**: Used for flexible data (tags, socialLinks, expertise, requirements, benefits, skills, etc.)
+- **JSON Fields**: Used for flexible data (tags, socialLinks, expertise, requirements, benefits, etc.)
 
 ### 📋 **Model List**
 1. **User** - Authentication and user management with time tracking
@@ -138,11 +143,11 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 │ • id            │    │ • id            │    │ • id            │
 │ • name          │    │ • title         │    │ • name          │
 │ • slug          │    │ • description   │    │ • description   │
-│ • color         │    │ • status        │    │ • projectId     │
-│ • featured      │    │ • challenge     │    └─────────────────┘
-│ • sortOrder     │    │ • solution      │
-│ • status        │    └─────────────────┘    ┌─────────────────┐
-└─────────────────┘             │             │  ProjectResult  │
+│ • color         │    │ • headerImage   │    │ • projectId     │
+│ • featured      │    │ • status        │    └─────────────────┘
+│ • sortOrder     │    │ • challenge     │
+│ • status        │    │ • solution      │    ┌─────────────────┐
+└─────────────────┘    └─────────────────┘    │  ProjectResult  │
                                 │             │                 │
                                 │             │ • id            │
                                 │             │ • metric        │
@@ -159,6 +164,16 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
                                 │             │ • position       │
                                 │             │ • projectId      │
                                 │             └──────────────────┘
+                                │
+                                │             ┌─────────────────┐
+                                │             │  ContentBlock   │
+                                │             │                 │
+                                │             │ • id            │
+                                │             │ • type          │
+                                │             │ • order         │
+                                │             │ • content       │
+                                │             │ • projectId     │
+                                │             └─────────────────┘
 
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │      User       │────│   TimeEntry     │    │ ContactMessage  │
@@ -170,11 +185,11 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 │ • role          │    │ • project       │    │ • message       │
 │ • isActive      │    │ • description   │    │ • service       │
 │ • weeklyGoal    │    │ • userId        │    │ • budget        │
-│ • createdAt     │    │ • createdAt     │    │ • status        │
-│ • updatedAt     │    │ • updatedAt     │    │ • source        │
-└─────────────────┘    └─────────────────┘    │ • createdAt     │
-                                              │ • updatedAt     │
-                                              └─────────────────┘
+│ • department    │    │ • createdAt     │    │ • status        │
+│ • phone         │    │ • updatedAt     │    │ • source        │
+│ • createdAt     │    └─────────────────┘    │ • createdAt     │
+│ • updatedAt     │                           │ • updatedAt     │
+└─────────────────┘                           └─────────────────┘
 
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │    Employee     │────│     Salary      │    │   Testimonial   │
@@ -188,6 +203,8 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 │ • hireDate      │    │ • deductions    │    │ • initials      │
 │ • status        │    │ • netPay        │    │ • featured      │
 │ • benefits      │    │ • employeeId    │    │ • status        │
+│ • createdAt     │    │ • createdAt     │    │ • createdAt     │
+│ • updatedAt     │    │ • updatedAt     │    │ • updatedAt     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 
 ┌─────────────────┐
@@ -204,71 +221,35 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 │ • benefits      │
 │ • status        │
 │ • salary        │
-│ • skills        │
 │ • team          │
+│ • postedDate    │
+│ • applicationDeadline│
+│ • applications  │
+│ • createdAt     │
+│ • updatedAt     │
 └─────────────────┘
 ```
 
-### 🗂️ **Data Flow & Relationships**
-
-#### **Content Management Flow**
-1. **Blog System**: `BlogAuthor` → `BlogArticle` ← `BlogCategory`
-2. **Project System**: `ProjectCategory` → `Project` → `ProjectTechnology` + `ProjectResult` + `ProjectTestimonial`
-
-#### **Communication Flow**
-1. **Public**: `ContactMessage` (standalone)
-2. **Marketing**: `Testimonial` (standalone)
-3. **Career**: `Job` (standalone)
-
-#### **Internal Management**
-1. **HR System**: `Employee` → `Salary`
-2. **Authentication & Time Tracking**: `User` → `TimeEntry` (Employee time tracking)
-3. **User Management**: `User` model with `weeklyGoal` and `isActive` fields
-
-#### **Testimonial System (Two Types)**
-1. **`Testimonial`** - General marketing testimonials (standalone)
-   - Used for website testimonials, client reviews
-   - Has fields: name, role, company, quote, rating, featured, status
-   
-2. **`ProjectTestimonial`** - Project-specific client testimonials
-   - Linked to specific projects via `projectId`
-   - Has fields: quote, author, position, projectId
-   - One testimonial per project (unique constraint)
-
-### 🔧 **Database Features**
-- **Type Safety**: Prisma ORM with TypeScript
-- **Migrations**: Automatic schema management
-- **Relationships**: Foreign key constraints
-- **Indexing**: Optimized queries with proper indexes
-- **Validation**: Field-level validation rules
-- **Soft Deletes**: Status-based filtering
-- **JSON Support**: Flexible data structures
-- **Timestamps**: Automatic createdAt/updatedAt tracking
-
 ## Available Endpoints
 
-### 🎉 **COMPLETE SWAGGER DOCUMENTATION** (42 endpoints)
+### 🎉 **COMPLETE API DOCUMENTATION** (72 endpoints)
 
 **📊 FINAL STATUS:**
-- **Total endpoints in code**: 42 endpoints
-- **Swagger documented**: 42 endpoints ✅ **100% COMPLETE!**
+- **Total endpoints in code**: 72 endpoints
+- **Swagger documented**: 72 endpoints ✅ **100% COMPLETE!**
 - **Missing from Swagger**: 0 endpoints ✅ **NONE!**
-
-**📚 SWAGGER DOCUMENTATION STATUS:**
-- **Fully Documented**: All 7 route files with complete CRUD operations
-- **Interactive Testing**: All endpoints available in Swagger UI
-- **Complete Coverage**: Public + Admin endpoints documented
 
 ---
 
-## ✅ **ALL ENDPOINTS DOCUMENTED IN SWAGGER** (56 total)
+## ✅ **ALL ENDPOINTS DOCUMENTED IN SWAGGER** (72 total)
 
-### Authentication (`/api/auth`) - 3 endpoints
+### Authentication (`/api/auth`) - 4 endpoints
 - `POST /register` - Register a new user (no token returned - for admin-created users)
 - `POST /login` - User login (returns JWT token)
 - `GET /me` - Get current user profile (requires authentication)
+- `PUT /me` - Update current user profile (requires authentication)
 
-### Blog Management (`/api/blog`) - 13 endpoints
+### Blog Management (`/api/blog`) - 14 endpoints
 **Public Endpoints:**
 - `GET /articles` - Get all blog articles (with pagination, filtering)
 - `GET /articles/:slug` - Get article by slug (increments view count)
@@ -285,6 +266,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `POST /authors` - Create author
 - `PUT /authors/:id` - Update author
 - `DELETE /authors/:id` - Delete author
+- `POST /upload-image` - Upload image for blog articles
 
 ### Career Management (`/api/career`) - 6 endpoints
 **Public Endpoints:**
@@ -297,7 +279,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `PUT /jobs/:id` - Update job
 - `DELETE /jobs/:id` - Delete job
 
-### Contact Management (`/api/contact`) - 4 endpoints
+### Contact Management (`/api/contact`) - 5 endpoints
 **Public Endpoints:**
 - `POST /messages` - Submit contact message (requires: name, email, message, service, budget)
 
@@ -305,6 +287,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `GET /messages` - Get all contact messages (Admin)
 - `PUT /messages/:id` - Update message status
 - `DELETE /messages/:id` - Delete message
+- `GET /messages/stats` - Get contact message statistics
 
 **📝 Contact Form Integration:**
 - Form fields: `name`, `email`, `company`, `service`, `budget`, `message`
@@ -321,7 +304,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `GET /profile` - Get user profile with weekly goal
 - `PUT /profile/weekly-goal` - Update weekly goal
 
-### Employee Management (`/api/employees`) - 7 endpoints
+### Employee Management (`/api/employees`) - 16 endpoints
 **Admin Endpoints:**
 - `GET /` - Get all employees (Admin only)
 - `POST /` - Create new employee (Admin only)
@@ -330,13 +313,25 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `DELETE /:id` - Delete employee (Admin only)
 - `GET /:id/time-entries` - Get employee's time entries (Admin)
 - `GET /:id/weekly-summary` - Get employee's weekly summary (Admin)
+- `GET /:id/salaries` - Get employee's salary history (Admin)
+- `POST /:id/salaries` - Create salary record for employee (Admin)
+- `PUT /:id/salaries/:salaryId` - Update salary record (Admin)
+- `DELETE /:id/salaries/:salaryId` - Delete salary record (Admin)
+- `GET /stats` - Get employee statistics (Admin)
+- `GET /departments` - Get all departments (Admin)
+- `GET /positions` - Get all positions (Admin)
+- `POST /bulk-import` - Bulk import employees (Admin)
+- `GET /export` - Export employee data (Admin)
 
-### Project Management (`/api/projects`) - 8 endpoints
+### Project Management (`/api/projects`) - 10 endpoints
 **Public Endpoints:**
 - `GET /` - Get all projects (with category filtering)
 - `GET /:id` - Get project by ID with content blocks
+
+**Admin Endpoints:**
 - `POST /` - Create new project (with technologies, results, and testimonial)
 - `PUT /:id` - Update project (with technologies, results, and testimonial)
+- `DELETE /:id` - Delete project
 
 **Content Block Management:**
 - `POST /:id/content-blocks` - Create new content block for project
@@ -364,7 +359,7 @@ The database uses **SQLite** with **Prisma ORM** and contains **15 interconnecte
 - `PUT /:id` - Update category
 - `DELETE /:id` - Delete category
 
-> **🎉 All 52 endpoints now have complete Swagger documentation with interactive testing!**
+> **🎉 All 72 endpoints now have complete Swagger documentation with interactive testing!**
 
 ## Query Parameters
 
@@ -378,6 +373,8 @@ Most list endpoints support pagination:
 - **Jobs**: `department`, `location`, `type`
 - **Testimonials**: `featured`, `status`
 - **Projects**: `category`
+- **Time Entries**: `date`, `project`, `userId`
+- **Employees**: `department`, `status`, `position`
 
 ## Response Format
 All API responses follow this consistent format:
@@ -434,6 +431,8 @@ All API responses follow this consistent format:
 - **Rate Limiting**: 100 requests per 15 minutes per IP
 - **Input Validation**: Request body validation
 - **SQL Injection Protection**: Prisma ORM
+- **Password Hashing**: bcrypt with 12 salt rounds
+- **JWT Authentication**: Secure token-based authentication
 
 ## Database Features
 - **SQLite**: Development database
@@ -441,6 +440,8 @@ All API responses follow this consistent format:
 - **Migrations**: Database schema management
 - **Relationships**: Foreign key relationships between models
 - **Soft Deletes**: Status-based filtering instead of hard deletes
+- **Indexing**: Optimized queries with proper indexes
+- **JSON Support**: Flexible data structures for complex fields
 
 ## Development Commands
 ```bash
@@ -465,78 +466,80 @@ npm run db:studio      # Open Prisma Studio
 - `DATABASE_URL`: Database connection string
 - `JWT_SECRET`: JWT signing secret
 - `FRONTEND_URL`: Frontend URL for CORS
+- `NODE_ENV`: Environment (development/production)
 
 ## API Status
 - ✅ Authentication system
 - ✅ Blog management (CRUD)
-- ✅ Project management
+- ✅ Project management with content blocks
 - ✅ Career management
 - ✅ Contact management
 - ✅ Testimonial management
 - ✅ Category management
+- ✅ Employee management with salary tracking
+- ✅ Time tracking system
 - ✅ Swagger documentation
 - ✅ Rate limiting
 - ✅ CORS configuration
 - ✅ Error handling
 - ✅ Input validation
-
-## 🔧 **Missing Swagger Documentation**
-
-### Categories Route (`/api/categories`)
-The categories endpoints are fully functional but completely missing from Swagger documentation. Need to add:
-
-```typescript
-/**
- * @swagger
- * /categories:
- *   get:
- *     summary: Get all project categories
- *     tags: [Categories]
- *     // ... rest of documentation
- */
-```
-
-### Admin Endpoints Missing Documentation
-Several admin endpoints work but lack Swagger annotations:
-- Blog article CRUD operations
-- Blog category CRUD operations  
-- Blog author CRUD operations
-- Career job CRUD operations
-- Contact message management
-- Testimonial CRUD operations
+- ✅ File upload support
+- ✅ Bulk operations
+- ✅ Data export functionality
 
 ## 📊 **Current API Summary**
 
-### ✅ **Swagger Documented** (54 endpoints) - **100% COMPLETE!**
-- **Authentication**: 3 endpoints ✅
-- **Blog**: 13 endpoints ✅ (4 public + 9 admin)
+### ✅ **Swagger Documented** (72 endpoints) - **100% COMPLETE!**
+- **Authentication**: 4 endpoints ✅
+- **Blog**: 14 endpoints ✅ (4 public + 10 admin)
 - **Career**: 6 endpoints ✅ (3 public + 3 admin)  
-- **Contact**: 4 endpoints ✅ (1 public + 3 admin)
+- **Contact**: 5 endpoints ✅ (1 public + 4 admin)
 - **Employee Time Tracking**: 7 endpoints ✅ (7 employee)
-- **Employee Management**: 7 endpoints ✅ (7 admin)
-- **Projects**: 4 endpoints ✅ (4 public)
+- **Employee Management**: 16 endpoints ✅ (16 admin)
+- **Projects**: 10 endpoints ✅ (2 public + 8 admin)
 - **Testimonials**: 5 endpoints ✅ (2 public + 3 admin)
 - **Categories**: 5 endpoints ✅ (2 public + 3 admin)
 
 ### 📈 **Total API Coverage**
-- **Total Endpoints in Code**: 54 endpoints
-- **Swagger Documented**: 54 endpoints (100%) ✅ **ALL ENDPOINTS DOCUMENTED!**
+- **Total Endpoints in Code**: 72 endpoints
+- **Swagger Documented**: 72 endpoints (100%) ✅ **ALL ENDPOINTS DOCUMENTED!**
 - **Missing from Swagger**: 0 endpoints (0%)
 - **Complete Swagger documentation coverage achieved!**
 
-## ✅ **COMPLETED TASKS**
-- [x] Updated database schema documentation to reflect current models
-- [x] Updated API endpoints to match actual implementation
-- [x] Updated ContactMessage model to reflect removed fields
-- [x] Updated User model to include isActive and weeklyGoal fields
-- [x] Updated database relationships diagram
-- [x] **100% accurate documentation coverage achieved!**
+## 🔧 **Key Features**
 
-## Next Steps
-- [ ] Add file upload endpoints
-- [ ] Implement email notifications
-- [ ] Add search functionality
-- [ ] Implement caching
-- [ ] Add API versioning
-- [ ] Implement webhooks
-- [ ] Add monitoring and logging
+### **Content Management**
+- Dynamic blog system with authors, categories, and articles
+- Project showcase with content blocks and testimonials
+- Image upload and management
+- SEO optimization with meta fields
+
+### **Employee Management**
+- Complete HR system with employee records
+- Salary tracking and history
+- Time tracking with weekly goals
+- Department and position management
+- Bulk import/export functionality
+
+### **Communication**
+- Contact form with service and budget tracking
+- Client testimonial management
+- Job application system
+- Newsletter integration ready
+
+### **Project Management**
+- Project categorization and filtering
+- Technology and result tracking
+- Dynamic content blocks for case studies
+- Client testimonial integration
+- Image gallery support
+
+### **Security & Performance**
+- JWT-based authentication
+- Role-based access control
+- Rate limiting and CORS protection
+- Input validation and sanitization
+- Database query optimization
+- Caching middleware
+
+This API provides a complete backend solution for the Tasami website with full CRUD operations, authentication, file management, and comprehensive documentation.
