@@ -85,7 +85,7 @@ export interface UseBlogAdminReturn {
   
   createAuthor: (data: CreateAuthorData) => Promise<boolean>;
   updateAuthor: (id: string, data: UpdateAuthorData) => Promise<boolean>;
-  deleteAuthor: (id: string) => Promise<boolean>;
+  deleteAuthor: (id: string) => Promise<{ success: boolean; message?: string }>;
   
   // Refresh functions
   refreshArticles: () => Promise<void>;
@@ -103,6 +103,7 @@ export interface CreateArticleData {
   featured?: boolean;
   status?: 'draft' | 'published' | 'review';
   tags?: string[];
+  relatedArticles?: string[];
   authorId: string;
   categoryId: string;
 }
@@ -116,6 +117,7 @@ export interface UpdateArticleData {
   featured?: boolean;
   status?: 'draft' | 'published' | 'review';
   tags?: string[];
+  relatedArticles?: string[];
   authorId?: string;
   categoryId?: string;
 }
@@ -290,7 +292,7 @@ export function useBlogAdmin(): UseBlogAdminReturn {
   // Category actions
   const createCategory = async (data: CreateCategoryData): Promise<boolean> => {
     try {
-      const response = await apiClient.createCategory(data);
+      const response = await apiClient.createBlogCategory(data);
       if (response.success) {
         await fetchCategories();
         return true;
@@ -304,7 +306,7 @@ export function useBlogAdmin(): UseBlogAdminReturn {
 
   const updateCategory = async (id: string, data: UpdateCategoryData): Promise<boolean> => {
     try {
-      const response = await apiClient.updateCategory(id, data);
+      const response = await apiClient.updateBlogCategory(id, data);
       if (response.success) {
         await fetchCategories();
         return true;
@@ -318,7 +320,7 @@ export function useBlogAdmin(): UseBlogAdminReturn {
 
   const deleteCategory = async (id: string): Promise<boolean> => {
     try {
-      const response = await apiClient.deleteCategory(id);
+      const response = await apiClient.deleteBlogCategory(id);
       if (response.success) {
         await fetchCategories();
         return true;
@@ -359,17 +361,17 @@ export function useBlogAdmin(): UseBlogAdminReturn {
     }
   };
 
-  const deleteAuthor = async (id: string): Promise<boolean> => {
+  const deleteAuthor = async (id: string): Promise<{ success: boolean; message?: string }> => {
     try {
       const response = await apiClient.deleteAuthor(id);
       if (response.success) {
         await fetchAuthors();
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false, message: response.message || 'Failed to delete author' };
     } catch (error) {
       console.error('Error deleting author:', error);
-      return false;
+      return { success: false, message: 'Failed to delete author' };
     }
   };
 

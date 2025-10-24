@@ -88,13 +88,6 @@ class ApiClient {
     }>(`/blog/articles/${slug}`);
   }
 
-  async getBlogCategories() {
-    return this.request<{
-      success: boolean;
-      data: { categories: any[] };
-    }>('/blog/categories');
-  }
-
   async getBlogAuthors() {
     return this.request<{
       success: boolean;
@@ -224,15 +217,39 @@ class ApiClient {
     description: string;
     requirements: string[];
     benefits: string[];
-    skills?: string[];
     salary?: string;
     applicationDeadline?: string;
+    status?: string;
+    team?: string;
   }) {
     return this.request<{
       success: boolean;
       data: { job: any };
     }>('/career/jobs', {
       method: 'POST',
+      body: JSON.stringify(jobData),
+    });
+  }
+
+  async updateJob(id: string, jobData: {
+    title?: string;
+    department?: string;
+    location?: string;
+    type?: string;
+    experience?: string;
+    description?: string;
+    requirements?: string[];
+    benefits?: string[];
+    salary?: string;
+    applicationDeadline?: string;
+    status?: string;
+    team?: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: { job: any };
+    }>(`/career/jobs/${id}`, {
+      method: 'PUT',
       body: JSON.stringify(jobData),
     });
   }
@@ -329,15 +346,15 @@ class ApiClient {
     });
   }
 
-  // Category API methods
-  async getCategories() {
+  // Blog Category API methods
+  async getBlogCategories() {
     return this.request<{
       success: boolean;
       data: { categories: any[] };
     }>('/blog/categories');
   }
 
-  async createCategory(categoryData: {
+  async createBlogCategory(categoryData: {
     name: string;
     description?: string;
     color?: string;
@@ -355,7 +372,7 @@ class ApiClient {
     });
   }
 
-  async updateCategory(id: string, categoryData: {
+  async updateBlogCategory(id: string, categoryData: {
     name?: string;
     description?: string;
     color?: string;
@@ -373,7 +390,7 @@ class ApiClient {
     });
   }
 
-  async deleteCategory(id: string) {
+  async deleteBlogCategory(id: string) {
     return this.request<{
       success: boolean;
       message: string;
@@ -382,12 +399,37 @@ class ApiClient {
     });
   }
 
+
   // Contact API
-  async getContactMessages() {
+  async getContactMessages(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    service?: string;
+    search?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.service) searchParams.append('service', params.service);
+    if (params?.search) searchParams.append('search', params.search);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/contact/messages${queryString ? `?${queryString}` : ''}`;
+    
     return this.request<{
       success: boolean;
-      data: { messages: any[] };
-    }>('/contact/messages');
+      data: {
+        messages: any[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(endpoint);
   }
 
   async submitContactMessage(messageData: {
@@ -431,6 +473,15 @@ class ApiClient {
       message: string;
     }>(`/contact/messages/${id}`, {
       method: 'DELETE',
+    });
+  }
+
+  async testContactEmail() {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>('/contact/test-email', {
+      method: 'POST',
     });
   }
 
@@ -653,77 +704,6 @@ class ApiClient {
     });
   }
 
-  // Categories API
-  async getCategories(params?: {
-    featured?: boolean;
-    status?: string;
-  }) {
-    const searchParams = new URLSearchParams();
-    if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
-    if (params?.status) searchParams.append('status', params.status);
-    
-    const queryString = searchParams.toString();
-    const endpoint = `/categories${queryString ? `?${queryString}` : ''}`;
-    
-    return this.request<{
-      success: boolean;
-      data: { categories: any[] };
-    }>(endpoint);
-  }
-
-  async getCategory(id: string) {
-    return this.request<{
-      success: boolean;
-      data: { category: any };
-    }>(`/categories/${id}`);
-  }
-
-  async createCategory(categoryData: {
-    name: string;
-    slug?: string;
-    description?: string;
-    color?: string;
-    icon?: string;
-    featured?: boolean;
-    sortOrder?: number;
-    status?: string;
-  }) {
-    return this.request<{
-      success: boolean;
-      data: { category: any };
-    }>('/categories', {
-      method: 'POST',
-      body: JSON.stringify(categoryData),
-    });
-  }
-
-  async updateCategory(id: string, categoryData: {
-    name?: string;
-    slug?: string;
-    description?: string;
-    color?: string;
-    icon?: string;
-    featured?: boolean;
-    sortOrder?: number;
-    status?: string;
-  }) {
-    return this.request<{
-      success: boolean;
-      data: { category: any };
-    }>(`/categories/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(categoryData),
-    });
-  }
-
-  async deleteCategory(id: string) {
-    return this.request<{
-      success: boolean;
-      message: string;
-    }>(`/categories/${id}`, {
-      method: 'DELETE',
-    });
-  }
 
   // Time Tracking API
   async getTimeEntries(params?: {
@@ -863,6 +843,15 @@ class ApiClient {
     }>('/auth/me');
   }
 
+  async logout() {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>('/auth/logout', {
+      method: 'POST',
+    });
+  }
+
   // User Profile API
   async getUserProfile() {
     return this.request<{
@@ -899,6 +888,276 @@ class ApiClient {
     }>('/time-entries/profile/weekly-goal', {
       method: 'PUT',
       body: JSON.stringify({ weeklyGoal }),
+    });
+  }
+
+  // Employee/User Management API
+  async getEmployees(params?: {
+    page?: number;
+    limit?: number;
+    department?: string;
+    status?: string;
+    search?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.limit) searchParams.append('limit', params.limit.toString());
+    if (params?.department) searchParams.append('department', params.department);
+    if (params?.status) searchParams.append('status', params.status);
+    if (params?.search) searchParams.append('search', params.search);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/employees${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: {
+        items: any[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(endpoint);
+  }
+
+  async getEmployee(id: string) {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+    }>(`/employees/${id}`);
+  }
+
+  async createEmployee(employeeData: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    department?: string;
+    role: 'admin' | 'employee';
+    isActive: boolean;
+    weeklyGoal: number;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+      message: string;
+    }>('/employees', {
+      method: 'POST',
+      body: JSON.stringify(employeeData),
+    });
+  }
+
+  async updateEmployee(id: string, employeeData: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    department?: string;
+    role?: 'admin' | 'employee';
+    isActive?: boolean;
+    weeklyGoal?: number;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+      message: string;
+    }>(`/employees/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(employeeData),
+    });
+  }
+
+  async deleteEmployee(id: string) {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>(`/employees/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getEmployeeTimeEntries(id: string, params?: {
+    filter?: 'today' | 'week' | 'all';
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.filter) searchParams.append('filter', params.filter);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/employees/${id}/time-entries${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: { 
+        items: any[];
+        pagination: {
+          page: number;
+          limit: number;
+          total: number;
+          pages: number;
+        };
+      };
+    }>(endpoint);
+  }
+
+  async changeEmployeeRole(id: string, role: 'admin' | 'employee') {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+      message: string;
+    }>(`/employees/${id}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async resetEmployeePassword(id: string, password: string) {
+    return this.request<{
+      success: boolean;
+      message: string;
+    }>(`/employees/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
+    });
+  }
+
+  async updateEmployeeGoal(id: string, weeklyGoal: number) {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+      message: string;
+    }>(`/employees/${id}/goal`, {
+      method: 'PUT',
+      body: JSON.stringify({ weeklyGoal }),
+    });
+  }
+
+  async toggleEmployeeStatus(id: string) {
+    return this.request<{
+      success: boolean;
+      data: { employee: any };
+      message: string;
+    }>(`/employees/${id}/toggle-status`, {
+      method: 'PUT',
+    });
+  }
+
+  async getEmployeeTimeEntries(id: string, params?: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/employees/${id}/time-entries${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: { timeEntries: any[] };
+    }>(endpoint);
+  }
+
+  async getEmployeeWeeklySummary(id: string, params?: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/employees/${id}/weekly-summary${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: {
+        totalHours: number;
+        totalMinutes: number;
+        entries: any[];
+        goal: number;
+        progress: number;
+      };
+    }>(endpoint);
+  }
+
+  async getTeamStats() {
+    return this.request<{
+      success: boolean;
+      data: {
+        totalUsers: number;
+        activeUsers: number;
+        inactiveUsers: number;
+        adminUsers: number;
+        employeeUsers: number;
+        newUsersThisMonth: number;
+        usersMeetingGoals: number;
+      };
+    }>('/employees/stats');
+  }
+
+  async getTeamAnalytics(params?: {
+    startDate?: string;
+    endDate?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.startDate) searchParams.append('startDate', params.startDate);
+    if (params?.endDate) searchParams.append('endDate', params.endDate);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/employees/analytics/team-summary${queryString ? `?${queryString}` : ''}`;
+    
+    return this.request<{
+      success: boolean;
+      data: {
+        totalUsers: number;
+        activeUsers: number;
+        totalHours: number;
+        averageHoursPerUser: number;
+        goalAchievementRate: number;
+        usersMeetingGoals: number;
+        usersExceedingGoals: number;
+        usersBelowGoals: number;
+        period: {
+          startDate: string;
+          endDate: string;
+        };
+      };
+    }>(endpoint);
+  }
+
+  async getProjectDistribution() {
+    return this.request<{
+      success: boolean;
+      data: {
+        projects: Array<{
+          name: string;
+          hours: number;
+          percentage: number;
+          color: string;
+        }>;
+      };
+    }>('/employees/analytics/project-distribution');
+  }
+
+  async bulkUpdateEmployees(userIds: string[], updates: {
+    role?: 'admin' | 'employee';
+    isActive?: boolean;
+    weeklyGoal?: number;
+    department?: string;
+  }) {
+    return this.request<{
+      success: boolean;
+      data: {
+        updatedCount: number;
+        failedUpdates: any[];
+      };
+      message: string;
+    }>('/employees/bulk-update', {
+      method: 'POST',
+      body: JSON.stringify({ userIds, updates }),
     });
   }
 }

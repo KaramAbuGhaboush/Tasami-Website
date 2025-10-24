@@ -1,8 +1,10 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import EmailService from '../services/emailService';
 
 const router = express.Router();
 const prisma = new PrismaClient();
+const emailService = new EmailService();
 
 /**
  * @swagger
@@ -12,6 +14,38 @@ const prisma = new PrismaClient();
  *     tags: [Contact]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of messages per page
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [new, read, replied, closed]
+ *         description: Filter by message status
+ *       - in: query
+ *         name: service
+ *         schema:
+ *           type: string
+ *         description: Filter by service type
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search in name, email, company, or message
  *     responses:
  *       200:
  *         description: List of contact messages
@@ -52,6 +86,9 @@ const prisma = new PrismaClient();
  *                           budget:
  *                             type: string
  *                             example: "$10,000 - $25,000"
+ *                           status:
+ *                             type: string
+ *                             example: "new"
  *                           createdAt:
  *                             type: string
  *                             format: date-time
@@ -60,6 +97,21 @@ const prisma = new PrismaClient();
  *                             type: string
  *                             format: date-time
  *                             example: "2025-10-20T19:47:54.813Z"
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         page:
+ *                           type: integer
+ *                           example: 1
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         total:
+ *                           type: integer
+ *                           example: 25
+ *                         pages:
+ *                           type: integer
+ *                           example: 3
  *       401:
  *         description: Unauthorized
  *         content:
@@ -75,7 +127,40 @@ const prisma = new PrismaClient();
  */
 router.get('/messages', async (req, res) => {
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = Math.min(parseInt(req.query.limit as string) || 10, 100);
+    const status = req.query.status as string;
+    const service = req.query.service as string;
+    const search = req.query.search as string;
+    
+    const skip = (page - 1) * limit;
+    
+    // Build where clause for filtering
+    const where: any = {};
+    
+    if (status) {
+      where.status = status;
+    }
+    
+    if (service) {
+      where.service = service;
+    }
+    
+    if (search) {
+      where.OR = [
+        { name: { contains: search } },
+        { email: { contains: search } },
+        { company: { contains: search } },
+        { message: { contains: search } }
+      ];
+    }
+    
+    // Get total count for pagination
+    const total = await prisma.contactMessage.count({ where });
+    
+    // Get paginated messages
     const messages = await prisma.contactMessage.findMany({
+      where,
       select: {
         id: true,
         name: true,
@@ -84,15 +169,28 @@ router.get('/messages', async (req, res) => {
         message: true,
         service: true,
         budget: true,
+        status: true,
         createdAt: true,
         updatedAt: true
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit
     });
+
+    const pages = Math.ceil(total / limit);
 
     return res.json({
       success: true,
-      data: { messages }
+      data: { 
+        messages,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages
+        }
+      }
     });
   } catch (error) {
     console.error('Get contact messages error:', error);
@@ -254,11 +352,33 @@ router.post('/messages', async (req, res) => {
       updatedAt: contactMessage.updatedAt
     };
 
-    return res.status(201).json({
+    // Send response to client first
+    res.status(201).json({
       success: true,
       message: 'Message sent successfully',
       data: { contactMessage: responseMessage }
     });
+
+    // Send email notification to admins in background (after response)
+    setImmediate(async () => {
+      try {
+        await emailService.sendContactNotification({
+          name: contactMessage.name,
+          email: contactMessage.email,
+          company: contactMessage.company || '',
+          message: contactMessage.message,
+          service: contactMessage.service,
+          budget: contactMessage.budget,
+          createdAt: contactMessage.createdAt
+        });
+        console.log('Contact notification email sent successfully');
+      } catch (emailError) {
+        // Log email error but don't fail the contact form submission
+        console.error('Failed to send contact notification email:', emailError);
+      }
+    });
+
+    return; // Explicit return after sending response
   } catch (error) {
     console.error('Submit contact message error:', error);
     return res.status(500).json({
@@ -472,6 +592,59 @@ router.delete('/messages/:id', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Internal server error'
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /contact/test-email:
+ *   post:
+ *     summary: Test email configuration (Admin)
+ *     tags: [Contact]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Email test successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Email configuration test successful"
+ *       500:
+ *         description: Email test failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/test-email', async (req, res) => {
+  try {
+    const isConnected = await emailService.testConnection();
+    
+    if (isConnected) {
+      return res.json({
+        success: true,
+        message: 'Email configuration test successful'
+      });
+    } else {
+      return res.status(500).json({
+        success: false,
+        message: 'Email configuration test failed'
+      });
+    }
+  } catch (error) {
+    console.error('Email test error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Email test failed: ' + (error as Error).message
     });
   }
 });

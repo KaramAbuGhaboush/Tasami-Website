@@ -11,6 +11,7 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = __importDefault(require("./config/swagger"));
+const path_1 = __importDefault(require("path"));
 const auth_1 = __importDefault(require("./routes/auth"));
 const blog_1 = __importDefault(require("./routes/blog"));
 const projects_1 = __importDefault(require("./routes/projects"));
@@ -32,15 +33,23 @@ app.use((0, cors_1.default)({
     ],
     credentials: true
 }));
-const limiter = (0, express_rate_limit_1.default)({
+const generalLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 1000,
     message: 'Too many requests from this IP, please try again later.'
 });
-app.use('/api/', limiter);
+const authLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: 'Too many login attempts from this IP, please try again later.',
+    skipSuccessfulRequests: true
+});
+app.use('/api/', generalLimiter);
+app.use('/api/auth/', authLimiter);
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 app.use((0, morgan_1.default)('combined'));
+app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'OK',

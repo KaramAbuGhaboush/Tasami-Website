@@ -1,119 +1,180 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { useContactAdmin, type ContactMessage } from '@/hooks/useContactAdmin'
+import { Pagination } from '@/components/ui/pagination'
 import { 
   Search,
   Filter,
+  MessageSquare,
   Mail,
   Phone,
-  MessageSquare,
-  Clock,
-  User,
+  Building,
+  DollarSign,
+  Calendar,
+  Eye,
+  Trash2,
+  RefreshCw,
+  TestTube,
+  Loader2,
   CheckCircle,
-  XCircle,
+  Clock,
   Reply,
-  Archive,
-  Star
+  Archive
 } from 'lucide-react'
 
 export function ContactPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
-  const [filterPriority, setFilterPriority] = useState('all')
+  const [filterService, setFilterService] = useState('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+  const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
+  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false)
 
-  const contactMessages = [
-    { 
-      id: 1, 
-      name: 'John Smith', 
-      email: 'john.smith@techcorp.com',
-      phone: '+1 (555) 123-4567',
-      subject: 'Partnership Opportunity',
-      message: 'We are interested in partnering with your company for our upcoming AI project. Could we schedule a call to discuss potential collaboration?',
-      status: 'new',
-      priority: 'high',
-      receivedDate: '2024-01-15T10:30:00Z',
-      source: 'Website Contact Form',
-      tags: ['Partnership', 'AI', 'Business']
-    },
-    { 
-      id: 2, 
-      name: 'Sarah Johnson', 
-      email: 'sarah.j@startup.io',
-      phone: '+1 (555) 987-6543',
-      subject: 'Service Inquiry',
-      message: 'I would like to know more about your automation services. We are a growing startup looking to streamline our operations.',
-      status: 'replied',
-      priority: 'medium',
-      receivedDate: '2024-01-14T14:20:00Z',
-      source: 'Email',
-      tags: ['Automation', 'Startup', 'Services']
-    },
-    { 
-      id: 3, 
-      name: 'Mike Chen', 
-      email: 'mike.chen@enterprise.com',
-      phone: '+1 (555) 456-7890',
-      subject: 'Technical Support',
-      message: 'We are experiencing issues with the dashboard you developed for us. The analytics are not updating correctly.',
-      status: 'in_progress',
-      priority: 'high',
-      receivedDate: '2024-01-13T09:15:00Z',
-      source: 'Support Ticket',
-      tags: ['Support', 'Technical', 'Dashboard']
+  const {
+    messages,
+    pagination,
+    loading,
+    error,
+    updating,
+    deleting,
+    testingEmail,
+    fetchMessages,
+    updateMessage,
+    deleteMessage,
+    testEmail,
+    clearError
+  } = useContactAdmin()
+
+  const services = Array.from(new Set(messages.map(msg => msg.service).filter(Boolean)))
+  const statusOptions = ['new', 'read', 'replied', 'closed']
+
+  // Fetch messages with current filters and pagination
+  const loadMessages = async () => {
+    const params: any = {
+      page: currentPage,
+      limit: pageSize
     }
-  ]
+    
+    if (filterStatus !== 'all') {
+      params.status = filterStatus
+    }
+    
+    if (filterService !== 'all') {
+      params.service = filterService
+    }
+    
+    if (searchTerm.trim()) {
+      params.search = searchTerm.trim()
+    }
+    
+    await fetchMessages(params)
+  }
 
-  const priorities = ['low', 'medium', 'high']
-  const statuses = ['new', 'replied', 'in_progress', 'closed']
+  // Load messages when filters or pagination change
+  useEffect(() => {
+    loadMessages()
+  }, [currentPage, pageSize, filterStatus, filterService])
 
-  const filteredMessages = contactMessages.filter(message => {
-    const matchesSearch = message.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         message.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         message.subject.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === 'all' || message.status === filterStatus
-    const matchesPriority = filterPriority === 'all' || message.priority === filterPriority
-    return matchesSearch && matchesStatus && matchesPriority
-  })
+  // Debounced search
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1) // Reset to first page when searching
+      } else {
+        loadMessages()
+      }
+    }, 500) // 500ms delay
+
+    return () => clearTimeout(timeoutId)
+  }, [searchTerm])
+
+  const handleStatusUpdate = async (messageId: string, newStatus: string) => {
+    await updateMessage(messageId, { status: newStatus as any })
+  }
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (window.confirm('Are you sure you want to delete this message?')) {
+      await deleteMessage(messageId)
+    }
+  }
+
+  const handlePreviewMessage = (message: ContactMessage) => {
+    setSelectedMessage(message)
+    setIsPreviewDialogOpen(true)
+  }
+
+  const handleTestEmail = async () => {
+    const result = await testEmail()
+    if (result.success) {
+      alert('Email test successful!')
+    } else {
+      alert(`Email test failed: ${result.message}`)
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-700 border-blue-200'
-      case 'replied': return 'bg-green-100 text-green-700 border-green-200'
-      case 'in_progress': return 'bg-yellow-100 text-yellow-700 border-yellow-200'
+      case 'read': return 'bg-green-100 text-green-700 border-green-200'
+      case 'replied': return 'bg-purple-100 text-purple-700 border-purple-200'
       case 'closed': return 'bg-gray-100 text-gray-700 border-gray-200'
       default: return 'bg-gray-100 text-gray-700 border-gray-200'
     }
   }
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700 border-red-200'
-      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200'
-      case 'low': return 'bg-green-100 text-green-700 border-green-200'
-      default: return 'bg-gray-100 text-gray-700 border-gray-200'
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'new': return <Clock className="w-4 h-4" />
+      case 'read': return <CheckCircle className="w-4 h-4" />
+      case 'replied': return <Reply className="w-4 h-4" />
+      case 'closed': return <Archive className="w-4 h-4" />
+      default: return <Clock className="w-4 h-4" />
     }
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
-    if (diffInHours < 1) return 'Just now'
-    if (diffInHours < 24) return `${diffInHours}h ago`
-    if (diffInHours < 48) return 'Yesterday'
-    return date.toLocaleDateString()
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>Loading contact messages...</span>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex justify-between items-center">
+            <p className="text-red-600">{error}</p>
+            <Button variant="outline" size="sm" onClick={clearError}>
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -124,7 +185,20 @@ export function ContactPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Messages</p>
-                <p className="text-2xl font-bold text-gray-900">{contactMessages.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{pagination.total}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                <Clock className="w-6 h-6 text-orange-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">New Messages</p>
+                <p className="text-2xl font-bold text-gray-900">{messages.filter(m => m.status === 'new').length}</p>
               </div>
             </div>
           </CardContent>
@@ -133,11 +207,11 @@ export function ContactPage() {
           <CardContent className="p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <Reply className="w-6 h-6 text-green-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Replied</p>
-                <p className="text-2xl font-bold text-gray-900">{contactMessages.filter(m => m.status === 'replied').length}</p>
+                <p className="text-2xl font-bold text-gray-900">{messages.filter(m => m.status === 'replied').length}</p>
               </div>
             </div>
           </CardContent>
@@ -145,25 +219,24 @@ export function ContactPage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                <Clock className="w-6 h-6 text-yellow-600" />
+              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <TestTube className="w-6 h-6 text-purple-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">{contactMessages.filter(m => m.status === 'new').length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                <Star className="w-6 h-6 text-red-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">High Priority</p>
-                <p className="text-2xl font-bold text-gray-900">{contactMessages.filter(m => m.priority === 'high').length}</p>
+                <p className="text-sm font-medium text-gray-600">Email Status</p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleTestEmail}
+                  disabled={testingEmail}
+                  className="mt-1"
+                >
+                  {testingEmail ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    'Test Email'
+                  )}
+                </Button>
               </div>
             </div>
           </CardContent>
@@ -173,19 +246,17 @@ export function ContactPage() {
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Contact Management</h2>
-          <p className="text-gray-600">Manage incoming messages and customer inquiries</p>
+          <h2 className="text-2xl font-bold text-gray-900">Contact Messages</h2>
+          <p className="text-gray-600">Manage and respond to customer inquiries</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Archive className="w-4 h-4 mr-2" />
-            Archive
-          </Button>
-          <Button variant="outline" size="sm">
-            <Reply className="w-4 h-4 mr-2" />
-            Bulk Reply
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          onClick={loadMessages}
+          disabled={loading}
+        >
+          <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       {/* Search and Filter */}
@@ -208,18 +279,20 @@ export function ContactPage() {
             className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
           >
             <option value="all">All Status</option>
-            {statuses.map(status => (
-              <option key={status} value={status}>{status.charAt(0).toUpperCase() + status.slice(1)}</option>
+            {statusOptions.map(status => (
+              <option key={status} value={status}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </option>
             ))}
           </select>
           <select
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
+            value={filterService}
+            onChange={(e) => setFilterService(e.target.value)}
             className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
           >
-            <option value="all">All Priority</option>
-            {priorities.map(priority => (
-              <option key={priority} value={priority}>{priority.charAt(0).toUpperCase() + priority.slice(1)}</option>
+            <option value="all">All Services</option>
+            {services.map(service => (
+              <option key={service} value={service}>{service}</option>
             ))}
           </select>
         </div>
@@ -233,109 +306,91 @@ export function ContactPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Contact</TableHead>
-                  <TableHead>Subject</TableHead>
-                  <TableHead>Source</TableHead>
-                  <TableHead>Priority</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Budget</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Received</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredMessages.map((message) => (
-                  <TableRow key={message.id} className="hover:bg-gray-50">
+                {messages.map((message) => (
+                  <TableRow key={message.id}>
                     <TableCell>
                       <div>
-                        <div className="flex items-center">
-                          <User className="w-4 h-4 mr-2 text-gray-400" />
-                          <p className="font-medium text-gray-900">{message.name}</p>
+                        <p className="font-medium text-gray-900">{message.name}</p>
+                        <div className="flex items-center text-sm text-gray-500 mt-1">
+                          <Mail className="w-3 h-3 mr-1" />
+                          {message.email}
                         </div>
-                        <p className="text-sm text-gray-500">{message.email}</p>
-                        <p className="text-sm text-gray-500">{message.phone}</p>
+                        {message.company && (
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Building className="w-3 h-3 mr-1" />
+                            {message.company}
+                          </div>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div>
-                        <p className="font-medium text-gray-900">{message.subject}</p>
-                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{message.message}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {message.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{message.source}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getPriorityColor(message.priority)}>
-                        {message.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={getStatusColor(message.status)}>
-                        {message.status}
-                      </Badge>
+                      <Badge variant="outline">{message.service}</Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                        {formatDate(message.receivedDate)}
+                        <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
+                        {message.budget}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className={getStatusColor(message.status)}>
+                          <div className="flex items-center">
+                            {getStatusIcon(message.status)}
+                            <span className="ml-1">{message.status}</span>
+                          </div>
+                        </Badge>
+                        <select
+                          value={message.status}
+                          onChange={(e) => handleStatusUpdate(message.id, e.target.value)}
+                          className="text-xs px-2 py-1 border border-gray-200 rounded focus:ring-1 focus:ring-[#6812F7] focus:border-transparent"
+                          disabled={updating}
+                        >
+                          {statusOptions.map(status => (
+                            <option key={status} value={status}>
+                              {status.charAt(0).toUpperCase() + status.slice(1)}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        {formatDate(message.createdAt)}
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline">
-                              <MessageSquare className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Message Details</DialogTitle>
-                              <DialogDescription>
-                                View and reply to this message
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">From</label>
-                                  <p className="text-sm text-gray-900">{message.name} ({message.email})</p>
-                                </div>
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                                  <p className="text-sm text-gray-900">{message.phone}</p>
-                                </div>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                                <p className="text-sm text-gray-900">{message.subject}</p>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
-                                <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-md">{message.message}</p>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Reply</label>
-                                <Textarea placeholder="Type your reply here..." rows={4} />
-                              </div>
-                              <div className="flex justify-end space-x-2">
-                                <Button variant="outline">Save Draft</Button>
-                                <Button className="bg-[#6812F7] hover:bg-[#5a0fd4]">Send Reply</Button>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        <Button size="sm" className="bg-[#6812F7] hover:bg-[#5a0fd4]">
-                          <Reply className="w-4 h-4" />
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          title="View Message" 
+                          onClick={() => handlePreviewMessage(message)}
+                        >
+                          <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                          <XCircle className="w-4 h-4" />
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-red-600 hover:text-red-700" 
+                          title="Delete Message"
+                          onClick={() => handleDeleteMessage(message.id)}
+                          disabled={deleting}
+                        >
+                          {deleting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
                         </Button>
                       </div>
                     </TableCell>
@@ -347,19 +402,156 @@ export function ContactPage() {
         </CardContent>
       </Card>
 
+      {/* Pagination */}
+      {pagination.pages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <label htmlFor="pageSize" className="text-sm font-medium text-gray-700">
+                Show:
+              </label>
+              <select
+                id="pageSize"
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value))
+                  setCurrentPage(1)
+                }}
+                className="px-3 py-1 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <div className="text-sm text-gray-500">
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, pagination.total)} of {pagination.total} messages
+            </div>
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={pagination.pages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
+
       {/* Empty State */}
-      {filteredMessages.length === 0 && (
+      {messages.length === 0 && !loading && (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📧</div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No messages found</h3>
           <p className="text-gray-600 mb-4">
-            {searchTerm || filterStatus !== 'all' || filterPriority !== 'all'
+            {searchTerm || filterStatus !== 'all' || filterService !== 'all'
               ? 'Try adjusting your search or filter criteria'
               : 'No contact messages have been received yet'
             }
           </p>
         </div>
       )}
+
+      {/* Message Preview Dialog */}
+      <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>Message Details</DialogTitle>
+            <DialogDescription>
+              View and manage this contact message
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedMessage && (
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+              {/* Message Header */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{selectedMessage.name}</h1>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="outline">{selectedMessage.service}</Badge>
+                      <Badge variant="outline" className={getStatusColor(selectedMessage.status)}>
+                        {selectedMessage.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm text-gray-500">
+                    <p>Received: {formatDate(selectedMessage.createdAt)}</p>
+                    <p>Updated: {formatDate(selectedMessage.updatedAt)}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div className="flex items-center">
+                    <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                    <span className="font-medium">Email:</span>
+                    <span className="ml-2">{selectedMessage.email}</span>
+                  </div>
+                  {selectedMessage.company && (
+                    <div className="flex items-center">
+                      <Building className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="font-medium">Company:</span>
+                      <span className="ml-2">{selectedMessage.company}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center">
+                    <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
+                    <span className="font-medium">Budget:</span>
+                    <span className="ml-2">{selectedMessage.budget}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message Content */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Message</h2>
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedMessage.message}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex-shrink-0 flex justify-between items-center pt-4 border-t bg-white">
+            <div className="flex space-x-2">
+              <select
+                value={selectedMessage?.status || 'new'}
+                onChange={(e) => selectedMessage && handleStatusUpdate(selectedMessage.id, e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                disabled={updating}
+              >
+                {statusOptions.map(status => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" onClick={() => setIsPreviewDialogOpen(false)}>
+                Close
+              </Button>
+              {selectedMessage && (
+                <Button 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => {
+                    handleDeleteMessage(selectedMessage.id)
+                    setIsPreviewDialogOpen(false)
+                  }}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Delete Message
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

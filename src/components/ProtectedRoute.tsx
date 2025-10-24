@@ -21,6 +21,7 @@ export function ProtectedRoute({
   useEffect(() => {
     if (!loading) {
       if (!isAuthenticated) {
+        // Redirect to login for unauthenticated access
         router.push('/login')
         return
       }
@@ -30,6 +31,7 @@ export function ProtectedRoute({
         router.push('/404')
         return
       }
+
     }
   }, [user, loading, isAuthenticated, requiredRole, router])
 
@@ -45,7 +47,14 @@ export function ProtectedRoute({
     return fallback || (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Redirecting to login...</h1>
+          <h1 className="text-6xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-xl text-gray-600 mb-8">Please log in to access this page</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="bg-[#6812F7] text-white px-6 py-3 rounded-lg hover:bg-[#5a0fd4] transition-colors"
+          >
+            Go to Login
+          </button>
         </div>
       </div>
     )
@@ -70,3 +79,4 @@ export function ProtectedRoute({
 
   return <>{children}</>
 }
+

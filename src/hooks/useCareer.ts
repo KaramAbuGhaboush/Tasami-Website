@@ -11,7 +11,6 @@ export interface Job {
   description: string;
   requirements: string[];
   benefits: string[];
-  skills: string[];
   salary: string;
   applicationDeadline: string;
   postedDate: string;

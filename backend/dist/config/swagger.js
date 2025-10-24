@@ -293,6 +293,10 @@ const options = {
             {
                 name: 'Employees',
                 description: 'Employee management endpoints (Admin only)'
+            },
+            {
+                name: 'System',
+                description: 'System health and test endpoints'
             }
         ],
     },

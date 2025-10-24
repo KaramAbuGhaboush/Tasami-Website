@@ -22,7 +22,8 @@ import {
   CheckCircle,
   AlertCircle,
   FileText,
-  Download
+  Download,
+  LogOut
 } from 'lucide-react'
 import { format, startOfWeek, endOfWeek } from 'date-fns'
 import { TimeEntry, NewEntry } from '@/hooks/useEmployee'
@@ -72,6 +73,11 @@ export function Employee({
   deleteTimeEntry,
   updateTimeEntry
 }: EmployeeProps) {
+  const { logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout()
+  }
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
   
@@ -137,6 +143,15 @@ export function Employee({
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                size="sm"
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
               <Badge variant="outline" className="bg-green-100 text-green-700">
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Active

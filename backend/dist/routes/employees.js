@@ -48,6 +48,9 @@ router.get('/', auth_1.authMiddleware, requireAdmin, async (req, res) => {
                     email: true,
                     role: true,
                     isActive: true,
+                    weeklyGoal: true,
+                    department: true,
+                    phone: true,
                     createdAt: true,
                     updatedAt: true
                 },
@@ -134,6 +137,64 @@ router.post('/', auth_1.authMiddleware, requireAdmin, async (req, res) => {
     }
     catch (error) {
         console.error('Error creating employee:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.get('/stats', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                role: true,
+                isActive: true,
+                createdAt: true,
+                weeklyGoal: true
+            }
+        });
+        const now = new Date();
+        const weekStart = (0, date_fns_1.startOfWeek)(now);
+        const weekEnd = (0, date_fns_1.endOfWeek)(now);
+        const timeEntries = await prisma.timeEntry.findMany({
+            where: {
+                date: {
+                    gte: weekStart,
+                    lte: weekEnd
+                }
+            }
+        });
+        const totalUsers = users.length;
+        const activeUsers = users.filter(user => user.isActive).length;
+        const inactiveUsers = totalUsers - activeUsers;
+        const adminUsers = users.filter(user => user.role === 'admin').length;
+        const employeeUsers = users.filter(user => user.role === 'employee').length;
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const newUsersThisMonth = users.filter(user => new Date(user.createdAt) >= startOfMonth).length;
+        const usersMeetingGoals = users.filter(user => {
+            const userEntries = timeEntries.filter(entry => entry.userId === user.id);
+            const userHours = userEntries.reduce((total, entry) => {
+                return total + entry.hours + (entry.minutes / 60);
+            }, 0);
+            const goal = user.weeklyGoal || 40;
+            return userHours >= goal;
+        }).length;
+        return res.json({
+            success: true,
+            data: {
+                totalUsers,
+                activeUsers,
+                inactiveUsers,
+                adminUsers,
+                employeeUsers,
+                newUsersThisMonth,
+                usersMeetingGoals
+            }
+        });
+    }
+    catch (error) {
+        console.error('Error fetching employee stats:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'
@@ -301,6 +362,92 @@ router.delete('/:id', auth_1.authMiddleware, requireAdmin, async (req, res) => {
         });
     }
 });
+router.put('/:id/password', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { password } = req.body;
+        if (!password || password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters long'
+            });
+        }
+        const existingEmployee = await prisma.user.findUnique({
+            where: { id: id }
+        });
+        if (!existingEmployee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+        const hashedPassword = await bcrypt_1.default.hash(password, 12);
+        await prisma.user.update({
+            where: { id: id },
+            data: { password: hashedPassword }
+        });
+        return res.json({
+            success: true,
+            message: 'Password reset successfully'
+        });
+    }
+    catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.put('/:id/goal', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { weeklyGoal } = req.body;
+        if (!weeklyGoal || weeklyGoal < 1 || weeklyGoal > 80) {
+            return res.status(400).json({
+                success: false,
+                message: 'Weekly goal must be between 1 and 80 hours'
+            });
+        }
+        const existingEmployee = await prisma.user.findUnique({
+            where: { id: id }
+        });
+        if (!existingEmployee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+        const updatedEmployee = await prisma.user.update({
+            where: { id: id },
+            data: { weeklyGoal: parseInt(weeklyGoal) },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                isActive: true,
+                weeklyGoal: true,
+                department: true,
+                phone: true,
+                createdAt: true,
+                updatedAt: true
+            }
+        });
+        return res.json({
+            success: true,
+            message: 'Weekly goal updated successfully',
+            data: { employee: updatedEmployee }
+        });
+    }
+    catch (error) {
+        console.error('Error updating weekly goal:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
 router.get('/:id/time-entries', auth_1.authMiddleware, requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
@@ -422,6 +569,370 @@ router.get('/:id/weekly-summary', auth_1.authMiddleware, requireAdmin, async (re
     }
     catch (error) {
         console.error('Error fetching employee weekly summary:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.put('/:id/time-entries/:entryId', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { id, entryId } = req.params;
+        const { date, hours, minutes, project, description } = req.body;
+        if (!id || !entryId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Employee ID and Time entry ID are required'
+            });
+        }
+        const employee = await prisma.user.findUnique({
+            where: { id }
+        });
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+        const existingEntry = await prisma.timeEntry.findFirst({
+            where: { id: entryId, userId: id }
+        });
+        if (!existingEntry) {
+            return res.status(404).json({
+                success: false,
+                message: 'Time entry not found'
+            });
+        }
+        if (hours !== undefined && (hours < 0 || minutes < 0 || minutes >= 60)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid hours or minutes'
+            });
+        }
+        const updateData = {};
+        if (date)
+            updateData.date = new Date(date);
+        if (hours !== undefined)
+            updateData.hours = parseInt(hours);
+        if (minutes !== undefined)
+            updateData.minutes = parseInt(minutes);
+        if (project)
+            updateData.project = project;
+        if (description !== undefined)
+            updateData.description = description;
+        const timeEntry = await prisma.timeEntry.update({
+            where: { id: entryId },
+            data: updateData
+        });
+        return res.json({
+            success: true,
+            data: timeEntry,
+            message: 'Time entry updated successfully'
+        });
+    }
+    catch (error) {
+        console.error('Error updating employee time entry:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.delete('/:id/time-entries/:entryId', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { id, entryId } = req.params;
+        if (!id || !entryId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Employee ID and Time entry ID are required'
+            });
+        }
+        const employee = await prisma.user.findUnique({
+            where: { id }
+        });
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+        const existingEntry = await prisma.timeEntry.findFirst({
+            where: { id: entryId, userId: id }
+        });
+        if (!existingEntry) {
+            return res.status(404).json({
+                success: false,
+                message: 'Time entry not found'
+            });
+        }
+        await prisma.timeEntry.delete({
+            where: { id: entryId }
+        });
+        return res.json({
+            success: true,
+            message: 'Time entry deleted successfully'
+        });
+    }
+    catch (error) {
+        console.error('Error deleting employee time entry:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.post('/:id/time-entries', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { date, hours, minutes, project, description } = req.body;
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Employee ID is required'
+            });
+        }
+        if (!date || hours === undefined || minutes === undefined || !project) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields: date, hours, minutes, project'
+            });
+        }
+        if (hours < 0 || minutes < 0 || minutes >= 60) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid hours or minutes'
+            });
+        }
+        const employee = await prisma.user.findUnique({
+            where: { id }
+        });
+        if (!employee) {
+            return res.status(404).json({
+                success: false,
+                message: 'Employee not found'
+            });
+        }
+        const timeEntry = await prisma.timeEntry.create({
+            data: {
+                date: new Date(date),
+                hours: parseInt(hours),
+                minutes: parseInt(minutes),
+                project,
+                description,
+                userId: id
+            }
+        });
+        return res.status(201).json({
+            success: true,
+            data: timeEntry,
+            message: 'Time entry created successfully'
+        });
+    }
+    catch (error) {
+        console.error('Error creating employee time entry:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.get('/analytics/team-summary', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const now = new Date();
+        const weekStart = startDate ? new Date(startDate) : (0, date_fns_1.startOfWeek)(now);
+        const weekEnd = endDate ? new Date(endDate) : (0, date_fns_1.endOfWeek)(now);
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                isActive: true,
+                weeklyGoal: true
+            }
+        });
+        const timeEntries = await prisma.timeEntry.findMany({
+            where: {
+                date: {
+                    gte: weekStart,
+                    lte: weekEnd
+                }
+            }
+        });
+        const totalUsers = users.length;
+        const activeUsers = users.filter(user => user.isActive).length;
+        const totalHours = timeEntries.reduce((total, entry) => {
+            return total + entry.hours + (entry.minutes / 60);
+        }, 0);
+        const averageHoursPerUser = activeUsers > 0 ? totalHours / activeUsers : 0;
+        const userGoalStats = users.map(user => {
+            const userEntries = timeEntries.filter(entry => entry.userId === user.id);
+            const userHours = userEntries.reduce((total, entry) => {
+                return total + entry.hours + (entry.minutes / 60);
+            }, 0);
+            const goal = user.weeklyGoal || 40;
+            return {
+                userId: user.id,
+                hours: userHours,
+                goal: goal,
+                meetsGoal: userHours >= goal,
+                exceedsGoal: userHours > goal
+            };
+        });
+        const usersMeetingGoals = userGoalStats.filter(stat => stat.meetsGoal).length;
+        const usersExceedingGoals = userGoalStats.filter(stat => stat.exceedsGoal).length;
+        const usersBelowGoals = userGoalStats.filter(stat => !stat.meetsGoal).length;
+        const goalAchievementRate = activeUsers > 0 ? (usersMeetingGoals / activeUsers) * 100 : 0;
+        return res.json({
+            success: true,
+            data: {
+                totalUsers,
+                activeUsers,
+                totalHours: parseFloat(totalHours.toFixed(2)),
+                averageHoursPerUser: parseFloat(averageHoursPerUser.toFixed(2)),
+                goalAchievementRate: parseFloat(goalAchievementRate.toFixed(2)),
+                usersMeetingGoals,
+                usersExceedingGoals,
+                usersBelowGoals,
+                period: {
+                    startDate: weekStart,
+                    endDate: weekEnd
+                }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Error fetching team analytics:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.get('/analytics/project-distribution', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const now = new Date();
+        const weekStart = startDate ? new Date(startDate) : (0, date_fns_1.startOfWeek)(now);
+        const weekEnd = endDate ? new Date(endDate) : (0, date_fns_1.endOfWeek)(now);
+        const timeEntries = await prisma.timeEntry.findMany({
+            where: {
+                date: {
+                    gte: weekStart,
+                    lte: weekEnd
+                }
+            }
+        });
+        const projectStats = {};
+        timeEntries.forEach(entry => {
+            const project = entry.project;
+            const hours = entry.hours + (entry.minutes / 60);
+            if (!projectStats[project]) {
+                projectStats[project] = { hours: 0, users: new Set() };
+            }
+            projectStats[project].hours += hours;
+            projectStats[project].users.add(entry.userId);
+        });
+        const totalHours = Object.values(projectStats).reduce((total, stat) => total + stat.hours, 0);
+        const projects = Object.entries(projectStats).map(([project, stats]) => ({
+            project,
+            totalHours: parseFloat(stats.hours.toFixed(2)),
+            percentage: totalHours > 0 ? parseFloat(((stats.hours / totalHours) * 100).toFixed(2)) : 0,
+            userCount: stats.users.size
+        })).sort((a, b) => b.totalHours - a.totalHours);
+        return res.json({
+            success: true,
+            data: {
+                projects,
+                totalHours: parseFloat(totalHours.toFixed(2)),
+                period: {
+                    startDate: weekStart,
+                    endDate: weekEnd
+                }
+            }
+        });
+    }
+    catch (error) {
+        console.error('Error fetching project distribution:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.post('/bulk-update', auth_1.authMiddleware, requireAdmin, async (req, res) => {
+    try {
+        const { userIds, updates } = req.body;
+        if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'userIds array is required and must not be empty'
+            });
+        }
+        if (!updates || Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Updates object is required and must not be empty'
+            });
+        }
+        const updateData = {};
+        if (updates.role)
+            updateData.role = updates.role;
+        if (updates.isActive !== undefined)
+            updateData.isActive = updates.isActive;
+        if (updates.weeklyGoal !== undefined)
+            updateData.weeklyGoal = updates.weeklyGoal;
+        const failedUpdates = [];
+        let updatedCount = 0;
+        for (const userId of userIds) {
+            try {
+                const user = await prisma.user.findUnique({
+                    where: { id: userId }
+                });
+                if (!user) {
+                    failedUpdates.push({
+                        userId,
+                        error: 'User not found'
+                    });
+                    continue;
+                }
+                if (updates.role === 'admin' && user.role !== 'admin') {
+                    const existingAdmin = await prisma.user.findFirst({
+                        where: { role: 'admin' }
+                    });
+                    if (existingAdmin) {
+                        failedUpdates.push({
+                            userId,
+                            error: 'Only one admin can exist in the system'
+                        });
+                        continue;
+                    }
+                }
+                await prisma.user.update({
+                    where: { id: userId },
+                    data: updateData
+                });
+                updatedCount++;
+            }
+            catch (error) {
+                failedUpdates.push({
+                    userId,
+                    error: error instanceof Error ? error.message : 'Unknown error'
+                });
+            }
+        }
+        return res.json({
+            success: true,
+            data: {
+                updatedCount,
+                failedUpdates
+            },
+            message: `Successfully updated ${updatedCount} out of ${userIds.length} users`
+        });
+    }
+    catch (error) {
+        console.error('Error in bulk update:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'

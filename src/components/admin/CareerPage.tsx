@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { useCareerAdmin, type Job, type CreateJobData } from '@/hooks/useCareerAdmin'
 import { 
   Plus,
   Edit,
@@ -19,51 +20,46 @@ import {
   MapPin,
   Clock,
   DollarSign,
-  Briefcase
+  Briefcase,
+  Loader2
 } from 'lucide-react'
 
 export function CareerPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterType, setFilterType] = useState('all')
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [editingJob, setEditingJob] = useState<Job | null>(null)
+  const [previewJob, setPreviewJob] = useState<Job | null>(null)
+  const [formData, setFormData] = useState<CreateJobData>({
+    title: '',
+    department: '',
+    location: '',
+    type: '',
+    experience: '',
+    description: '',
+    requirements: [],
+    benefits: [],
+    salary: '',
+    applicationDeadline: '',
+    status: 'draft',
+    team: ''
+  })
 
-  const jobPositions = [
-    { 
-      id: 1, 
-      title: 'Senior Frontend Developer', 
-      department: 'Engineering',
-      type: 'Full-time', 
-      location: 'Remote',
-      status: 'active',
-      salary: '$80,000 - $120,000',
-      postedDate: '2024-01-15',
-      applications: 24
-    },
-    { 
-      id: 2, 
-      title: 'AI/ML Engineer', 
-      department: 'Engineering',
-      type: 'Full-time', 
-      location: 'San Francisco, CA',
-      status: 'active',
-      salary: '$100,000 - $150,000',
-      postedDate: '2024-01-12',
-      applications: 18
-    },
-    { 
-      id: 3, 
-      title: 'UX/UI Designer', 
-      department: 'Design',
-      type: 'Contract', 
-      location: 'Remote',
-      status: 'closed',
-      salary: '$60,000 - $90,000',
-      postedDate: '2024-01-08',
-      applications: 32
-    }
-  ]
+  const {
+    jobs: jobPositions,
+    loading,
+    error,
+    creating,
+    updating,
+    deleting,
+    createJob,
+    updateJob,
+    deleteJob,
+    clearError
+  } = useCareerAdmin()
 
-  const departments = ['Engineering', 'Design', 'Marketing', 'Sales', 'Operations']
+  const departments = ['Engineering', 'Design', 'Marketing', 'Product', 'Sales', 'Operations']
   const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Internship']
 
   const filteredPositions = jobPositions.filter(position => {
@@ -74,6 +70,119 @@ export function CareerPage() {
     return matchesSearch && matchesStatus && matchesType
   })
 
+  const handleInputChange = (field: keyof CreateJobData, value: string | string[]) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleArrayInputChange = (field: 'requirements' | 'benefits', value: string) => {
+    // Don't filter out empty items while user is typing - let them type freely
+    const array = value.split('\n')
+    setFormData(prev => ({ ...prev, [field]: array }))
+  }
+
+  const handleCreateJob = async () => {
+    console.log('Creating job with data:', formData)
+    
+    // Basic validation
+    if (!formData.title || !formData.department || !formData.location || !formData.type || !formData.description) {
+      console.warn('Please fill in all required fields')
+      return
+    }
+
+    // Clean up array fields by filtering out empty items
+    const cleanedData = {
+      ...formData,
+      requirements: formData.requirements.filter(item => item.trim() !== ''),
+      benefits: formData.benefits.filter(item => item.trim() !== ''),
+    }
+
+    const result = await createJob(cleanedData)
+    console.log('Create job result:', result)
+    if (result.success) {
+      closeDialog()
+    }
+  }
+
+  const handleUpdateJob = async () => {
+    if (!editingJob) return
+    
+    console.log('Updating job with data:', formData)
+    
+    // Basic validation
+    if (!formData.title || !formData.department || !formData.location || !formData.type || !formData.description) {
+      console.warn('Please fill in all required fields')
+      return
+    }
+    
+    // Clean up array fields by filtering out empty items
+    const cleanedData = {
+      ...formData,
+      requirements: formData.requirements.filter(item => item.trim() !== ''),
+      benefits: formData.benefits.filter(item => item.trim() !== ''),
+    }
+    
+    const result = await updateJob(editingJob.id, cleanedData)
+    console.log('Update job result:', result)
+    if (result.success) {
+      closeDialog()
+    }
+  }
+
+  const handleDeleteJob = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this job position?')) {
+      await deleteJob(id)
+    }
+  }
+
+  const handleEditJob = (job: Job) => {
+    setEditingJob(job)
+    setFormData({
+      title: job.title,
+      department: job.department,
+      location: job.location,
+      type: job.type,
+      experience: job.experience,
+      description: job.description,
+      requirements: job.requirements,
+      benefits: job.benefits,
+      salary: job.salary || '',
+      applicationDeadline: job.applicationDeadline || '',
+      status: job.status,
+      team: job.team || ''
+    })
+    setIsCreateDialogOpen(true)
+  }
+
+  const handlePreviewJob = (job: Job) => {
+    setPreviewJob(job)
+  }
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      department: '',
+      location: '',
+      type: '',
+      experience: '',
+      description: '',
+      requirements: [],
+      benefits: [],
+      salary: '',
+      applicationDeadline: '',
+      status: 'draft',
+      team: ''
+    })
+    setEditingJob(null)
+  }
+
+  const closeDialog = () => {
+    console.log('Closing dialog')
+    setIsCreateDialogOpen(false)
+    setEditingJob(null)
+    resetForm()
+    clearError()
+  }
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-green-100 text-green-700 border-green-200'
@@ -83,8 +192,31 @@ export function CareerPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>Loading job positions...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex justify-between items-center">
+            <p className="text-red-600">{error}</p>
+            <Button variant="outline" size="sm" onClick={clearError}>
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -147,61 +279,221 @@ export function CareerPage() {
           <h2 className="text-2xl font-bold text-gray-900">Career Management</h2>
           <p className="text-gray-600">Manage job positions and career opportunities</p>
         </div>
-        <Dialog>
+        <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
+          console.log('Dialog onOpenChange:', open)
+          if (open) {
+            setIsCreateDialogOpen(true)
+          } else {
+            closeDialog()
+          }
+        }}>
           <DialogTrigger asChild>
             <Button className="bg-[#6812F7] hover:bg-[#5a0fd4]">
               <Plus className="w-4 h-4 mr-2" />
               Add Position
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Create New Job Position</DialogTitle>
+          <DialogContent className="max-w-[90vw] xl:max-w-7xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogHeader className="flex-shrink-0">
+              <DialogTitle>{editingJob ? 'Edit Job Position' : 'Create New Job Position'}</DialogTitle>
               <DialogDescription>
-                Add a new job opening to your career page
+                {editingJob ? 'Update the job position details' : 'Add a new job opening to your career page'}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+              
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                  <Input placeholder="e.g., Senior Frontend Developer" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
+                  <Input 
+                    placeholder="e.g., Senior Frontend Developer" 
+                    value={formData.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+                  <select 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                    value={formData.department}
+                    onChange={(e) => handleInputChange('department', e.target.value)}
+                  >
+                    <option value="">Select Department</option>
                     {departments.map(dept => (
                       <option key={dept} value={dept}>{dept}</option>
                     ))}
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
-                  <select className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Type *</label>
+                  <select 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                    value={formData.type}
+                    onChange={(e) => handleInputChange('type', e.target.value)}
+                  >
+                    <option value="">Select Type</option>
                     {jobTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <Input placeholder="e.g., Remote, San Francisco, CA" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                  <Input 
+                    placeholder="e.g., Remote, San Francisco, CA" 
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
-                  <Input placeholder="e.g., $80,000 - $120,000" />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience Required</label>
+                  <Input 
+                    placeholder="e.g., 3+ years, 5+ years" 
+                    value={formData.experience}
+                    onChange={(e) => handleInputChange('experience', e.target.value)}
+                  />
                 </div>
               </div>
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
+                  <Input 
+                    placeholder="e.g., $80,000 - $120,000" 
+                    value={formData.salary}
+                    onChange={(e) => handleInputChange('salary', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Team</label>
+                  <Input 
+                    placeholder="e.g., Engineering Team, Design Team" 
+                    value={formData.team}
+                    onChange={(e) => handleInputChange('team', e.target.value)}
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description</label>
-                <Textarea placeholder="Describe the role, responsibilities, and requirements..." rows={6} />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description *</label>
+                <Textarea 
+                  placeholder="Describe the role, responsibilities, and what the candidate will be working on..." 
+                  rows={4}
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                />
               </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline">Save Draft</Button>
-                <Button className="bg-[#6812F7] hover:bg-[#5a0fd4]">Publish</Button>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                <Textarea 
+                  placeholder="List key requirements, one per line..." 
+                  rows={3}
+                  value={formData.requirements.join('\n')}
+                  onChange={(e) => handleArrayInputChange('requirements', e.target.value)}
+                  className="resize-y min-h-[80px]"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter each requirement on a new line</p>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
+                <Textarea 
+                  placeholder="List company benefits, one per line..." 
+                  rows={3}
+                  value={formData.benefits.join('\n')}
+                  onChange={(e) => handleArrayInputChange('benefits', e.target.value)}
+                  className="resize-y min-h-[80px]"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter each benefit on a new line</p>
+              </div>
+
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
+                  <Input 
+                    type="datetime-local" 
+                    value={formData.applicationDeadline ? new Date(formData.applicationDeadline).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select 
+                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                    value={formData.status}
+                    onChange={(e) => handleInputChange('status', e.target.value)}
+                  >
+                    <option value="draft">Draft</option>
+                    <option value="active">Active</option>
+                    <option value="closed">Closed</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+            <div className="flex-shrink-0 flex justify-end space-x-2 pt-4 border-t bg-white">
+              <Button variant="outline" onClick={closeDialog} disabled={creating || updating}>
+                Cancel
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  handleInputChange('status', 'draft')
+                  // For draft, we can be more lenient with validation
+                  const cleanedData = {
+                    ...formData,
+                    status: 'draft',
+                    requirements: formData.requirements.filter(item => item.trim() !== ''),
+                    benefits: formData.benefits.filter(item => item.trim() !== ''),
+                  }
+                  
+                  if (editingJob) {
+                    const result = await updateJob(editingJob.id, cleanedData)
+                    if (result.success) {
+                      closeDialog()
+                    }
+                  } else {
+                    const result = await createJob(cleanedData)
+                    if (result.success) {
+                      closeDialog()
+                    }
+                  }
+                }}
+                disabled={creating || updating}
+              >
+                {updating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving Draft...
+                  </>
+                ) : (
+                  'Save Draft'
+                )}
+              </Button>
+              <Button 
+                className="bg-[#6812F7] hover:bg-[#5a0fd4]" 
+                onClick={editingJob ? handleUpdateJob : handleCreateJob}
+                disabled={creating || updating}
+              >
+                {creating || updating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {editingJob ? 'Updating...' : 'Creating...'}
+                  </>
+                ) : (
+                  editingJob ? 'Update Job' : 'Publish Job'
+                )}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -255,6 +547,7 @@ export function CareerPage() {
                   <TableHead>Department</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Experience</TableHead>
                   <TableHead>Salary</TableHead>
                   <TableHead>Applications</TableHead>
                   <TableHead>Status</TableHead>
@@ -267,7 +560,14 @@ export function CareerPage() {
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">{position.title}</p>
-                        <p className="text-sm text-gray-500 mt-1">Posted {new Date(position.postedDate).toLocaleDateString()}</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Posted {new Date(position.postedDate).toLocaleDateString()}
+                          {position.applicationDeadline && (
+                            <span className="ml-2 text-orange-600">
+                              • Deadline: {new Date(position.applicationDeadline).toLocaleDateString()}
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -283,6 +583,12 @@ export function CareerPage() {
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                         {position.location}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
+                        {position.experience}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -304,14 +610,37 @@ export function CareerPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          title="View Details" 
+                          disabled={deleting}
+                          onClick={() => handlePreviewJob(position)}
+                        >
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" className="bg-[#6812F7] hover:bg-[#5a0fd4]">
+                        <Button 
+                          size="sm" 
+                          className="bg-[#6812F7] hover:bg-[#5a0fd4]" 
+                          title="Edit Position"
+                          onClick={() => handleEditJob(position)}
+                          disabled={deleting}
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700">
-                          <Trash2 className="w-4 h-4" />
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="text-red-600 hover:text-red-700" 
+                          title="Delete Position"
+                          onClick={() => handleDeleteJob(position.id)}
+                          disabled={deleting}
+                        >
+                          {deleting ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
                         </Button>
                       </div>
                     </TableCell>
@@ -342,6 +671,126 @@ export function CareerPage() {
           )}
         </div>
       )}
+
+      {/* Job Preview Dialog */}
+      <Dialog open={!!previewJob} onOpenChange={() => setPreviewJob(null)}>
+        <DialogContent className="max-w-[95vw] xl:max-w-[90vw] 2xl:max-w-8xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle>Job Position Preview</DialogTitle>
+            <DialogDescription>
+              Preview how this job position will appear to candidates
+            </DialogDescription>
+          </DialogHeader>
+          
+          {previewJob && (
+            <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+              {/* Job Header */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{previewJob.title}</h1>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <Badge variant="outline">{previewJob.department}</Badge>
+                      <Badge variant="outline">{previewJob.type}</Badge>
+                      <Badge variant="outline">{previewJob.location}</Badge>
+                      <Badge variant="outline" className={getStatusColor(previewJob.status)}>
+                        {previewJob.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm text-gray-500">
+                    <p>Posted: {new Date(previewJob.postedDate).toLocaleDateString()}</p>
+                    {previewJob.applicationDeadline && (
+                      <p>Deadline: {new Date(previewJob.applicationDeadline).toLocaleDateString()}</p>
+                    )}
+                    <p>Applications: {previewJob.applications}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 text-sm">
+                  <div className="flex items-center">
+                    <Briefcase className="w-4 h-4 mr-2 text-gray-400" />
+                    <span className="font-medium">Experience:</span>
+                    <span className="ml-2">{previewJob.experience}</span>
+                  </div>
+                  {previewJob.salary && (
+                    <div className="flex items-center">
+                      <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="font-medium">Salary:</span>
+                      <span className="ml-2">{previewJob.salary}</span>
+                    </div>
+                  )}
+                  {previewJob.team && (
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="font-medium">Team:</span>
+                      <span className="ml-2">{previewJob.team}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Job Description */}
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Job Description</h2>
+                <div className="prose max-w-none">
+                  <p className="text-gray-700 whitespace-pre-wrap">{previewJob.description}</p>
+                </div>
+              </div>
+
+              {/* Requirements and Benefits in two columns on larger screens */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+                {/* Requirements */}
+                {previewJob.requirements && previewJob.requirements.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-3">Requirements</h2>
+                    <ul className="space-y-2">
+                      {previewJob.requirements.map((requirement, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-[#6812F7] mr-2 mt-1">•</span>
+                          <span className="text-gray-700">{requirement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Benefits */}
+                {previewJob.benefits && previewJob.benefits.length > 0 && (
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900 mb-3">Benefits</h2>
+                    <ul className="space-y-2">
+                      {previewJob.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-green-600 mr-2 mt-1">✓</span>
+                          <span className="text-gray-700">{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          <div className="flex-shrink-0 flex justify-end space-x-2 pt-4 border-t bg-white">
+            <Button variant="outline" onClick={() => setPreviewJob(null)}>
+              Close
+            </Button>
+            <Button 
+              className="bg-[#6812F7] hover:bg-[#5a0fd4]"
+              onClick={() => {
+                if (previewJob) {
+                  handleEditJob(previewJob)
+                  setPreviewJob(null)
+                }
+              }}
+            >
+              Edit Job
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

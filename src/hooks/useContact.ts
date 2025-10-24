@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { apiClient } from '../lib/api'
 
 export interface ContactFormData {
   name: string;
@@ -55,26 +56,19 @@ export function useContact(): UseContactReturn {
     setIsSubmitting(true)
     
     try {
-      const response = await fetch('http://localhost:3002/api/contact/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          company: formData.company,
-          service: formData.service,
-          budget: formData.budget,
-          message: formData.message
-        })
+      const response = await apiClient.submitContactMessage({
+        name: formData.name,
+        email: formData.email,
+        company: formData.company,
+        service: formData.service,
+        budget: formData.budget,
+        message: formData.message
       })
 
-      if (response.ok) {
+      if (response.success) {
         setIsSubmitted(true)
       } else {
-        const errorData = await response.json()
-        console.error('Form submission error:', errorData.message)
+        console.error('Form submission error:', response.message)
         alert('Failed to submit form. Please try again.')
       }
     } catch (error) {

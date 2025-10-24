@@ -9,9 +9,15 @@ const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get('/jobs', async (req, res) => {
     try {
-        const { page = 1, limit = 10, department, location, type } = req.query;
+        const { page = 1, limit = 10, department, location, type, status } = req.query;
         const skip = (Number(page) - 1) * Number(limit);
-        const where = { status: 'active' };
+        const where = {};
+        if (status) {
+            where.status = status;
+        }
+        else if (!req.headers.authorization) {
+            where.status = 'active';
+        }
         if (department)
             where.department = department;
         if (location)
@@ -111,10 +117,10 @@ router.post('/jobs', async (req, res) => {
                 description: jobData.description,
                 requirements: jobData.requirements || [],
                 benefits: jobData.benefits || [],
-                skills: jobData.skills || [],
                 status: jobData.status || 'active',
                 postedDate: new Date(),
                 salary: jobData.salary,
+                team: jobData.team,
                 applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline) : null
             }
         });
@@ -146,9 +152,9 @@ router.put('/jobs/:id', async (req, res) => {
                 description: jobData.description,
                 requirements: jobData.requirements || [],
                 benefits: jobData.benefits || [],
-                skills: jobData.skills || [],
                 status: jobData.status || 'active',
                 salary: jobData.salary,
+                team: jobData.team,
                 applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline) : null
             }
         });

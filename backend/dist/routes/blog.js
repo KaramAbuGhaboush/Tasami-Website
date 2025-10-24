@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
+const upload_1 = __importDefault(require("../middleware/upload"));
 const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get('/articles', async (req, res) => {
@@ -95,13 +96,71 @@ router.get('/articles/:slug', async (req, res) => {
                 message: 'Article not found'
             });
         }
+        let relatedArticles = [];
+        if (article.relatedArticles && Array.isArray(article.relatedArticles) && article.relatedArticles.length > 0) {
+            relatedArticles = await prisma.blogArticle.findMany({
+                where: {
+                    AND: [
+                        { id: { in: article.relatedArticles } },
+                        { status: 'published' }
+                    ]
+                },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                            slug: true,
+                            color: true
+                        }
+                    }
+                }
+            });
+        }
+        else {
+            relatedArticles = await prisma.blogArticle.findMany({
+                where: {
+                    AND: [
+                        { id: { not: article.id } },
+                        { status: 'published' },
+                        {
+                            OR: [
+                                { categoryId: article.categoryId },
+                            ]
+                        }
+                    ]
+                },
+                take: 3,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    category: {
+                        select: {
+                            name: true,
+                            slug: true,
+                            color: true
+                        }
+                    }
+                }
+            });
+        }
         await prisma.blogArticle.update({
             where: { id: article.id },
             data: { views: { increment: 1 } }
         });
+        const articleWithRelated = {
+            ...article,
+            relatedArticles: relatedArticles.map(related => ({
+                title: related.title,
+                slug: related.slug,
+                category: related.category?.name || 'Uncategorized',
+                readTime: related.readTime,
+                excerpt: related.excerpt,
+                image: related.image,
+                createdAt: related.createdAt
+            }))
+        };
         return res.json({
             success: true,
-            data: { article }
+            data: { article: articleWithRelated }
         });
     }
     catch (error) {
@@ -336,12 +395,21 @@ router.delete('/authors/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const existingAuthor = await prisma.blogAuthor.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                articles: true
+            }
         });
         if (!existingAuthor) {
             return res.status(404).json({
                 success: false,
                 message: 'Author not found'
+            });
+        }
+        if (existingAuthor.articles && existingAuthor.articles.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: `Cannot delete author "${existingAuthor.name}" because they have ${existingAuthor.articles.length} article(s). Please reassign or delete the articles first.`
             });
         }
         await prisma.blogAuthor.delete({
@@ -388,7 +456,7 @@ router.post('/articles', async (req, res) => {
                 status: articleData.status || 'draft',
                 views: 0,
                 tags: articleData.tags || [],
-                relatedArticles: [],
+                relatedArticles: articleData.relatedArticles || [],
                 authorId: articleData.authorId || 'cmguvvn6f0001rvckzouydzg1',
                 categoryId: articleData.categoryId || 'cmguvvn6o0003rvckscjhhuvh'
             },
@@ -459,6 +527,7 @@ router.put('/articles/:id', async (req, res) => {
                 featured: articleData.featured !== undefined ? articleData.featured : existingArticle.featured,
                 status: articleData.status || existingArticle.status,
                 tags: articleData.tags || existingArticle.tags,
+                relatedArticles: articleData.relatedArticles !== undefined ? articleData.relatedArticles : existingArticle.relatedArticles,
                 authorId: articleData.authorId || existingArticle.authorId,
                 categoryId: articleData.categoryId || existingArticle.categoryId
             },
@@ -516,6 +585,32 @@ router.delete('/articles/:id', async (req, res) => {
     }
     catch (error) {
         console.error('Delete article error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.post('/upload-image', upload_1.default.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'No image file uploaded'
+            });
+        }
+        const filename = req.file.filename;
+        const imageUrl = `http://localhost:3002/uploads/images/${filename}`;
+        return res.json({
+            success: true,
+            data: {
+                filename: filename,
+                url: imageUrl
+            }
+        });
+    }
+    catch (error) {
+        console.error('Upload image error:', error);
         return res.status(500).json({
             success: false,
             message: 'Internal server error'

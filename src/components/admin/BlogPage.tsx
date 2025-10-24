@@ -414,11 +414,11 @@ export function BlogPage() {
 
   const handleDeleteAuthor = async (id: string) => {
     if (confirm('Are you sure you want to delete this author?')) {
-      const success = await deleteAuthor(id)
-      if (success) {
+      const result = await deleteAuthor(id)
+      if (result.success) {
         alert('Author deleted successfully!')
       } else {
-        alert('Failed to delete author')
+        alert(result.message || 'Failed to delete author')
       }
     }
   }
@@ -2012,8 +2012,15 @@ const example = 'Hello World';
                     </div>
                     <div>
                       <span className="text-sm font-medium text-gray-700">Articles:</span>
-                      <span className="text-sm text-gray-600 ml-2">
+                      <span className={`text-sm ml-2 font-medium ${
+                        articles.filter(a => a.author.id === author.id).length > 0 
+                          ? 'text-red-600' 
+                          : 'text-gray-600'
+                      }`}>
                         {articles.filter(a => a.author.id === author.id).length}
+                        {articles.filter(a => a.author.id === author.id).length > 0 && (
+                          <span className="text-xs text-red-500 ml-1">(Cannot delete)</span>
+                        )}
                       </span>
                     </div>
                     <div>
@@ -2041,8 +2048,18 @@ const example = 'Hello World';
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="text-red-600 hover:text-red-700"
+                      className={`${
+                        articles.filter(a => a.author.id === author.id).length > 0
+                          ? 'text-gray-400 cursor-not-allowed opacity-50'
+                          : 'text-red-600 hover:text-red-700'
+                      }`}
+                      disabled={articles.filter(a => a.author.id === author.id).length > 0}
                       onClick={() => handleDeleteAuthor(author.id)}
+                      title={
+                        articles.filter(a => a.author.id === author.id).length > 0
+                          ? 'Cannot delete author with articles'
+                          : 'Delete author'
+                      }
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

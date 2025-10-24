@@ -38,6 +38,11 @@ const prisma = new PrismaClient();
  *         schema:
  *           type: string
  *         description: Filter by job type
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter by job status
  *     responses:
  *       200:
  *         description: List of job positions
@@ -67,11 +72,20 @@ const prisma = new PrismaClient();
  */
 router.get('/jobs', async (req, res) => {
   try {
-    const { page = 1, limit = 10, department, location, type } = req.query;
+    const { page = 1, limit = 10, department, location, type, status } = req.query;
     
     const skip = (Number(page) - 1) * Number(limit);
     
-    const where: any = { status: 'active' };
+    // For admin requests, don't filter by status unless explicitly specified
+    // For public requests, only show active jobs
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    } else if (!req.headers.authorization) {
+      // If no auth token, only show active jobs (public access)
+      where.status = 'active';
+    }
+    
     if (department) where.department = department;
     if (location) where.location = { contains: location };
     if (type) where.type = type;
@@ -345,12 +359,6 @@ router.post('/applications', async (req, res) => {
  *                   type: string
  *                 description: Job benefits
  *                 example: ["Health insurance", "Remote work", "Flexible hours"]
- *               skills:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Required skills
- *                 example: ["React", "Node.js", "TypeScript", "AWS"]
  *               salary:
  *                 type: string
  *                 description: Salary range
@@ -364,6 +372,10 @@ router.post('/applications', async (req, res) => {
  *                 type: string
  *                 description: Job status
  *                 example: "active"
+ *               team:
+ *                 type: string
+ *                 description: Team name
+ *                 example: "Engineering Team"
  *     responses:
  *       201:
  *         description: Job created successfully
@@ -407,10 +419,10 @@ router.post('/jobs', async (req, res) => {
         description: jobData.description,
         requirements: jobData.requirements || [],
         benefits: jobData.benefits || [],
-        skills: jobData.skills || [],
         status: jobData.status || 'active',
         postedDate: new Date(),
         salary: jobData.salary,
+        team: jobData.team,
         applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline) : null
       }
     });
@@ -484,12 +496,6 @@ router.post('/jobs', async (req, res) => {
  *                   type: string
  *                 description: Job benefits
  *                 example: ["Health insurance", "Remote work", "Flexible hours"]
- *               skills:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: Required skills
- *                 example: ["React", "Node.js", "TypeScript", "AWS"]
  *               salary:
  *                 type: string
  *                 description: Salary range
@@ -503,6 +509,10 @@ router.post('/jobs', async (req, res) => {
  *                 type: string
  *                 description: Job status
  *                 example: "active"
+ *               team:
+ *                 type: string
+ *                 description: Team name
+ *                 example: "Engineering Team"
  *     responses:
  *       200:
  *         description: Job updated successfully
@@ -548,9 +558,9 @@ router.put('/jobs/:id', async (req, res) => {
         description: jobData.description,
         requirements: jobData.requirements || [],
         benefits: jobData.benefits || [],
-        skills: jobData.skills || [],
         status: jobData.status || 'active',
         salary: jobData.salary,
+        team: jobData.team,
         applicationDeadline: jobData.applicationDeadline ? new Date(jobData.applicationDeadline) : null
       }
     });

@@ -212,7 +212,11 @@ router.get('/weekly-summary', auth_1.authMiddleware, async (req, res) => {
         const totalHours = timeEntries.reduce((total, entry) => {
             return total + entry.hours + (entry.minutes / 60);
         }, 0);
-        const goal = 40;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { weeklyGoal: true }
+        });
+        const goal = user?.weeklyGoal || 40;
         const remaining = Math.max(0, goal - totalHours);
         const progressPercentage = Math.min(100, (totalHours / goal) * 100);
         res.json({
@@ -228,6 +232,77 @@ router.get('/weekly-summary', auth_1.authMiddleware, async (req, res) => {
     catch (error) {
         console.error('Error fetching weekly summary:', error);
         res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.get('/profile', auth_1.authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                weeklyGoal: true,
+                isActive: true,
+                createdAt: true
+            }
+        });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        return res.json({
+            success: true,
+            data: { user }
+        });
+    }
+    catch (error) {
+        console.error('Error fetching user profile:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+});
+router.put('/profile/weekly-goal', auth_1.authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { weeklyGoal } = req.body;
+        if (!weeklyGoal || weeklyGoal < 1 || weeklyGoal > 80) {
+            return res.status(400).json({
+                success: false,
+                message: 'Weekly goal must be between 1 and 80 hours'
+            });
+        }
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: { weeklyGoal: parseInt(weeklyGoal) },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                role: true,
+                weeklyGoal: true,
+                isActive: true,
+                createdAt: true
+            }
+        });
+        return res.json({
+            success: true,
+            data: { user },
+            message: 'Weekly goal updated successfully'
+        });
+    }
+    catch (error) {
+        console.error('Error updating weekly goal:', error);
+        return res.status(500).json({
             success: false,
             message: 'Internal server error'
         });

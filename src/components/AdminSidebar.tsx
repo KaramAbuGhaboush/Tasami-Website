@@ -67,8 +67,8 @@ export function AdminSidebar() {
         fixed lg:static inset-y-0 left-0 z-50 w-80 lg:w-72 transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
-        <div className="h-full bg-white border-r border-gray-200 shadow-lg lg:shadow-none">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="h-full bg-white border-r border-gray-200 shadow-lg lg:shadow-none flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
             <h2 className="font-semibold text-gray-900">
               Navigation
             </h2>
@@ -82,7 +82,7 @@ export function AdminSidebar() {
             </Button>
           </div>
           
-          <nav className="p-4 space-y-2">
+          <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
             {sidebarItems.map((item) => {
               const IconComponent = item.icon
               const active = isActive(item.href)

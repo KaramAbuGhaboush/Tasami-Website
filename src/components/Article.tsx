@@ -222,25 +222,62 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
 
       {/* Related Articles */}
       {article.relatedArticles && article.relatedArticles.length > 0 && (
-        <section className="py-16">
+        <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Related Articles</h2>
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Related Articles</h2>
+              <p className="text-lg text-gray-600">Continue exploring similar content</p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {article.relatedArticles.map((relatedArticle: any, index: number) => (
                 <Link
                   key={index}
                   href={`/article/${relatedArticle.slug}`}
-                  className="luxury-card p-6 rounded-2xl hover:shadow-xl transition-all duration-300 group"
+                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
                 >
-                  <div className="flex items-center space-x-3 mb-4">
-                    <span className="bg-[#6812F7] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {relatedArticle.category}
-                    </span>
-                    <span className="text-sm text-gray-500">{relatedArticle.readTime}</span>
+                  {/* Article Image */}
+                  <div className="aspect-video relative overflow-hidden">
+                    {getImageSrc(relatedArticle.image) ? (
+                      <img 
+                        src={getImageSrc(relatedArticle.image)!} 
+                        alt={relatedArticle.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
+                        <div className="text-center text-white">
+                          <div className="text-4xl mb-2">{relatedArticle.image || '📝'}</div>
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute top-4 left-4">
+                      <span className="bg-[#6812F7] text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        {relatedArticle.category}
+                      </span>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors">
-                    {relatedArticle.title}
-                  </h3>
+                  
+                  {/* Article Content */}
+                  <div className="p-6">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <span className="text-sm text-gray-500">{relatedArticle.readTime}</span>
+                      <span>•</span>
+                      <span className="text-sm text-gray-500">
+                        {new Date(relatedArticle.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors mb-3 line-clamp-2">
+                      {relatedArticle.title}
+                    </h3>
+                    {relatedArticle.excerpt && (
+                      <p className="text-gray-600 line-clamp-3">
+                        {relatedArticle.excerpt}
+                      </p>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>

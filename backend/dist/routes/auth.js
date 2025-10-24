@@ -38,13 +38,11 @@ router.post('/register', async (req, res) => {
                 createdAt: true
             }
         });
-        const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
         return res.status(201).json({
             success: true,
             message: 'User created successfully',
             data: {
-                user,
-                token
+                user
             }
         });
     }
@@ -84,7 +82,8 @@ router.post('/login', async (req, res) => {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    role: user.role
+                    role: user.role,
+                    weeklyGoal: user.weeklyGoal
                 },
                 token
             }
@@ -115,6 +114,7 @@ router.get('/me', async (req, res) => {
                 email: true,
                 name: true,
                 role: true,
+                weeklyGoal: true,
                 createdAt: true
             }
         });
@@ -133,6 +133,37 @@ router.get('/me', async (req, res) => {
         return res.status(401).json({
             success: false,
             message: 'Invalid token.'
+        });
+    }
+});
+router.post('/logout', async (req, res) => {
+    try {
+        const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Access denied. No token provided.'
+            });
+        }
+        try {
+            const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+            return res.json({
+                success: true,
+                message: 'Logout successful'
+            });
+        }
+        catch (jwtError) {
+            return res.json({
+                success: true,
+                message: 'Logout successful'
+            });
+        }
+    }
+    catch (error) {
+        console.error('Logout error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
         });
     }
 });
