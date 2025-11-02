@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Image from 'next/image';
 import { Project } from '@/hooks/useWorkData';
 
@@ -20,7 +20,7 @@ export const ProjectCard = ({ project, index }: ProjectCardProps) => {
             className="object-cover group-hover:scale-110 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          
+
           {/* Category Badge */}
           <div className="absolute top-4 left-4">
             <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -34,11 +34,11 @@ export const ProjectCard = ({ project, index }: ProjectCardProps) => {
           <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-[#667eea] transition-colors duration-300">
             {project.title}
           </h3>
-          
+
           <p className="text-gray-600 mb-4 line-clamp-3">
             {project.description}
           </p>
-          
+
           {/* Technologies */}
           <div className="mb-4">
             <div className="flex flex-wrap gap-2">
@@ -54,7 +54,7 @@ export const ProjectCard = ({ project, index }: ProjectCardProps) => {
               )}
             </div>
           </div>
-                    
+
           {/* Key Results Preview */}
           <div className="mb-6">
             <div className="flex flex-wrap gap-2">

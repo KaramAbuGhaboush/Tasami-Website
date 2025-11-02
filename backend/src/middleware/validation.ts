@@ -124,7 +124,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
     });
   }
   
-  next();
+  return next();
 };
 
 // Rate limiting for specific endpoints

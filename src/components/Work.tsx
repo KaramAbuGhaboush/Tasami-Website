@@ -1,5 +1,7 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import Image from 'next/image'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import { TransformedTestimonial } from '@/hooks/useWork'
 
 interface WorkProps {
@@ -51,6 +53,10 @@ export function Work({
   handleTouchMove,
   handleTouchEnd
 }: WorkProps) {
+  const t = useTranslations('work')
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -58,7 +64,7 @@ export function Work({
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
-          <div 
+          <div
             className="absolute inset-0 opacity-20 grid-pattern"
             style={{
               backgroundImage: `
@@ -68,7 +74,7 @@ export function Work({
               backgroundSize: '40px 40px'
             }}
           ></div>
-          
+
           {/* Floating Elements */}
           <div className="absolute top-20 left-20 w-3 h-3 bg-[#6812F7]/30 rounded-full animate-pulse"></div>
           <div className="absolute top-40 right-32 w-2 h-2 bg-[#9253F0]/40 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
@@ -76,49 +82,49 @@ export function Work({
           <div className="absolute top-1/2 right-20 w-2 h-2 bg-[#6812F7]/25 rounded-full animate-bounce" style={{ animationDelay: '0.5s' }}></div>
           <div className="absolute bottom-20 right-1/4 w-3 h-3 bg-[#9253F0]/35 rounded-full animate-pulse" style={{ animationDelay: '3s' }}></div>
         </div>
-        
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* Enhanced Badge */}
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#6812F7]/10 to-[#9253F0]/10 rounded-full text-[#6812F7] text-sm font-medium mb-8 border border-[#6812F7]/20 shadow-lg">
-              <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-3 animate-pulse"></span>
-              Our Portfolio
+              <span className={`w-2 h-2 bg-[#6812F7] rounded-full ${isRTL ? 'ml-3' : 'mr-3'} animate-pulse`}></span>
+              {t('ourPortfolio')}
             </div>
-            
+
             {/* Enhanced Heading */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-gray-900 leading-[0.9] mb-8">
-              Our
+              {t('title')}
               <span className="block bg-gradient-to-r from-[#6812F7] to-[#9253F0] bg-clip-text text-transparent mt-2">
-                Work
+                {t('work')}
               </span>
             </h1>
-            
+
             {/* Enhanced Description */}
             <p className="text-xl sm:text-2xl text-gray-600 max-w-4xl mx-auto mb-12 leading-relaxed">
-              Discover how we've transformed businesses through 
-              <span className="text-[#6812F7] font-semibold"> cutting-edge AI</span>, 
-              <span className="text-[#9253F0] font-semibold"> automation</span>, and 
-              <span className="text-[#6812F7] font-semibold"> design solutions</span>. 
-              Each project tells a story of innovation, growth, and exceptional results.
+              {t('heroDescription')}{' '}
+              <span className="text-[#6812F7] font-semibold">{t('cuttingEdgeAI')}</span>,
+              <span className="text-[#9253F0] font-semibold"> {t('automation')}</span>, {t('and')}{' '}
+              <span className="text-[#6812F7] font-semibold">{t('designSolutions')}</span>.
+              {t('heroDescription2')}
             </p>
-            
+
             {/* Trust Indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
-                <div className="text-gray-600 font-medium">Projects</div>
+                <div className="text-gray-600 font-medium">{t('projects')}</div>
               </div>
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">98%</div>
-                <div className="text-gray-600 font-medium">Success Rate</div>
+                <div className="text-gray-600 font-medium">{t('successRate')}</div>
               </div>
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
-                <div className="text-gray-600 font-medium">Client Satisfaction</div>
+                <div className="text-gray-600 font-medium">{t('clientSatisfaction')}</div>
               </div>
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">∞</div>
-                <div className="text-gray-600 font-medium">Innovation</div>
+                <div className="text-gray-600 font-medium">{t('innovation')}</div>
               </div>
             </div>
           </div>
@@ -146,10 +152,10 @@ export function Work({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Featured Projects
+              {t('featuredProjects')}
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Discover how we've helped businesses transform and achieve remarkable results
+              {t('featuredProjectsDescription')}
             </p>
           </div>
 
@@ -157,7 +163,7 @@ export function Work({
           {loading && (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
-              <span className="ml-4 text-gray-600">Loading projects...</span>
+              <span className={`${isRTL ? 'mr-4' : 'ml-4'} text-gray-600`}>{t('loadingProjects')}</span>
             </div>
           )}
 
@@ -170,13 +176,13 @@ export function Work({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Projects</h3>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">{t('errorLoadingProjects')}</h3>
                 <p className="text-red-600 mb-4">{error}</p>
-                <button 
-                  onClick={() => window.location.reload()} 
+                <button
+                  onClick={() => window.location.reload()}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                 >
-                  Try Again
+                  {t('tryAgain')}
                 </button>
               </div>
             </div>
@@ -199,8 +205,8 @@ export function Work({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="absolute top-4 left-4">
                         <span className="bg-white/90 backdrop-blur-sm text-[#667eea] px-3 py-1 rounded-full text-sm font-medium">
-                        {project.category}
-                      </span>
+                          {project.category}
+                        </span>
                       </div>
                     </div>
 
@@ -212,24 +218,24 @@ export function Work({
                       <p className="text-gray-600 mb-6 leading-relaxed line-clamp-3 flex-grow">
                         {project.description}
                       </p>
-                      
+
                       {/* Key Results Preview */}
                       <div className="mb-6">
                         <div className="flex flex-wrap gap-2">
-                            {project.results.slice(0, 2).map((result, resultIndex) => (
-                              <span key={resultIndex} className="bg-[#667eea]/10 text-[#667eea] px-3 py-1 rounded-full text-xs font-medium">
-                                {result.description}
+                          {project.results.slice(0, 2).map((result, resultIndex) => (
+                            <span key={resultIndex} className="bg-[#667eea]/10 text-[#667eea] px-3 py-1 rounded-full text-xs font-medium">
+                              {result.description}
                             </span>
                           ))}
                         </div>
                       </div>
 
                       {/* View Project Link */}
-                      <div className="flex items-center text-[#667eea] font-semibold group-hover:text-[#764ba2] transition-colors duration-300 mt-auto">
-                        <span>View Project</span>
-                        <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
+                      <div className={`flex items-center text-[#667eea] font-semibold group-hover:text-[#764ba2] transition-colors duration-300 mt-auto ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <span>{t('viewProject')}</span>
+                        <svg className={`w-4 h-4 group-hover:${isRTL ? '-translate-x-1' : 'translate-x-1'} transition-transform duration-300 ${isRTL ? 'mr-2' : 'ml-2'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7"} />
+                        </svg>
                       </div>
                     </div>
                   </div>
@@ -246,8 +252,8 @@ export function Work({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Projects Found</h3>
-              <p className="text-gray-500">We're working on adding more projects. Check back soon!</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('noProjectsFound')}</h3>
+              <p className="text-gray-500">{t('noProjectsDescription')}</p>
             </div>
           )}
         </div>
@@ -258,10 +264,10 @@ export function Work({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              Project Success Metrics
+              {t('projectSuccessMetrics')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Our track record speaks for itself. These metrics represent the tangible impact we've delivered across all our projects.
+              {t('projectSuccessMetricsDescription')}
             </p>
           </div>
 
@@ -276,7 +282,7 @@ export function Work({
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-3">
                   500+
                 </div>
-                <div className="text-gray-600 font-medium text-lg">Projects Completed</div>
+                <div className="text-gray-600 font-medium text-lg">{t('projectsCompleted')}</div>
               </div>
             </div>
 
@@ -290,7 +296,7 @@ export function Work({
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-3">
                   98%
                 </div>
-                <div className="text-gray-600 font-medium text-lg">On-Time Delivery</div>
+                <div className="text-gray-600 font-medium text-lg">{t('onTimeDelivery')}</div>
               </div>
             </div>
 
@@ -304,7 +310,7 @@ export function Work({
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-3">
                   95%
                 </div>
-                <div className="text-gray-600 font-medium text-lg">Client Retention</div>
+                <div className="text-gray-600 font-medium text-lg">{t('clientRetention')}</div>
               </div>
             </div>
 
@@ -318,7 +324,7 @@ export function Work({
                 <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#667eea] to-[#764ba2] bg-clip-text text-transparent mb-3">
                   4.9/5
                 </div>
-                <div className="text-gray-600 font-medium text-lg">Average Rating</div>
+                <div className="text-gray-600 font-medium text-lg">{t('averageRating')}</div>
               </div>
             </div>
           </div>
@@ -330,10 +336,10 @@ export function Work({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-              What Our Clients Say
+              {t('whatOurClientsSay')}
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Don't just take our word for it. Here's what our clients have to say about working with us and the results we've delivered.
+              {t('whatOurClientsSayDescription')}
             </p>
           </div>
 
@@ -341,7 +347,7 @@ export function Work({
           {testimonialsLoading && (
             <div className="flex justify-center items-center py-20">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
-              <span className="ml-4 text-gray-600">Loading testimonials...</span>
+              <span className={`${isRTL ? 'mr-4' : 'ml-4'} text-gray-600`}>{t('loadingTestimonials')}</span>
             </div>
           )}
 
@@ -354,13 +360,13 @@ export function Work({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Testimonials</h3>
+                <h3 className="text-lg font-semibold text-red-800 mb-2">{t('errorLoadingTestimonials')}</h3>
                 <p className="text-red-600 mb-4">{testimonialsError}</p>
-                <button 
-                  onClick={() => window.location.reload()} 
+                <button
+                  onClick={() => window.location.reload()}
                   className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
                 >
-                  Try Again
+                  {t('tryAgain')}
                 </button>
               </div>
             </div>
@@ -369,112 +375,111 @@ export function Work({
           {/* Testimonials Carousel */}
           {!testimonialsLoading && !testimonialsError && testimonials.length > 0 && (
             <div className="relative pb-16" onMouseEnter={() => setIsAutoPlaying(false)} onMouseLeave={resumeAutoPlay}>
-            {/* Navigation Arrows - Hidden on Mobile */}
-            <button 
-              onClick={goToPrevious}
-              className="hidden md:flex absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
-              aria-label="Previous testimonial"
-            >
-              <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <button 
-              onClick={goToNext}
-              className="hidden md:flex absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
-              aria-label="Next testimonial"
-            >
-              <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Carousel Container */}
-            <div 
-              className="overflow-hidden min-h-[500px]"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div 
-                className="flex transition-transform duration-500 ease-in-out"
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              {/* Navigation Arrows - Hidden on Mobile */}
+              <button
+                onClick={goToPrevious}
+                className="hidden md:flex absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
+                aria-label="Previous testimonial"
               >
-                {testimonials.map((testimonial) => (
-                  <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
-                    <div className="max-w-4xl mx-auto">
-                      <div className="bg-gradient-to-br from-white to-gray-50 p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-visible text-center testimonial-card min-h-[400px] flex flex-col justify-center">
-                        {/* Quote decoration */}
-                        <div className="absolute top-8 right-8 text-6xl md:text-8xl text-[#667eea]/10 font-serif">"</div>
-                        
-                        {/* Star rating */}
-                        <div className="flex justify-center mb-6 md:mb-8">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <svg key={i} className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                            </svg>
-                          ))}
-                        </div>
+                <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
 
-                        <blockquote className="text-gray-700 mb-8 md:mb-10 text-lg md:text-2xl leading-relaxed italic max-w-3xl mx-auto">
-                          "{testimonial.quote}"
-                        </blockquote>
+              <button
+                onClick={goToNext}
+                className="hidden md:flex absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg items-center justify-center hover:shadow-xl transition-all duration-300 group"
+                aria-label="Next testimonial"
+              >
+                <svg className="w-6 h-6 text-gray-600 group-hover:text-[#667eea] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-6">
-                          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-xl md:text-2xl">
-                            {testimonial.initials}
+              {/* Carousel Container */}
+              <div
+                className="overflow-hidden min-h-[500px]"
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <div
+                  className="flex transition-transform duration-500 ease-in-out"
+                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                >
+                  {testimonials.map((testimonial) => (
+                    <div key={testimonial.id} className="w-full flex-shrink-0 px-4">
+                      <div className="max-w-4xl mx-auto">
+                        <div className="bg-gradient-to-br from-white to-gray-50 p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100 relative overflow-visible text-center testimonial-card min-h-[400px] flex flex-col justify-center">
+                          {/* Quote decoration */}
+                          <div className="absolute top-8 right-8 text-6xl md:text-8xl text-[#667eea]/10 font-serif">&quot;</div>
+
+                          {/* Star rating */}
+                          <div className="flex justify-center mb-6 md:mb-8">
+                            {[...Array(testimonial.rating)].map((_, i) => (
+                              <svg key={i} className="w-5 h-5 md:w-6 md:h-6 text-yellow-400 fill-current mx-1" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                              </svg>
+                            ))}
                           </div>
-                          <div className="text-center sm:text-left">
-                            <div className="font-bold text-gray-900 text-xl md:text-2xl">{testimonial.name}</div>
-                            <div className="text-[#667eea] font-medium text-base md:text-lg">{testimonial.role}</div>
+
+                          <blockquote className="text-gray-700 mb-8 md:mb-10 text-lg md:text-2xl leading-relaxed italic max-w-3xl mx-auto">
+                            {testimonial.quote}
+                          </blockquote>
+
+                          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mt-6">
+                            <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-[#667eea] to-[#764ba2] rounded-full flex items-center justify-center text-white font-bold text-xl md:text-2xl">
+                              {testimonial.initials}
+                            </div>
+                            <div className="text-center sm:text-left">
+                              <div className="font-bold text-gray-900 text-xl md:text-2xl">{testimonial.name}</div>
+                              <div className="text-[#667eea] font-medium text-base md:text-lg">{testimonial.role}</div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dots Indicator */}
+              <div className="flex justify-center mt-12 md:mt-16 space-x-3">
+                {testimonials.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentSlide
+                      ? 'bg-[#667eea] w-8'
+                      : 'bg-gray-300 hover:bg-[#667eea]/50'
+                      }`}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
                 ))}
               </div>
-            </div>
 
-            {/* Dots Indicator */}
-            <div className="flex justify-center mt-12 md:mt-16 space-x-3">
-              {testimonials.map((_, index) => (
+              {/* Auto-play indicator and mobile instructions */}
+              <div className="flex flex-col items-center mt-4 space-y-2">
                 <button
-                  key={index}
-                  onClick={() => goToSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                    index === currentSlide 
-                      ? 'bg-[#667eea] w-8' 
-                      : 'bg-gray-300 hover:bg-[#667eea]/50'
-                  }`}
-                  aria-label={`Go to testimonial ${index + 1}`}
-                />
-              ))}
-            </div>
+                  onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                  className="text-sm text-gray-500 hover:text-[#667eea] transition-colors duration-300 flex items-center gap-2"
+                >
+                  <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-[#667eea]' : 'bg-gray-400'}`}></div>
+                  {isAutoPlaying ? t('autoPlaying') : t('paused')}
+                </button>
 
-            {/* Auto-play indicator and mobile instructions */}
-            <div className="flex flex-col items-center mt-4 space-y-2">
-              <button
-                onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                className="text-sm text-gray-500 hover:text-[#667eea] transition-colors duration-300 flex items-center gap-2"
-              >
-                <div className={`w-2 h-2 rounded-full ${isAutoPlaying ? 'bg-[#667eea]' : 'bg-gray-400'}`}></div>
-                {isAutoPlaying ? 'Auto-playing' : 'Paused'}
-              </button>
-              
-              {/* Mobile swipe instruction */}
-              <div className="md:hidden text-xs text-gray-400 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-                </svg>
-                <span>Swipe to navigate</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                {/* Mobile swipe instruction */}
+                <div className={`md:hidden text-xs text-gray-400 flex items-center ${isRTL ? 'gap-1' : 'gap-1'}`}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M17 8l4 4m0 0l-4 4m4-4H3" : "M7 16l-4-4m0 0l4-4m-4 4h18"} />
+                  </svg>
+                  <span>{t('swipeToNavigate')}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M7 16l-4-4m0 0l4-4m-4 4h18" : "M17 8l4 4m0 0l-4 4m4-4H3"} />
+                  </svg>
+                </div>
               </div>
             </div>
-          </div>
           )}
 
           {/* No Testimonials State */}
@@ -485,8 +490,8 @@ export function Work({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">No Testimonials Available</h3>
-              <p className="text-gray-500">We're working on adding client testimonials. Check back soon!</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-2">{t('noTestimonialsAvailable')}</h3>
+              <p className="text-gray-500">{t('noTestimonialsDescription')}</p>
             </div>
           )}
         </div>
@@ -508,57 +513,56 @@ export function Work({
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
-              Ready to Start Your 
+              {t('readyToStart')}
               <span className="block bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent">
-                Next Project?
+                {t('nextProject')}
               </span>
-          </h2>
-            
+            </h2>
+
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
-              Let's discuss how we can help you achieve similar results for your business. 
-              Our proven expertise and innovative solutions are ready to transform your ideas into reality.
+              {t('ctaDescription')}
             </p>
 
             {/* Stats preview */}
             <div className="grid grid-cols-3 gap-8 mb-12 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">500+</div>
-                <div className="text-white/80 text-sm">Projects</div>
+                <div className="text-white/80 text-sm">{t('projects')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">98%</div>
-                <div className="text-white/80 text-sm">On-Time</div>
+                <div className="text-white/80 text-sm">{t('onTime')}</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl font-bold text-white mb-1">4.9/5</div>
-                <div className="text-white/80 text-sm">Rating</div>
+                <div className="text-white/80 text-sm">{t('rating')}</div>
               </div>
             </div>
 
             {/* CTA Button */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Link
-              href="/contact"
-                className="group bg-white text-[#667eea] px-10 py-5 rounded-full text-xl font-bold hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 flex items-center"
-            >
-                <span>Start Your Project</span>
-                <svg className="w-6 h-6 ml-3 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+              <Link
+                href="/contact"
+                className={`group bg-white text-[#667eea] px-10 py-5 rounded-full text-xl font-bold hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-105 flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}
+              >
+                <span>{t('startYourProject')}</span>
+                <svg className={`w-6 h-6 group-hover:${isRTL ? '-translate-x-1' : 'translate-x-1'} transition-transform duration-300 ${isRTL ? 'mr-3' : 'ml-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M7 16l-4-4m0 0l4-4m-4 4h18" : "M17 8l4 4m0 0l-4 4m4-4H3"} />
                 </svg>
-            </Link>
-              
-            <Link
-              href="/services"
+              </Link>
+
+              <Link
+                href="/services"
                 className="border-2 border-white/50 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/10 hover:border-white transition-all duration-300 backdrop-blur-sm"
-            >
-                View Our Services
-            </Link>
+              >
+                {t('viewOurServices')}
+              </Link>
             </div>
 
             {/* Contact info */}
             <div className="mt-12 text-white/80">
               <p className="text-lg">
-                Or call us directly at{' '}
+                {t('orCallUs')}{' '}
                 <a href="tel:+1234567890" className="text-white font-semibold hover:underline">
                   (123) 456-7890
                 </a>

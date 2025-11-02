@@ -3,6 +3,14 @@ import { PrismaClient } from '@prisma/client';
 import upload from '../middleware/upload';
 import path from 'path';
 import { cacheConfigs, invalidateCache } from '../middleware/cache';
+import {
+  transformArticleByLocale,
+  transformArticlesByLocale,
+  transformCategoryByLocale,
+  transformCategoriesByLocale,
+  transformAuthorByLocale,
+  normalizeLocale
+} from '../utils/localization';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -71,7 +79,8 @@ const prisma = new PrismaClient();
  */
 router.get('/articles', cacheConfigs.blogArticles, async (req, res) => {
   try {
-    const { page = 1, limit = 10, category, featured, status = 'published' } = req.query;
+    const { page = 1, limit = 10, category, featured, status = 'published', locale } = req.query;
+    const normalizedLocale = normalizeLocale(locale as string);
     
     const skip = (Number(page) - 1) * Number(limit);
     
@@ -90,27 +99,39 @@ router.get('/articles', cacheConfigs.blogArticles, async (req, res) => {
             select: {
               id: true,
               name: true,
+              nameAr: true,
               avatar: true,
-              role: true
-            }
+              role: true,
+              roleAr: true
+            } as any
           },
           category: {
             select: {
               id: true,
               name: true,
+              nameAr: true,
               slug: true,
               color: true
-            }
+            } as any
           }
         }
       }),
       prisma.blogArticle.count({ where })
     ]);
 
+    // Transform articles, categories, and authors based on locale
+    const transformedArticles = transformArticlesByLocale(articles, normalizedLocale);
+    // Also transform category and author in each article
+    const finalArticles = transformedArticles.map((article: any) => ({
+      ...article,
+      category: article.category ? transformCategoryByLocale(article.category, normalizedLocale) : article.category,
+      author: article.author ? transformAuthorByLocale(article.author, normalizedLocale) : article.author
+    }));
+
     return res.json({
       success: true,
       data: {
-        articles,
+        articles: finalArticles,
         pagination: {
           page: Number(page),
           limit: Number(limit),
@@ -173,6 +194,8 @@ router.get('/articles', cacheConfigs.blogArticles, async (req, res) => {
 router.get('/articles/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
+    const { locale } = req.query;
+    const normalizedLocale = normalizeLocale(locale as string);
 
     const article = await prisma.blogArticle.findUnique({
       where: { slug },
@@ -181,18 +204,22 @@ router.get('/articles/:slug', async (req, res) => {
           select: {
             id: true,
             name: true,
+            nameAr: true,
             avatar: true,
             role: true,
-            bio: true
-          }
+            roleAr: true,
+            bio: true,
+            bioAr: true
+          } as any
         },
         category: {
           select: {
             id: true,
             name: true,
+            nameAr: true,
             slug: true,
             color: true
-          }
+          } as any
         }
       }
     });
@@ -218,9 +245,10 @@ router.get('/articles/:slug', async (req, res) => {
           category: {
             select: {
               name: true,
+              nameAr: true,
               slug: true,
               color: true
-            }
+            } as any
           }
         }
       });
@@ -246,9 +274,10 @@ router.get('/articles/:slug', async (req, res) => {
           category: {
             select: {
               name: true,
+              nameAr: true,
               slug: true,
               color: true
-            }
+            } as any
           }
         }
       });
@@ -260,18 +289,32 @@ router.get('/articles/:slug', async (req, res) => {
       data: { views: { increment: 1 } }
     });
 
+    // Transform article, category, and author based on locale
+    const transformedArticle = transformArticleByLocale(article as any, normalizedLocale);
+    const transformedCategory = (article as any).category ? transformCategoryByLocale((article as any).category, normalizedLocale) : null;
+    const transformedAuthor = (article as any).author ? transformAuthorByLocale((article as any).author, normalizedLocale) : null;
+
+    // Transform related articles
+    const transformedRelatedArticles = relatedArticles.map((related: any) => {
+      const transformedRelated = transformArticleByLocale(related, normalizedLocale);
+      const transformedRelatedCategory = related.category ? transformCategoryByLocale(related.category, normalizedLocale) : null;
+      return {
+        title: transformedRelated.title,
+        slug: transformedRelated.slug,
+        category: transformedRelatedCategory?.name || 'Uncategorized',
+        readTime: transformedRelated.readTime,
+        excerpt: transformedRelated.excerpt,
+        image: transformedRelated.image,
+        createdAt: transformedRelated.createdAt
+      };
+    });
+
     // Add related articles to the article object
     const articleWithRelated = {
-      ...article,
-      relatedArticles: relatedArticles.map(related => ({
-        title: related.title,
-        slug: related.slug,
-        category: related.category?.name || 'Uncategorized',
-        readTime: related.readTime,
-        excerpt: related.excerpt,
-        image: related.image,
-        createdAt: related.createdAt
-      }))
+      ...transformedArticle,
+      category: transformedCategory,
+      author: transformedAuthor,
+      relatedArticles: transformedRelatedArticles
     };
 
     return res.json({
@@ -318,15 +361,21 @@ router.get('/articles/:slug', async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/categories', async (req, res) => {
+router.get('/categories', cacheConfigs.blogCategories, async (req, res) => {
   try {
+    const { locale } = req.query;
+    const normalizedLocale = normalizeLocale(locale as string);
+
     const categories = await prisma.blogCategory.findMany({
       orderBy: { name: 'asc' }
     });
 
+    // Transform categories based on locale
+    const transformedCategories = transformCategoriesByLocale(categories, normalizedLocale);
+
     return res.json({
       success: true,
-      data: { categories }
+      data: { categories: transformedCategories }
     });
   } catch (error) {
     console.error('Get categories error:', error);
@@ -430,14 +479,18 @@ router.post('/categories', async (req, res) => {
     const category = await prisma.blogCategory.create({
       data: {
         name: categoryData.name,
+        nameAr: categoryData.nameAr || null,
         slug: slug,
         description: categoryData.description || '',
+        descriptionAr: categoryData.descriptionAr || null,
         color: categoryData.color || '#6812F7',
         icon: categoryData.icon || '📝',
         featured: categoryData.featured || false,
         seoTitle: categoryData.seoTitle || categoryData.name,
-        seoDescription: categoryData.seoDescription || categoryData.description || ''
-      }
+        seoTitleAr: categoryData.seoTitleAr || null,
+        seoDescription: categoryData.seoDescription || categoryData.description || '',
+        seoDescriptionAr: categoryData.seoDescriptionAr || null
+      } as any
     });
 
     return res.status(201).json({
@@ -556,18 +609,23 @@ router.put('/categories/:id', async (req, res) => {
         .replace(/(^-|-$)/g, '');
     }
 
+    const existingCategoryWithAr = existingCategory as any;
     const updatedCategory = await prisma.blogCategory.update({
       where: { id },
       data: {
         name: categoryData.name || existingCategory.name,
+        nameAr: categoryData.nameAr !== undefined ? categoryData.nameAr : existingCategoryWithAr.nameAr,
         slug: slug,
         description: categoryData.description || existingCategory.description,
+        descriptionAr: categoryData.descriptionAr !== undefined ? categoryData.descriptionAr : existingCategoryWithAr.descriptionAr,
         color: categoryData.color || existingCategory.color,
         icon: categoryData.icon || existingCategory.icon,
         featured: categoryData.featured !== undefined ? categoryData.featured : existingCategory.featured,
         seoTitle: categoryData.seoTitle || existingCategory.seoTitle,
-        seoDescription: categoryData.seoDescription || existingCategory.seoDescription
-      }
+        seoTitleAr: categoryData.seoTitleAr !== undefined ? categoryData.seoTitleAr : existingCategoryWithAr.seoTitleAr,
+        seoDescription: categoryData.seoDescription || existingCategory.seoDescription,
+        seoDescriptionAr: categoryData.seoDescriptionAr !== undefined ? categoryData.seoDescriptionAr : existingCategoryWithAr.seoDescriptionAr
+      } as any
     });
 
     return res.json({
@@ -799,14 +857,17 @@ router.post('/authors', async (req, res) => {
     const author = await prisma.blogAuthor.create({
       data: {
         name: authorData.name,
+        nameAr: authorData.nameAr || null,
         email: authorData.email,
         role: authorData.role || 'Author',
+        roleAr: authorData.roleAr || null,
         avatar: authorData.avatar || '👤',
         bio: authorData.bio || '',
+        bioAr: authorData.bioAr || null,
         socialLinks: authorData.socialLinks || {},
         expertise: authorData.expertise || [],
         joinDate: new Date().toISOString()
-      }
+      } as any
     });
 
     return res.status(201).json({
@@ -919,17 +980,30 @@ router.put('/authors/:id', async (req, res) => {
       });
     }
 
+    const updateData: any = {
+      ...(authorData.name !== undefined && { name: authorData.name }),
+      ...(authorData.email !== undefined && { email: authorData.email }),
+      ...(authorData.role !== undefined && { role: authorData.role }),
+      ...(authorData.avatar !== undefined && { avatar: authorData.avatar }),
+      ...(authorData.bio !== undefined && { bio: authorData.bio }),
+      ...(authorData.socialLinks !== undefined && { socialLinks: authorData.socialLinks }),
+      ...(authorData.expertise !== undefined && { expertise: authorData.expertise })
+    };
+
+    // Handle Arabic fields
+    if (authorData.nameAr !== undefined) {
+      updateData.nameAr = authorData.nameAr || null;
+    }
+    if (authorData.roleAr !== undefined) {
+      updateData.roleAr = authorData.roleAr || null;
+    }
+    if (authorData.bioAr !== undefined) {
+      updateData.bioAr = authorData.bioAr || null;
+    }
+
     const updatedAuthor = await prisma.blogAuthor.update({
       where: { id },
-      data: {
-        name: authorData.name || existingAuthor.name,
-        email: authorData.email || existingAuthor.email,
-        role: authorData.role || existingAuthor.role,
-        avatar: authorData.avatar || existingAuthor.avatar,
-        bio: authorData.bio || existingAuthor.bio,
-        socialLinks: authorData.socialLinks || existingAuthor.socialLinks,
-        expertise: authorData.expertise || existingAuthor.expertise
-      }
+      data: updateData
     });
 
     return res.json({
@@ -1144,8 +1218,11 @@ router.post('/articles', async (req, res) => {
     const article = await prisma.blogArticle.create({
       data: {
         title: articleData.title,
+        titleAr: articleData.titleAr || null,
         excerpt: articleData.excerpt,
+        excerptAr: articleData.excerptAr || null,
         content: articleData.content,
+        contentAr: articleData.contentAr || null,
         slug: slug,
         image: articleData.image,
         readTime: readTime,
@@ -1315,12 +1392,16 @@ router.put('/articles/:id', async (req, res) => {
       ? articleData.readTime.toString() 
       : articleData.readTime || existingArticle.readTime;
 
+    const existingArticleWithAr = existingArticle as any;
     const updatedArticle = await prisma.blogArticle.update({
       where: { id },
       data: {
         title: articleData.title || existingArticle.title,
+        titleAr: articleData.titleAr !== undefined ? articleData.titleAr : existingArticleWithAr.titleAr,
         excerpt: articleData.excerpt || existingArticle.excerpt,
+        excerptAr: articleData.excerptAr !== undefined ? articleData.excerptAr : existingArticleWithAr.excerptAr,
         content: articleData.content || existingArticle.content,
+        contentAr: articleData.contentAr !== undefined ? articleData.contentAr : existingArticleWithAr.contentAr,
         slug: slug,
         image: articleData.image || existingArticle.image,
         readTime: readTime,
@@ -1330,7 +1411,7 @@ router.put('/articles/:id', async (req, res) => {
         relatedArticles: articleData.relatedArticles !== undefined ? articleData.relatedArticles : existingArticle.relatedArticles,
         authorId: articleData.authorId || existingArticle.authorId,
         categoryId: articleData.categoryId || existingArticle.categoryId
-      },
+      } as any,
       include: {
         author: {
           select: {

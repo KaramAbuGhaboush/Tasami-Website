@@ -1,8 +1,6 @@
-import { useHome } from '@/hooks/useHome'
-import { Home } from '@/components/Home'
+import { redirect } from 'next/navigation';
+import { routing } from '@/i18n/routing';
 
-export default function HomePage() {
-  const { services } = useHome()
-
-  return <Home services={services} />
+export default function RootPage() {
+  redirect(`/${routing.defaultLocale}`);
 }

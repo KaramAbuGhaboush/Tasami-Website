@@ -120,6 +120,13 @@ export function useDashboardOverview(): UseDashboardOverviewReturn {
 
       // Add recent projects
       projects.slice(0, 2).forEach((project: any) => {
+        // Handle category as object or string
+        const categoryValue = project.category 
+          ? (typeof project.category === 'string' 
+              ? project.category 
+              : project.category.name || project.category.slug || 'Web Development')
+          : 'Web Development'
+        
         activities.push({
           id: `project-${project.id}`,
           action: `Project "${project.title}" created`,
@@ -127,7 +134,7 @@ export function useDashboardOverview(): UseDashboardOverviewReturn {
           type: 'portfolio',
           user: 'Admin',
           status: 'active',
-          value: project.category || 'Web Development'
+          value: categoryValue
         })
       })
 
@@ -146,6 +153,13 @@ export function useDashboardOverview(): UseDashboardOverviewReturn {
 
       // Add recent contact messages
       messages.slice(0, 2).forEach((message: any) => {
+        // Handle service as object or string
+        const serviceValue = message.service 
+          ? (typeof message.service === 'string' 
+              ? message.service 
+              : message.service.name || message.service.title || 'General Inquiry')
+          : 'General Inquiry'
+        
         activities.push({
           id: `contact-${message.id}`,
           action: `New contact message from ${message.name}`,
@@ -153,7 +167,7 @@ export function useDashboardOverview(): UseDashboardOverviewReturn {
           type: 'contact',
           user: message.name,
           status: 'new',
-          value: message.service || 'General Inquiry'
+          value: serviceValue
         })
       })
 

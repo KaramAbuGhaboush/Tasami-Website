@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useProjects } from '@/hooks/useProjects'
 import { useTestimonials } from '@/hooks/useTestimonials'
+import { useTranslations } from 'next-intl'
 
 export interface TransformedTestimonial {
   id: string;
@@ -37,10 +38,19 @@ export interface UseWorkReturn {
 }
 
 export function useWork(): UseWorkReturn {
+  const t = useTranslations('work')
   const { projects, loading, error } = useProjects()
   const { testimonials: apiTestimonials, loading: testimonialsLoading, error: testimonialsError } = useTestimonials()
 
-  const categories = ["All", "AI Solutions", "Automation", "Design & UX/UI", "Marketing Solutions"]
+  // Get unique categories from projects dynamically
+  const categories = useMemo(() => {
+    const uniqueCategories = Array.from(new Set(projects.map(project => project.category).filter(Boolean)))
+    // Filter out any "All" category that might already exist (to avoid duplicates)
+    const filteredCategories = uniqueCategories.filter(cat => 
+      cat !== 'All' && cat !== 'الكل' && cat !== t('all')
+    )
+    return [t('all'), ...filteredCategories]
+  }, [projects, t])
 
   // Transform API testimonials to match the UI structure
   const testimonials: TransformedTestimonial[] = apiTestimonials.map(testimonial => ({

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+export declare const authRateLimit: import("express-rate-limit").RateLimitRequestHandler;
 export interface AuthRequest extends Request {
     user?: {
         id: string;

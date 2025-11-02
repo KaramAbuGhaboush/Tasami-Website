@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocale } from 'next-intl'
 import { apiClient } from '@/lib/api'
 import { notFound } from 'next/navigation'
 
@@ -44,6 +45,7 @@ export interface UseArticleReturn {
 }
 
 export function useArticle(slug: string): UseArticleReturn {
+  const locale = useLocale() as 'en' | 'ar'
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export function useArticle(slug: string): UseArticleReturn {
       setLoading(true)
       setError(null)
       
-      const response = await apiClient.getBlogArticle(slug)
+      const response = await apiClient.getBlogArticle(slug, locale)
       if (response.success) {
         setArticle(response.data.article)
       } else {
@@ -73,7 +75,7 @@ export function useArticle(slug: string): UseArticleReturn {
     if (slug) {
       fetchArticle()
     }
-  }, [slug])
+  }, [slug, locale])
 
   const handleRetry = () => {
     fetchArticle()

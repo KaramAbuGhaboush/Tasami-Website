@@ -12,7 +12,6 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    console.log('API Request:', { url, baseUrl: this.baseUrl, endpoint, options });
     
     // Get token from localStorage (only in browser)
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -24,28 +23,30 @@ class ApiClient {
         ...options.headers,
       },
       ...options,
+      // Add cache control headers to prevent stale data
+      cache: 'no-store' as RequestCache,
     };
 
     try {
-      console.log('Making fetch request to:', url);
       const response = await fetch(url, config);
-      console.log('Fetch response:', { status: response.status, ok: response.ok, statusText: response.statusText });
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Response not OK:', { status: response.status, statusText: response.statusText, body: errorText });
+        console.error('API request failed:', { 
+          status: response.status, 
+          statusText: response.statusText, 
+          url,
+          error: errorText.substring(0, 200) 
+        });
         throw new Error(`HTTP error! status: ${response.status}, message: ${response.statusText}`);
       }
       
       const data = await response.json();
-      console.log('API Response data:', data);
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
-      console.error('Error details:', {
+      console.error('API request error:', {
         message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined,
-        name: error instanceof Error ? error.name : undefined
+        url
       });
       throw error;
     }
@@ -57,12 +58,16 @@ class ApiClient {
     limit?: number;
     category?: string;
     featured?: boolean;
+    locale?: 'en' | 'ar';
   }) {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.category) searchParams.append('category', params.category);
     if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
+    if (params?.locale) {
+      searchParams.append('locale', params.locale);
+    }
     
     const queryString = searchParams.toString();
     const endpoint = `/blog/articles${queryString ? `?${queryString}` : ''}`;
@@ -81,11 +86,16 @@ class ApiClient {
     }>(endpoint);
   }
 
-  async getBlogArticle(slug: string) {
+  async getBlogArticle(slug: string, locale?: 'en' | 'ar') {
+    const searchParams = new URLSearchParams();
+    if (locale) searchParams.append('locale', locale);
+    const queryString = searchParams.toString();
+    const endpoint = `/blog/articles/${slug}${queryString ? `?${queryString}` : ''}`;
+    
     return this.request<{
       success: boolean;
       data: { article: any };
-    }>(`/blog/articles/${slug}`);
+    }>(endpoint);
   }
 
   async getBlogAuthors() {
@@ -129,9 +139,11 @@ class ApiClient {
   // Projects API
   async getProjects(params?: {
     category?: string;
+    locale?: 'en' | 'ar';
   }) {
     const searchParams = new URLSearchParams();
     if (params?.category) searchParams.append('category', params.category);
+    if (params?.locale) searchParams.append('locale', params.locale);
     
     const queryString = searchParams.toString();
     const endpoint = `/projects${queryString ? `?${queryString}` : ''}`;
@@ -144,11 +156,17 @@ class ApiClient {
     }>(endpoint);
   }
 
-  async getProject(id: string) {
+  async getProject(id: string, locale?: 'en' | 'ar') {
+    const searchParams = new URLSearchParams();
+    if (locale) searchParams.append('locale', locale);
+    
+    const queryString = searchParams.toString();
+    const endpoint = `/projects/${id}${queryString ? `?${queryString}` : ''}`;
+    
     return this.request<{
       success: boolean;
       data: { project: any };
-    }>(`/projects/${id}`);
+    }>(endpoint);
   }
 
   // Career API
@@ -158,6 +176,7 @@ class ApiClient {
     department?: string;
     location?: string;
     type?: string;
+    locale?: 'en' | 'ar';
   }) {
     const searchParams = new URLSearchParams();
     if (params?.page) searchParams.append('page', params.page.toString());
@@ -165,6 +184,7 @@ class ApiClient {
     if (params?.department) searchParams.append('department', params.department);
     if (params?.location) searchParams.append('location', params.location);
     if (params?.type) searchParams.append('type', params.type);
+    if (params?.locale) searchParams.append('locale', params.locale);
     
     const queryString = searchParams.toString();
     const endpoint = `/career/jobs${queryString ? `?${queryString}` : ''}`;
@@ -183,11 +203,16 @@ class ApiClient {
     }>(endpoint);
   }
 
-  async getJob(id: string) {
+  async getJob(id: string, locale?: 'en' | 'ar') {
+    const searchParams = new URLSearchParams();
+    if (locale) searchParams.append('locale', locale);
+    const queryString = searchParams.toString();
+    const endpoint = `/career/jobs/${id}${queryString ? `?${queryString}` : ''}`;
+    
     return this.request<{
       success: boolean;
       data: { job: any };
-    }>(`/career/jobs/${id}`);
+    }>(endpoint);
   }
 
   async submitJobApplication(applicationData: {
@@ -347,11 +372,16 @@ class ApiClient {
   }
 
   // Blog Category API methods
-  async getBlogCategories() {
+  async getBlogCategories(locale?: 'en' | 'ar') {
+    const searchParams = new URLSearchParams();
+    if (locale) searchParams.append('locale', locale);
+    const queryString = searchParams.toString();
+    const endpoint = `/blog/categories${queryString ? `?${queryString}` : ''}`;
+    
     return this.request<{
       success: boolean;
       data: { categories: any[] };
-    }>('/blog/categories');
+    }>(endpoint);
   }
 
   async createBlogCategory(categoryData: {

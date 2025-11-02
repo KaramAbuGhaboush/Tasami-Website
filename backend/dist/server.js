@@ -5,13 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
-const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const swagger_1 = __importDefault(require("./config/swagger"));
 const path_1 = __importDefault(require("path"));
+const security_1 = require("./middleware/security");
+const security_2 = require("./config/security");
+const performance_1 = require("./utils/performance");
 const auth_1 = __importDefault(require("./routes/auth"));
 const blog_1 = __importDefault(require("./routes/blog"));
 const projects_1 = __importDefault(require("./routes/projects"));
@@ -24,28 +25,17 @@ const employees_1 = __importDefault(require("./routes/employees"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3002;
-app.use((0, helmet_1.default)());
-app.use((0, cors_1.default)({
-    origin: [
-        process.env.FRONTEND_URL || 'http://localhost:3000',
-        'http://localhost:3001',
-        'http://localhost:3000'
-    ],
-    credentials: true
-}));
-const generalLimiter = (0, express_rate_limit_1.default)({
-    windowMs: 15 * 60 * 1000,
-    max: 1000,
-    message: 'Too many requests from this IP, please try again later.'
-});
-const authLimiter = (0, express_rate_limit_1.default)({
-    windowMs: 15 * 60 * 1000,
-    max: 10,
-    message: 'Too many login attempts from this IP, please try again later.',
-    skipSuccessfulRequests: true
-});
-app.use('/api/', generalLimiter);
-app.use('/api/auth/', authLimiter);
+app.use(security_1.securityHeaders);
+app.use((0, cors_1.default)(security_2.securityConfig.cors));
+if (security_2.securityConfig.monitoring.performanceEnabled) {
+    app.use(security_1.requestLogger);
+}
+app.use(performance_1.performanceMiddleware);
+if (security_2.securityConfig.monitoring.securityEnabled) {
+    app.use(security_1.securityMonitoring);
+}
+app.use('/api/', security_1.generalRateLimit);
+app.use('/api/auth/', security_1.authRateLimit);
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 app.use((0, morgan_1.default)('combined'));
@@ -56,6 +46,22 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
     });
+});
+app.get('/api/performance', (req, res) => {
+    try {
+        const stats = (0, performance_1.getPerformanceStats)();
+        res.json({
+            success: true,
+            data: stats,
+            timestamp: new Date().toISOString()
+        });
+    }
+    catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to get performance stats'
+        });
+    }
 });
 app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swagger_1.default, {
     customCss: '.swagger-ui .topbar { display: none }',

@@ -1,15 +1,69 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearFailedAttempts = exports.trackFailedLogin = exports.securityMonitoring = void 0;
-const logger_1 = require("../utils/logger");
-const failedAttempts = new Map();
+exports.requestLogger = exports.ipWhitelist = exports.requestSizeLimit = exports.securityMonitoring = exports.authRateLimit = exports.strictRateLimit = exports.generalRateLimit = exports.securityHeaders = void 0;
+const helmet_1 = __importDefault(require("helmet"));
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
+exports.securityHeaders = (0, helmet_1.default)({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            imgSrc: ["'self'", "data:", "https:", "http://localhost:3002"],
+            scriptSrc: ["'self'"],
+            connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3001"],
+            frameAncestors: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+        },
+    },
+    crossOriginEmbedderPolicy: false,
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    }
+});
+exports.generalRateLimit = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 500,
+    message: {
+        success: false,
+        message: 'Too many requests from this IP, please try again later.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+exports.strictRateLimit = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    message: {
+        success: false,
+        message: 'Too many requests from this IP, please try again later.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+exports.authRateLimit = (0, express_rate_limit_1.default)({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: {
+        success: false,
+        message: 'Too many authentication attempts, please try again later.'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true,
+});
 const securityMonitoring = (req, res, next) => {
     const startTime = Date.now();
     const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
     const userAgent = req.get('User-Agent') || 'unknown';
     const logSecurityEvent = (event, details) => {
-        logger_1.securityLogger.info({
-            event,
+        console.log(`[SECURITY] ${event}:`, {
             ip: clientIP,
             userAgent,
             url: req.url,
@@ -24,93 +78,139 @@ const securityMonitoring = (req, res, next) => {
         /union.*select/i,
         /javascript:/i,
         /onload=/i,
+        /eval\(/i,
+        /document\.cookie/i,
+        /alert\(/i,
     ];
     const checkSuspiciousActivity = () => {
         const url = req.url.toLowerCase();
         const body = JSON.stringify(req.body || {}).toLowerCase();
+        const query = JSON.stringify(req.query || {}).toLowerCase();
         for (const pattern of suspiciousPatterns) {
-            if (pattern.test(url) || pattern.test(body)) {
+            if (pattern.test(url) || pattern.test(body) || pattern.test(query)) {
                 logSecurityEvent('SUSPICIOUS_ACTIVITY', {
                     pattern: pattern.toString(),
                     url: req.url,
-                    body: req.body
+                    body: req.body,
+                    query: req.query
                 });
                 return true;
             }
         }
         return false;
     };
-    const checkFailedAttempts = () => {
-        const attempts = failedAttempts.get(clientIP);
-        if (attempts) {
-            const timeDiff = Date.now() - attempts.lastAttempt;
-            if (timeDiff < 15 * 60 * 1000) {
-                if (attempts.count >= 5) {
-                    logSecurityEvent('RATE_LIMIT_EXCEEDED', {
-                        attempts: attempts.count,
-                        timeDiff
-                    });
-                    return true;
-                }
-            }
-            else {
-                failedAttempts.delete(clientIP);
+    const checkAttackPatterns = () => {
+        const url = req.url.toLowerCase();
+        const attackPaths = [
+            '/admin',
+            '/wp-admin',
+            '/phpmyadmin',
+            '/.env',
+            '/config',
+            '/backup',
+            '/test',
+            '/api/v1',
+            '/swagger',
+        ];
+        for (const path of attackPaths) {
+            if (url.includes(path)) {
+                logSecurityEvent('SUSPICIOUS_PATH_ACCESS', {
+                    path,
+                    url: req.url
+                });
             }
         }
-        return false;
+    };
+    const checkSuspiciousUserAgent = () => {
+        const suspiciousAgents = [
+            'sqlmap',
+            'nikto',
+            'nmap',
+            'masscan',
+            'zap',
+            'burp',
+            'w3af',
+            'acunetix',
+            'nessus',
+            'openvas'
+        ];
+        for (const agent of suspiciousAgents) {
+            if (userAgent.toLowerCase().includes(agent)) {
+                logSecurityEvent('SUSPICIOUS_USER_AGENT', {
+                    userAgent,
+                    agent
+                });
+            }
+        }
     };
     if (checkSuspiciousActivity()) {
-        return res.status(400).json({
+        res.status(400).json({
             success: false,
             message: 'Suspicious activity detected'
         });
+        return;
     }
-    if (checkFailedAttempts()) {
-        return res.status(429).json({
-            success: false,
-            message: 'Too many failed attempts. Please try again later.'
-        });
-    }
+    checkAttackPatterns();
+    checkSuspiciousUserAgent();
     res.on('finish', () => {
         const duration = Date.now() - startTime;
         const statusCode = res.statusCode;
-        logger_1.performanceLogger.info({
-            method: req.method,
-            url: req.url,
-            statusCode,
-            duration,
-            ip: clientIP,
-            userAgent: userAgent.substring(0, 100)
-        });
         if (duration > 5000) {
-            logger_1.performanceLogger.warn({
-                event: 'SLOW_REQUEST',
-                method: req.method,
-                url: req.url,
+            logSecurityEvent('SLOW_REQUEST', {
                 duration,
-                ip: clientIP
+                statusCode,
+                url: req.url
+            });
+        }
+        if (statusCode >= 400) {
+            logSecurityEvent('ERROR_RESPONSE', {
+                statusCode,
+                duration,
+                url: req.url
             });
         }
     });
     next();
-    return;
 };
 exports.securityMonitoring = securityMonitoring;
-const trackFailedLogin = (ip) => {
-    const attempts = failedAttempts.get(ip) || { count: 0, lastAttempt: 0 };
-    attempts.count += 1;
-    attempts.lastAttempt = Date.now();
-    failedAttempts.set(ip, attempts);
-    logger_1.securityLogger.warn({
-        event: 'FAILED_LOGIN_ATTEMPT',
-        ip,
-        attempts: attempts.count,
-        timestamp: new Date().toISOString()
+const requestSizeLimit = (maxSize) => {
+    return (req, res, next) => {
+        const contentLength = parseInt(req.get('content-length') || '0');
+        if (contentLength > maxSize) {
+            res.status(413).json({
+                success: false,
+                message: 'Request entity too large'
+            });
+            return;
+        }
+        next();
+    };
+};
+exports.requestSizeLimit = requestSizeLimit;
+const ipWhitelist = (allowedIPs) => {
+    return (req, res, next) => {
+        const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+        if (!allowedIPs.includes(clientIP)) {
+            res.status(403).json({
+                success: false,
+                message: 'Access denied from this IP address'
+            });
+            return;
+        }
+        next();
+    };
+};
+exports.ipWhitelist = ipWhitelist;
+const requestLogger = (req, res, next) => {
+    const startTime = Date.now();
+    const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
+    const userAgent = req.get('User-Agent') || 'unknown';
+    res.on('finish', () => {
+        const duration = Date.now() - startTime;
+        const statusCode = res.statusCode;
+        console.log(`[REQUEST] ${req.method} ${req.url} - ${statusCode} - ${duration}ms - ${clientIP} - ${userAgent}`);
     });
+    next();
 };
-exports.trackFailedLogin = trackFailedLogin;
-const clearFailedAttempts = (ip) => {
-    failedAttempts.delete(ip);
-};
-exports.clearFailedAttempts = clearFailedAttempts;
+exports.requestLogger = requestLogger;
 //# sourceMappingURL=security.js.map

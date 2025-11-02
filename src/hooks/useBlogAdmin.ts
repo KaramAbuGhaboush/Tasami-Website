@@ -96,8 +96,11 @@ export interface UseBlogAdminReturn {
 
 export interface CreateArticleData {
   title: string;
+  titleAr?: string;
   excerpt: string;
+  excerptAr?: string;
   content: string;
+  contentAr?: string;
   image?: string;
   readTime?: string;
   featured?: boolean;
@@ -110,8 +113,11 @@ export interface CreateArticleData {
 
 export interface UpdateArticleData {
   title?: string;
+  titleAr?: string;
   excerpt?: string;
+  excerptAr?: string;
   content?: string;
+  contentAr?: string;
   image?: string;
   readTime?: string;
   featured?: boolean;
@@ -124,30 +130,41 @@ export interface UpdateArticleData {
 
 export interface CreateCategoryData {
   name: string;
+  nameAr?: string;
   description?: string;
+  descriptionAr?: string;
   color?: string;
   icon?: string;
   featured?: boolean;
   seoTitle?: string;
+  seoTitleAr?: string;
   seoDescription?: string;
+  seoDescriptionAr?: string;
 }
 
 export interface UpdateCategoryData {
   name?: string;
+  nameAr?: string;
   description?: string;
+  descriptionAr?: string;
   color?: string;
   icon?: string;
   featured?: boolean;
   seoTitle?: string;
+  seoTitleAr?: string;
   seoDescription?: string;
+  seoDescriptionAr?: string;
 }
 
 export interface CreateAuthorData {
   name: string;
+  nameAr?: string;
   email: string;
   role?: string;
+  roleAr?: string;
   avatar?: string;
   bio?: string;
+  bioAr?: string;
   socialLinks?: {
     twitter?: string;
     linkedin?: string;
@@ -158,10 +175,13 @@ export interface CreateAuthorData {
 
 export interface UpdateAuthorData {
   name?: string;
+  nameAr?: string;
   email?: string;
   role?: string;
+  roleAr?: string;
   avatar?: string;
   bio?: string;
+  bioAr?: string;
   socialLinks?: {
     twitter?: string;
     linkedin?: string;

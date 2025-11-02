@@ -77,28 +77,37 @@ export function PortfolioPage() {
   // Project form state
   const [projectForm, setProjectForm] = useState({
     title: '',
+    titleAr: '',
     description: '',
+    descriptionAr: '',
     headerImage: '',
     challenge: '',
+    challengeAr: '',
     solution: '',
+    solutionAr: '',
     timeline: '',
     teamSize: '',
     status: 'planning' as 'planning' | 'active' | 'completed' | 'on-hold',
     categoryId: '',
-    technologies: [] as { name: string; description: string }[],
-    results: [] as { metric: string; description: string }[],
+    technologies: [] as { name: string; nameAr?: string; description: string; descriptionAr?: string }[],
+    results: [] as { metric: string; metricAr?: string; description: string; descriptionAr?: string }[],
     testimonial: {
       quote: '',
+      quoteAr: '',
       author: '',
-      position: ''
+      authorAr: '',
+      position: '',
+      positionAr: ''
     }
   })
   
   // Category form state
   const [categoryForm, setCategoryForm] = useState({
     name: '',
+    nameAr: '',
     slug: '',
     description: '',
+    descriptionAr: '',
     color: '#6812F7',
     icon: '📁',
     featured: false,
@@ -163,10 +172,14 @@ export function PortfolioPage() {
     
     const projectData: CreateProjectData = {
       title: projectForm.title,
+      titleAr: projectForm.titleAr || undefined,
       description: projectForm.description,
+      descriptionAr: projectForm.descriptionAr || undefined,
       headerImage: projectForm.headerImage,
-      challenge: projectForm.challenge,
-      solution: projectForm.solution,
+      challenge: projectForm.challenge || undefined,
+      challengeAr: projectForm.challengeAr || undefined,
+      solution: projectForm.solution || undefined,
+      solutionAr: projectForm.solutionAr || undefined,
       timeline: projectForm.timeline,
       teamSize: projectForm.teamSize,
       status: projectForm.status,
@@ -177,11 +190,14 @@ export function PortfolioPage() {
       contentBlocks: Array.isArray(contentBlocks) ? contentBlocks.map(block => ({
         type: block.type,
         order: block.order,
-        content: block.content,
+        content: block.content || undefined,
+        contentAr: block.contentAr || undefined,
         level: block.level,
-        src: block.src,
-        alt: block.alt,
-        caption: block.caption,
+        src: block.src || undefined,
+        alt: block.alt || undefined,
+        altAr: block.altAr || undefined,
+        caption: block.caption || undefined,
+        captionAr: block.captionAr || undefined,
         columns: block.columns,
         images: block.images
       })) : []
@@ -195,17 +211,21 @@ export function PortfolioPage() {
       // Reset form
       setProjectForm({
         title: '',
+        titleAr: '',
         description: '',
+        descriptionAr: '',
         headerImage: '',
         challenge: '',
+        challengeAr: '',
         solution: '',
+        solutionAr: '',
         timeline: '',
         teamSize: '',
         status: 'planning',
         categoryId: '',
         technologies: [],
         results: [],
-        testimonial: { quote: '', author: '', position: '' }
+        testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
       })
       setImagePreview('')
       setContentBlocks([])
@@ -224,10 +244,14 @@ export function PortfolioPage() {
     
     const projectData: Partial<CreateProjectData> = {
       title: projectForm.title,
+      titleAr: projectForm.titleAr || undefined,
       description: projectForm.description,
+      descriptionAr: projectForm.descriptionAr || undefined,
       headerImage: projectForm.headerImage,
-      challenge: projectForm.challenge,
-      solution: projectForm.solution,
+      challenge: projectForm.challenge || undefined,
+      challengeAr: projectForm.challengeAr || undefined,
+      solution: projectForm.solution || undefined,
+      solutionAr: projectForm.solutionAr || undefined,
       timeline: projectForm.timeline,
       teamSize: projectForm.teamSize,
       status: projectForm.status,
@@ -246,17 +270,21 @@ export function PortfolioPage() {
       setEditingProject(null)
       setProjectForm({
         title: '',
+        titleAr: '',
         description: '',
+        descriptionAr: '',
         headerImage: '',
         challenge: '',
+        challengeAr: '',
         solution: '',
+        solutionAr: '',
         timeline: '',
         teamSize: '',
         status: 'planning',
         categoryId: '',
         technologies: [],
         results: [],
-        testimonial: { quote: '', author: '', position: '' }
+        testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
       })
       setImagePreview('')
       setContentBlocks([])
@@ -272,15 +300,22 @@ export function PortfolioPage() {
     
     // Generate slug from name
     const slug = categoryForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    const categoryData: CreateCategoryData = { ...categoryForm, slug }
+    const categoryData: CreateCategoryData = { 
+      ...categoryForm, 
+      slug,
+      nameAr: categoryForm.nameAr || undefined,
+      descriptionAr: categoryForm.descriptionAr || undefined
+    }
     
     const success = await createCategory(categoryData)
     if (success) {
       // Reset form
       setCategoryForm({
         name: '',
+        nameAr: '',
         slug: '',
         description: '',
+        descriptionAr: '',
         color: '#6812F7',
         icon: '📁',
         featured: false,
@@ -295,10 +330,12 @@ export function PortfolioPage() {
     setEditingCategory(category)
     setCategoryForm({
       name: category.name,
+      nameAr: (category as any).nameAr || '',
       slug: category.slug,
-      description: category.description,
-      color: category.color,
-      icon: category.icon,
+      description: category.description || '',
+      descriptionAr: (category as any).descriptionAr || '',
+      color: category.color || '#6812F7',
+      icon: category.icon || '📁',
       featured: category.featured,
       sortOrder: category.sortOrder,
       status: category.status as 'active' | 'inactive'
@@ -322,8 +359,10 @@ export function PortfolioPage() {
       setEditingCategory(null)
       setCategoryForm({
         name: '',
+        nameAr: '',
         slug: '',
         description: '',
+        descriptionAr: '',
         color: '#6812F7',
         icon: '📁',
         featured: false,
@@ -566,21 +605,38 @@ export function PortfolioPage() {
     setEditingProject(project)
     setProjectForm({
       title: project.title,
+      titleAr: (project as any).titleAr || '',
       description: project.description,
+      descriptionAr: (project as any).descriptionAr || '',
       headerImage: project.headerImage || '',
       challenge: project.challenge || '',
+      challengeAr: (project as any).challengeAr || '',
       solution: project.solution || '',
+      solutionAr: (project as any).solutionAr || '',
       timeline: project.timeline || '',
       teamSize: project.teamSize || '',
       status: project.status,
       categoryId: project.category.id,
-      technologies: project.technologies.map(t => ({ name: t.name, description: t.description })),
-      results: project.results.map(r => ({ metric: r.metric, description: r.description })),
+      technologies: project.technologies.map(t => ({ 
+        name: t.name, 
+        nameAr: (t as any).nameAr || '',
+        description: t.description,
+        descriptionAr: (t as any).descriptionAr || ''
+      })),
+      results: project.results.map(r => ({ 
+        metric: r.metric, 
+        metricAr: (r as any).metricAr || '',
+        description: r.description,
+        descriptionAr: (r as any).descriptionAr || ''
+      })),
       testimonial: project.clientTestimonial ? {
         quote: project.clientTestimonial.quote,
+        quoteAr: (project.clientTestimonial as any).quoteAr || '',
         author: project.clientTestimonial.author,
-        position: project.clientTestimonial.position
-      } : { quote: '', author: '', position: '' }
+        authorAr: (project.clientTestimonial as any).authorAr || '',
+        position: project.clientTestimonial.position,
+        positionAr: (project.clientTestimonial as any).positionAr || ''
+      } : { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
     })
     setImagePreview(project.headerImage || '')
     setContentBlocks(Array.isArray(project.contentBlocks) ? project.contentBlocks : [])
@@ -744,17 +800,21 @@ export function PortfolioPage() {
                       setEditingProject(null)
                       setProjectForm({
                         title: '',
+                        titleAr: '',
                         description: '',
+                        descriptionAr: '',
                         headerImage: '',
                         challenge: '',
+                        challengeAr: '',
                         solution: '',
+                        solutionAr: '',
                         timeline: '',
                         teamSize: '',
                         status: 'planning',
                         categoryId: '',
                         technologies: [],
                         results: [],
-                        testimonial: { quote: '', author: '', position: '' }
+                        testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
                       })
                       setImagePreview('')
                       setContentBlocks([])
@@ -797,7 +857,7 @@ export function PortfolioPage() {
                         
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Title (English) *</label>
                             <Input 
                               placeholder="Enter project title..." 
                               value={projectForm.title}
@@ -805,6 +865,19 @@ export function PortfolioPage() {
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
                           </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Title (Arabic)</label>
+                            <Input 
+                              placeholder="أدخل عنوان المشروع..." 
+                              value={projectForm.titleAr}
+                              onChange={(e) => setProjectForm({...projectForm, titleAr: e.target.value})}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                              dir="rtl"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
                             <select 
@@ -821,13 +894,25 @@ export function PortfolioPage() {
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Description (English) *</label>
                           <Textarea 
                             placeholder="Enter project description..." 
                             rows={4}
                             value={projectForm.description}
                             onChange={(e) => setProjectForm({...projectForm, description: e.target.value})}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Description (Arabic)</label>
+                          <Textarea 
+                            placeholder="أدخل وصف المشروع..." 
+                            rows={4}
+                            value={projectForm.descriptionAr}
+                            onChange={(e) => setProjectForm({...projectForm, descriptionAr: e.target.value})}
+                            className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                            dir="rtl"
                           />
                         </div>
                         
@@ -874,7 +959,7 @@ export function PortfolioPage() {
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Challenge</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Challenge (English)</label>
                           <Textarea 
                             placeholder="What problem did this project solve?" 
                             rows={3}
@@ -884,12 +969,34 @@ export function PortfolioPage() {
                         </div>
                         
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Solution</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Challenge (Arabic)</label>
+                          <Textarea 
+                            placeholder="ما هي المشكلة التي حل هذا المشروع؟" 
+                            rows={3}
+                            value={projectForm.challengeAr}
+                            onChange={(e) => setProjectForm({...projectForm, challengeAr: e.target.value})}
+                            dir="rtl"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Solution (English)</label>
                           <Textarea 
                             placeholder="How did you solve the problem?" 
                             rows={3}
                             value={projectForm.solution}
                             onChange={(e) => setProjectForm({...projectForm, solution: e.target.value})}
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Solution (Arabic)</label>
+                          <Textarea 
+                            placeholder="كيف قمت بحل المشكلة؟" 
+                            rows={3}
+                            value={projectForm.solutionAr}
+                            onChange={(e) => setProjectForm({...projectForm, solutionAr: e.target.value})}
+                            dir="rtl"
                           />
                         </div>
                       </div>
@@ -1806,7 +1913,7 @@ export function PortfolioPage() {
                     
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
                         <Input 
                           placeholder="Category name" 
                           value={categoryForm.name}
@@ -1814,6 +1921,19 @@ export function PortfolioPage() {
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                         />
                       </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Name (Arabic)</label>
+                        <Input 
+                          placeholder="اسم الفئة" 
+                          value={categoryForm.nameAr}
+                          onChange={(e) => setCategoryForm({...categoryForm, nameAr: e.target.value})}
+                          className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                          dir="rtl"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
                         <Input 
@@ -1826,12 +1946,23 @@ export function PortfolioPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
                       <Textarea 
                         placeholder="Category description" 
                         rows={3}
                         value={categoryForm.description}
                         onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Description (Arabic)</label>
+                      <Textarea 
+                        placeholder="وصف الفئة" 
+                        rows={3}
+                        value={categoryForm.descriptionAr}
+                        onChange={(e) => setCategoryForm({...categoryForm, descriptionAr: e.target.value})}
+                        dir="rtl"
                       />
                     </div>
                     
@@ -1897,8 +2028,10 @@ export function PortfolioPage() {
                       setEditingCategory(null)
                       setCategoryForm({
                         name: '',
+                        nameAr: '',
                         slug: '',
                         description: '',
+                        descriptionAr: '',
                         color: '#6812F7',
                         icon: '📁',
                         featured: false,

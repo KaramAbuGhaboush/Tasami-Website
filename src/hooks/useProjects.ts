@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocale } from 'next-intl';
 import { apiClient } from '@/lib/api';
 
 export interface Project {
@@ -30,16 +31,17 @@ export interface UseProjectsReturn {
 }
 
 export function useProjects(category?: string): UseProjectsReturn {
+  const locale = useLocale() as 'en' | 'ar';
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await apiClient.getProjects({ category });
+      const response = await apiClient.getProjects({ category, locale });
       
       if (response.success) {
         // Transform projects to extract category name from category object and map headerImage to image
@@ -58,11 +60,11 @@ export function useProjects(category?: string): UseProjectsReturn {
     } finally {
       setLoading(false);
     }
-  };
+  }, [category, locale]);
 
   useEffect(() => {
     fetchProjects();
-  }, [category]);
+  }, [fetchProjects]);
 
   return {
     projects,

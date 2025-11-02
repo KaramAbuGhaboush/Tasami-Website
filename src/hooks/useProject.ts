@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useLocale } from 'next-intl'
+import { apiClient } from '@/lib/api'
 
 export interface Technology {
   name: string;
@@ -87,52 +89,52 @@ export interface UseProjectReturn {
 }
 
 export function useProject(projectId: string): UseProjectReturn {
+  const locale = useLocale() as 'en' | 'ar';
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchProject = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await apiClient.getProject(projectId, locale);
+      
+      if (response.success) {
+        // Transform API response to match our Project interface
+        const transformedProject: Project = {
+          id: response.data.project.id,
+          title: response.data.project.title,
+          category: response.data.project.category?.name || response.data.project.category || 'Uncategorized',
+          headerImage: response.data.project.headerImage,
+          description: response.data.project.description,
+          challenge: response.data.project.challenge || '',
+          solution: response.data.project.solution || '',
+          technologies: response.data.project.technologies || [],
+          results: response.data.project.results || [],
+          timeline: response.data.project.timeline || '',
+          teamSize: response.data.project.teamSize || '',
+          company: response.data.project.category?.name || response.data.project.category || 'Uncategorized', // Use category name as company
+          services: response.data.project.technologies?.map((tech: any) => tech.name) || [],
+          contentBlocks: response.data.project.contentBlocks || [],
+          clientTestimonial: response.data.project.clientTestimonial || null
+        };
         
-        const response = await fetch(`http://localhost:3002/api/projects/${projectId}`);
-        const data = await response.json();
-        
-        if (data.success) {
-          // Transform API response to match our Project interface
-          const transformedProject: Project = {
-            id: data.data.project.id,
-            title: data.data.project.title,
-            category: data.data.project.category?.name || data.data.project.category || 'Uncategorized',
-            headerImage: data.data.project.headerImage,
-            description: data.data.project.description,
-            challenge: data.data.project.challenge || '',
-            solution: data.data.project.solution || '',
-            technologies: data.data.project.technologies || [],
-            results: data.data.project.results || [],
-            timeline: data.data.project.timeline || '',
-            teamSize: data.data.project.teamSize || '',
-            company: data.data.project.category?.name || data.data.project.category || 'Uncategorized', // Use category name as company
-            services: data.data.project.technologies?.map((tech: any) => tech.name) || [],
-            contentBlocks: data.data.project.contentBlocks || [],
-            clientTestimonial: data.data.project.clientTestimonial || null
-          };
-          
-          setProject(transformedProject);
-        } else {
-          setError(data.message || 'Failed to fetch project');
-        }
-      } catch (err) {
-        setError('Network error: ' + (err instanceof Error ? err.message : 'Unknown error'));
-      } finally {
-        setLoading(false);
+        setProject(transformedProject);
+      } else {
+        setError('Failed to fetch project');
       }
-    };
+    } catch (err) {
+      setError('Network error: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, locale]);
 
+  useEffect(() => {
     fetchProject();
-  }, [projectId]);
+  }, [fetchProject]);
 
   return {
     project,

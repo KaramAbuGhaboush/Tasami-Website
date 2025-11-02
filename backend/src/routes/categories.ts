@@ -1,5 +1,10 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import {
+  normalizeLocale,
+  transformProjectCategoryByLocale,
+  transformProjectCategoriesByLocale,
+} from '../utils/localization';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -50,18 +55,37 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
   try {
     const { featured, status = 'active' } = req.query;
+    const locale = normalizeLocale(req.query.locale as string);
     
     const where: any = { status };
     if (featured !== undefined) where.featured = featured === 'true';
 
     const categories = await prisma.projectCategory.findMany({
       where,
-      orderBy: { sortOrder: 'asc' }
+      orderBy: { sortOrder: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        nameAr: true,
+        slug: true,
+        description: true,
+        descriptionAr: true,
+        color: true,
+        icon: true,
+        featured: true,
+        sortOrder: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      } as any
     });
+
+    // Transform categories based on locale
+    const transformedCategories = transformProjectCategoriesByLocale(categories as any, locale);
 
     res.json({
       success: true,
-      data: { categories }
+      data: { categories: transformedCategories }
     });
   } catch (error) {
     console.error('Get categories error:', error);
@@ -117,9 +141,25 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const locale = normalizeLocale(req.query.locale as string);
 
     const category = await prisma.projectCategory.findUnique({
-      where: { id }
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        nameAr: true,
+        slug: true,
+        description: true,
+        descriptionAr: true,
+        color: true,
+        icon: true,
+        featured: true,
+        sortOrder: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      } as any
     });
 
     if (!category) {
@@ -130,9 +170,12 @@ router.get('/:id', async (req, res) => {
       return;
     }
 
+    // Transform category based on locale
+    const transformedCategory = transformProjectCategoryByLocale(category as any, locale);
+
     res.json({
       success: true,
-      data: { category }
+      data: { category: transformedCategory }
     });
   } catch (error) {
     console.error('Get category error:', error);
@@ -237,14 +280,16 @@ router.post('/', async (req, res) => {
     const category = await prisma.projectCategory.create({
       data: {
         name: categoryData.name,
+        nameAr: categoryData.nameAr || null,
         slug: categoryData.slug || slug,
         description: categoryData.description || '',
+        descriptionAr: categoryData.descriptionAr || null,
         color: categoryData.color || '#6812F7',
         icon: categoryData.icon || '',
         featured: categoryData.featured || false,
         sortOrder: categoryData.sortOrder || 0,
         status: categoryData.status || 'active'
-      }
+      } as any
     });
 
     res.status(201).json({
@@ -364,18 +409,25 @@ router.put('/:id', async (req, res) => {
         .replace(/(^-|-$)/g, '');
     }
 
+    // Prepare update data with Arabic fields
+    const updateData: any = {};
+    if (categoryData.name !== undefined) updateData.name = categoryData.name;
+    if (categoryData.nameAr !== undefined) updateData.nameAr = categoryData.nameAr;
+    if (categoryData.slug !== undefined) updateData.slug = categoryData.slug || slug;
+    if (categoryData.description !== undefined) updateData.description = categoryData.description;
+    if (categoryData.descriptionAr !== undefined) updateData.descriptionAr = categoryData.descriptionAr;
+    if (categoryData.color !== undefined) updateData.color = categoryData.color;
+    if (categoryData.icon !== undefined) updateData.icon = categoryData.icon;
+    if (categoryData.featured !== undefined) updateData.featured = categoryData.featured;
+    if (categoryData.sortOrder !== undefined) updateData.sortOrder = categoryData.sortOrder;
+    if (categoryData.status !== undefined) updateData.status = categoryData.status;
+
     const updatedCategory = await prisma.projectCategory.update({
       where: { id },
       data: {
-        name: categoryData.name || existingCategory.name,
-        slug: categoryData.slug || slug,
-        description: categoryData.description || existingCategory.description,
-        color: categoryData.color || existingCategory.color,
-        icon: categoryData.icon || existingCategory.icon,
-        featured: categoryData.featured !== undefined ? categoryData.featured : existingCategory.featured,
-        sortOrder: categoryData.sortOrder !== undefined ? categoryData.sortOrder : existingCategory.sortOrder,
-        status: categoryData.status || existingCategory.status
-      }
+        ...updateData,
+        slug: updateData.slug !== undefined ? updateData.slug : slug,
+      } as any
     });
 
     res.json({

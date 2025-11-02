@@ -1,5 +1,9 @@
+'use client'
+
 import Image from 'next/image'
 import { Project } from '@/hooks/useProject'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 
 interface ProjectCaseStudyProps {
   project: Project;
@@ -29,8 +33,12 @@ const getImageSrc = (image: string | null | undefined) => {
 };
 
 export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
+  const t = useTranslations('work.projectCaseStudy')
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className={`min-h-screen bg-white ${isRTL ? 'text-right' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid lg:grid-cols-4 gap-12">
           {/* Left Sidebar - Navigation & Metadata */}
@@ -40,23 +48,23 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                 {/* Project Metadata */}
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">COMPANY</h3>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('company')}</h3>
                     <p className="text-lg font-medium text-gray-900">{project.company || project.title}</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">CATEGORY</h3>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('category')}</h3>
                     <p className="text-lg font-medium text-gray-900">{project.category}</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">TIMELINE</h3>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('timeline')}</h3>
                     <p className="text-lg font-medium text-gray-900">{project.timeline}</p>
                   </div>
                   
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">SERVICES WE PROVIDED</h3>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">{t('servicesWeProvided')}</h3>
+                    <div className={`flex flex-wrap gap-2 mt-2 ${isRTL ? 'justify-end' : ''}`}>
                       {(project.services || project.technologies.slice(0, 3)).map((service, index) => (
                         <span key={index} className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
                           {typeof service === 'string' ? service : service.name}
@@ -68,8 +76,8 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
 
                 {/* Social Share */}
                 <div className="pt-6 border-t border-gray-200">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Share this Case Study:</h3>
-                  <div className="flex space-x-3">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">{t('shareThisCaseStudy')}</h3>
+                  <div className={`flex ${isRTL ? 'flex-row-reverse space-x-reverse' : 'space-x-3'}`}>
                     <button className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition-colors">
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
@@ -94,7 +102,7 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
           {/* Main Content Area - Article Style */}
           <div className="lg:col-span-3">
             {/* Project Title */}
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-16">
+            <h1 className={`text-5xl md:text-6xl font-bold text-gray-900 mb-16 ${isRTL ? 'text-right' : ''}`}>
               {project.title}
             </h1>
 
@@ -119,8 +127,8 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                       </div>
-                      <h2 className="text-4xl font-bold mb-4">Project Showcase</h2>
-                      <p className="text-xl opacity-90">Interactive project demonstration</p>
+                      <h2 className="text-4xl font-bold mb-4">{t('projectShowcase')}</h2>
+                      <p className="text-xl opacity-90">{t('interactiveProjectDemonstration')}</p>
                     </div>
                   </div>
                 </div>
@@ -130,14 +138,14 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
             {/* Dynamic Content Blocks - Free Form Article */}
             {project.contentBlocks && project.contentBlocks.length > 0 ? (
               project.contentBlocks.map((block, index) => (
-                <div key={block.id || index} className="mb-8">
+                <div key={block.id || index} className={`mb-8 ${isRTL ? 'text-right' : ''}`}>
                   {block.type === 'heading' && (
-                    <h2 className={`text-${block.level === 1 ? '5xl' : block.level === 2 ? '4xl' : '3xl'} font-bold text-gray-900 mb-6`}>
+                    <h2 className={`text-${block.level === 1 ? '5xl' : block.level === 2 ? '4xl' : '3xl'} font-bold text-gray-900 mb-6 ${isRTL ? 'text-right' : ''}`}>
                       {block.content}
                     </h2>
                   )}
                   {block.type === 'paragraph' && (
-                    <p className="text-lg text-gray-700 leading-relaxed mb-6">{block.content}</p>
+                    <p className={`text-lg text-gray-700 leading-relaxed mb-6 ${isRTL ? 'text-right' : ''}`}>{block.content}</p>
                   )}
                   {block.type === 'image' && (
                     <div className="mb-8">
@@ -149,7 +157,7 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                         className="w-full h-auto rounded-2xl"
                       />
                       {block.caption && (
-                        <p className="text-sm text-gray-500 mt-2 text-center italic">{block.caption}</p>
+                        <p className={`text-sm text-gray-500 mt-2 italic ${isRTL ? 'text-right' : 'text-center'}`}>{block.caption}</p>
                       )}
                     </div>
                   )}
@@ -165,7 +173,7 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                             className="w-full h-auto rounded-xl hover:shadow-lg transition-shadow"
                           />
                           {image.caption && (
-                            <p className="text-sm text-gray-500 mt-2 text-center">{image.caption}</p>
+                            <p className={`text-sm text-gray-500 mt-2 ${isRTL ? 'text-right' : 'text-center'}`}>{image.caption}</p>
                           )}
                         </div>
                       ))}
@@ -174,9 +182,9 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 text-gray-500">
-                <p className="text-lg mb-4">No content added yet</p>
-                <p className="text-sm">This project doesn't have any custom content blocks.</p>
+              <div className={`py-12 text-gray-500 ${isRTL ? 'text-right' : 'text-center'}`}>
+                <p className="text-lg mb-4">{t('noContentAddedYet')}</p>
+                <p className="text-sm">{t('noContentDescription')}</p>
               </div>
             )}
 
@@ -199,14 +207,14 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                   </div>
                   
                   {/* Testimonial quote with enhanced typography */}
-                  <blockquote className="text-3xl md:text-4xl lg:text-5xl font-light text-gray-800 mb-12 leading-tight max-w-4xl mx-auto">
+                  <blockquote className={`text-3xl md:text-4xl lg:text-5xl font-light text-gray-800 mb-12 leading-tight max-w-4xl mx-auto ${isRTL ? 'text-right' : ''}`}>
                     <span className="text-blue-600 font-bold">"</span>
                     {project.clientTestimonial.quote}
                     <span className="text-blue-600 font-bold">"</span>
                   </blockquote>
                   
                   {/* Author section with enhanced design */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                  <div className={`flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 ${isRTL ? 'sm:flex-row-reverse sm:space-x-reverse sm:space-x-6' : 'sm:space-x-6'}`}>
                     {/* Avatar with gradient background */}
                     <div className="relative">
                       <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/25">
@@ -217,7 +225,7 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
                     </div>
                     
                     {/* Author info with enhanced styling */}
-                    <div className="text-center sm:text-left">
+                    <div className={`${isRTL ? 'text-right sm:text-right' : 'text-center sm:text-left'}`}>
                       <p className="font-bold text-gray-900 text-xl mb-1">{project.clientTestimonial.author}</p>
                       <p className="text-gray-600 text-lg font-medium">{project.clientTestimonial.position}</p>
                     </div>

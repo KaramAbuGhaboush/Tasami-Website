@@ -21,32 +21,52 @@ export interface Job {
 
 export interface CreateJobData {
   title: string;
+  titleAr?: string;
   department: string;
+  departmentAr?: string;
   location: string;
+  locationAr?: string;
   type: string;
+  typeAr?: string;
   experience: string;
+  experienceAr?: string;
   description: string;
+  descriptionAr?: string;
   requirements: string[];
+  requirementsAr?: string[];
   benefits: string[];
+  benefitsAr?: string[];
   salary?: string;
+  salaryAr?: string;
   applicationDeadline?: string;
   status?: string;
   team?: string;
+  teamAr?: string;
 }
 
 export interface UpdateJobData {
   title?: string;
+  titleAr?: string;
   department?: string;
+  departmentAr?: string;
   location?: string;
+  locationAr?: string;
   type?: string;
+  typeAr?: string;
   experience?: string;
+  experienceAr?: string;
   description?: string;
+  descriptionAr?: string;
   requirements?: string[];
+  requirementsAr?: string[];
   benefits?: string[];
+  benefitsAr?: string[];
   salary?: string;
+  salaryAr?: string;
   applicationDeadline?: string;
   status?: string;
   team?: string;
+  teamAr?: string;
 }
 
 export interface UseCareerAdminReturn {

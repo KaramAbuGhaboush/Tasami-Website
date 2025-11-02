@@ -6,11 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
 const upload_1 = __importDefault(require("../middleware/upload"));
+const cache_1 = require("../middleware/cache");
+const localization_1 = require("../utils/localization");
 const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
-router.get('/articles', async (req, res) => {
+router.get('/articles', cache_1.cacheConfigs.blogArticles, async (req, res) => {
     try {
-        const { page = 1, limit = 10, category, featured, status = 'published' } = req.query;
+        const { page = 1, limit = 10, category, featured, status = 'published', locale } = req.query;
+        const normalizedLocale = (0, localization_1.normalizeLocale)(locale);
         const skip = (Number(page) - 1) * Number(limit);
         const where = { status };
         if (category)
@@ -36,6 +39,7 @@ router.get('/articles', async (req, res) => {
                         select: {
                             id: true,
                             name: true,
+                            nameAr: true,
                             slug: true,
                             color: true
                         }
@@ -44,10 +48,15 @@ router.get('/articles', async (req, res) => {
             }),
             prisma.blogArticle.count({ where })
         ]);
+        const transformedArticles = (0, localization_1.transformArticlesByLocale)(articles, normalizedLocale);
+        const finalArticles = transformedArticles.map((article) => ({
+            ...article,
+            category: article.category ? (0, localization_1.transformCategoryByLocale)(article.category, normalizedLocale) : article.category
+        }));
         return res.json({
             success: true,
             data: {
-                articles,
+                articles: finalArticles,
                 pagination: {
                     page: Number(page),
                     limit: Number(limit),
@@ -68,6 +77,8 @@ router.get('/articles', async (req, res) => {
 router.get('/articles/:slug', async (req, res) => {
     try {
         const { slug } = req.params;
+        const { locale } = req.query;
+        const normalizedLocale = (0, localization_1.normalizeLocale)(locale);
         const article = await prisma.blogArticle.findUnique({
             where: { slug },
             include: {
@@ -84,6 +95,7 @@ router.get('/articles/:slug', async (req, res) => {
                     select: {
                         id: true,
                         name: true,
+                        nameAr: true,
                         slug: true,
                         color: true
                     }
@@ -109,6 +121,7 @@ router.get('/articles/:slug', async (req, res) => {
                     category: {
                         select: {
                             name: true,
+                            nameAr: true,
                             slug: true,
                             color: true
                         }
@@ -135,6 +148,7 @@ router.get('/articles/:slug', async (req, res) => {
                     category: {
                         select: {
                             name: true,
+                            nameAr: true,
                             slug: true,
                             color: true
                         }
@@ -146,17 +160,25 @@ router.get('/articles/:slug', async (req, res) => {
             where: { id: article.id },
             data: { views: { increment: 1 } }
         });
+        const transformedArticle = (0, localization_1.transformArticleByLocale)(article, normalizedLocale);
+        const transformedCategory = article.category ? (0, localization_1.transformCategoryByLocale)(article.category, normalizedLocale) : null;
+        const transformedRelatedArticles = relatedArticles.map((related) => {
+            const transformedRelated = (0, localization_1.transformArticleByLocale)(related, normalizedLocale);
+            const transformedRelatedCategory = related.category ? (0, localization_1.transformCategoryByLocale)(related.category, normalizedLocale) : null;
+            return {
+                title: transformedRelated.title,
+                slug: transformedRelated.slug,
+                category: transformedRelatedCategory?.name || 'Uncategorized',
+                readTime: transformedRelated.readTime,
+                excerpt: transformedRelated.excerpt,
+                image: transformedRelated.image,
+                createdAt: transformedRelated.createdAt
+            };
+        });
         const articleWithRelated = {
-            ...article,
-            relatedArticles: relatedArticles.map(related => ({
-                title: related.title,
-                slug: related.slug,
-                category: related.category?.name || 'Uncategorized',
-                readTime: related.readTime,
-                excerpt: related.excerpt,
-                image: related.image,
-                createdAt: related.createdAt
-            }))
+            ...transformedArticle,
+            category: transformedCategory,
+            relatedArticles: transformedRelatedArticles
         };
         return res.json({
             success: true,
@@ -173,12 +195,15 @@ router.get('/articles/:slug', async (req, res) => {
 });
 router.get('/categories', async (req, res) => {
     try {
+        const { locale } = req.query;
+        const normalizedLocale = (0, localization_1.normalizeLocale)(locale);
         const categories = await prisma.blogCategory.findMany({
             orderBy: { name: 'asc' }
         });
+        const transformedCategories = (0, localization_1.transformCategoriesByLocale)(categories, normalizedLocale);
         return res.json({
             success: true,
-            data: { categories }
+            data: { categories: transformedCategories }
         });
     }
     catch (error) {
@@ -205,13 +230,17 @@ router.post('/categories', async (req, res) => {
         const category = await prisma.blogCategory.create({
             data: {
                 name: categoryData.name,
+                nameAr: categoryData.nameAr || null,
                 slug: slug,
                 description: categoryData.description || '',
+                descriptionAr: categoryData.descriptionAr || null,
                 color: categoryData.color || '#6812F7',
                 icon: categoryData.icon || '📝',
                 featured: categoryData.featured || false,
                 seoTitle: categoryData.seoTitle || categoryData.name,
-                seoDescription: categoryData.seoDescription || categoryData.description || ''
+                seoTitleAr: categoryData.seoTitleAr || null,
+                seoDescription: categoryData.seoDescription || categoryData.description || '',
+                seoDescriptionAr: categoryData.seoDescriptionAr || null
             }
         });
         return res.status(201).json({
@@ -247,17 +276,22 @@ router.put('/categories/:id', async (req, res) => {
                 .replace(/[^a-z0-9]+/g, '-')
                 .replace(/(^-|-$)/g, '');
         }
+        const existingCategoryWithAr = existingCategory;
         const updatedCategory = await prisma.blogCategory.update({
             where: { id },
             data: {
                 name: categoryData.name || existingCategory.name,
+                nameAr: categoryData.nameAr !== undefined ? categoryData.nameAr : existingCategoryWithAr.nameAr,
                 slug: slug,
                 description: categoryData.description || existingCategory.description,
+                descriptionAr: categoryData.descriptionAr !== undefined ? categoryData.descriptionAr : existingCategoryWithAr.descriptionAr,
                 color: categoryData.color || existingCategory.color,
                 icon: categoryData.icon || existingCategory.icon,
                 featured: categoryData.featured !== undefined ? categoryData.featured : existingCategory.featured,
                 seoTitle: categoryData.seoTitle || existingCategory.seoTitle,
-                seoDescription: categoryData.seoDescription || existingCategory.seoDescription
+                seoTitleAr: categoryData.seoTitleAr !== undefined ? categoryData.seoTitleAr : existingCategoryWithAr.seoTitleAr,
+                seoDescription: categoryData.seoDescription || existingCategory.seoDescription,
+                seoDescriptionAr: categoryData.seoDescriptionAr !== undefined ? categoryData.seoDescriptionAr : existingCategoryWithAr.seoDescriptionAr
             }
         });
         return res.json({
@@ -447,8 +481,11 @@ router.post('/articles', async (req, res) => {
         const article = await prisma.blogArticle.create({
             data: {
                 title: articleData.title,
+                titleAr: articleData.titleAr || null,
                 excerpt: articleData.excerpt,
+                excerptAr: articleData.excerptAr || null,
                 content: articleData.content,
+                contentAr: articleData.contentAr || null,
                 slug: slug,
                 image: articleData.image,
                 readTime: readTime,
@@ -479,6 +516,7 @@ router.post('/articles', async (req, res) => {
                 }
             }
         });
+        cache_1.invalidateCache.blog();
         return res.status(201).json({
             success: true,
             data: { article }
@@ -515,12 +553,16 @@ router.put('/articles/:id', async (req, res) => {
         const readTime = typeof articleData.readTime === 'number'
             ? articleData.readTime.toString()
             : articleData.readTime || existingArticle.readTime;
+        const existingArticleWithAr = existingArticle;
         const updatedArticle = await prisma.blogArticle.update({
             where: { id },
             data: {
                 title: articleData.title || existingArticle.title,
+                titleAr: articleData.titleAr !== undefined ? articleData.titleAr : existingArticleWithAr.titleAr,
                 excerpt: articleData.excerpt || existingArticle.excerpt,
+                excerptAr: articleData.excerptAr !== undefined ? articleData.excerptAr : existingArticleWithAr.excerptAr,
                 content: articleData.content || existingArticle.content,
+                contentAr: articleData.contentAr !== undefined ? articleData.contentAr : existingArticleWithAr.contentAr,
                 slug: slug,
                 image: articleData.image || existingArticle.image,
                 readTime: readTime,

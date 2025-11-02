@@ -33,17 +33,27 @@ export function CareerPage() {
   const [previewJob, setPreviewJob] = useState<Job | null>(null)
   const [formData, setFormData] = useState<CreateJobData>({
     title: '',
+    titleAr: '',
     department: '',
+    departmentAr: '',
     location: '',
+    locationAr: '',
     type: '',
+    typeAr: '',
     experience: '',
+    experienceAr: '',
     description: '',
+    descriptionAr: '',
     requirements: [],
+    requirementsAr: [],
     benefits: [],
+    benefitsAr: [],
     salary: '',
+    salaryAr: '',
     applicationDeadline: '',
     status: 'draft',
-    team: ''
+    team: '',
+    teamAr: ''
   })
 
   const {
@@ -93,7 +103,9 @@ export function CareerPage() {
     const cleanedData = {
       ...formData,
       requirements: formData.requirements.filter(item => item.trim() !== ''),
+      requirementsAr: (formData.requirementsAr || []).filter(item => item.trim() !== ''),
       benefits: formData.benefits.filter(item => item.trim() !== ''),
+      benefitsAr: (formData.benefitsAr || []).filter(item => item.trim() !== ''),
     }
 
     const result = await createJob(cleanedData)
@@ -118,7 +130,9 @@ export function CareerPage() {
     const cleanedData = {
       ...formData,
       requirements: formData.requirements.filter(item => item.trim() !== ''),
+      requirementsAr: (formData.requirementsAr || []).filter(item => item.trim() !== ''),
       benefits: formData.benefits.filter(item => item.trim() !== ''),
+      benefitsAr: (formData.benefitsAr || []).filter(item => item.trim() !== ''),
     }
     
     const result = await updateJob(editingJob.id, cleanedData)
@@ -136,19 +150,30 @@ export function CareerPage() {
 
   const handleEditJob = (job: Job) => {
     setEditingJob(job)
+    const jobAny = job as any
     setFormData({
       title: job.title,
+      titleAr: jobAny.titleAr || '',
       department: job.department,
+      departmentAr: jobAny.departmentAr || '',
       location: job.location,
+      locationAr: jobAny.locationAr || '',
       type: job.type,
+      typeAr: jobAny.typeAr || '',
       experience: job.experience,
+      experienceAr: jobAny.experienceAr || '',
       description: job.description,
+      descriptionAr: jobAny.descriptionAr || '',
       requirements: job.requirements,
+      requirementsAr: jobAny.requirementsAr || [],
       benefits: job.benefits,
+      benefitsAr: jobAny.benefitsAr || [],
       salary: job.salary || '',
+      salaryAr: jobAny.salaryAr || '',
       applicationDeadline: job.applicationDeadline || '',
       status: job.status,
-      team: job.team || ''
+      team: job.team || '',
+      teamAr: jobAny.teamAr || ''
     })
     setIsCreateDialogOpen(true)
   }
@@ -308,43 +333,70 @@ export function CareerPage() {
               )}
               
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
-                  <Input 
-                    placeholder="e.g., Senior Frontend Developer" 
-                    value={formData.title}
-                    onChange={(e) => handleInputChange('title', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
-                  <select 
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                    value={formData.department}
-                    onChange={(e) => handleInputChange('department', e.target.value)}
-                  >
-                    <option value="">Select Department</option>
-                    {departments.map(dept => (
-                      <option key={dept} value={dept}>{dept}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
+                <Input 
+                  placeholder="e.g., Senior Frontend Developer" 
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title (Arabic)</label>
+                <Input
+                  placeholder="مثال: مطور Frontend كبير"
+                  value={formData.titleAr || ''}
+                  onChange={(e) => handleInputChange('titleAr', e.target.value)}
+                  dir="rtl"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                  value={formData.department}
+                  onChange={(e) => handleInputChange('department', e.target.value)}
+                >
+                  <option value="">Select Department</option>
+                  {departments.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Department (Arabic)</label>
+                <Input
+                  placeholder="مثال: الهندسة"
+                  value={formData.departmentAr || ''}
+                  onChange={(e) => handleInputChange('departmentAr', e.target.value)}
+                  dir="rtl"
+                />
+              </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Job Type *</label>
-                  <select 
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                    value={formData.type}
-                    onChange={(e) => handleInputChange('type', e.target.value)}
-                  >
-                    <option value="">Select Type</option>
-                    {jobTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Type *</label>
+                <select 
+                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                  value={formData.type}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                >
+                  <option value="">Select Type</option>
+                  {jobTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Type (Arabic)</label>
+                <Input
+                  placeholder="مثال: دوام كامل"
+                  value={formData.typeAr || ''}
+                  onChange={(e) => handleInputChange('typeAr', e.target.value)}
+                  dir="rtl"
+                />
+              </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Location *</label>
                   <Input 
@@ -373,13 +425,31 @@ export function CareerPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Team</label>
-                  <Input 
-                    placeholder="e.g., Engineering Team, Design Team" 
-                    value={formData.team}
-                    onChange={(e) => handleInputChange('team', e.target.value)}
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range (Arabic)</label>
+                  <Input
+                    placeholder="مثال: 80,000 - 120,000 دولار"
+                    value={formData.salaryAr || ''}
+                    onChange={(e) => handleInputChange('salaryAr', e.target.value)}
+                    dir="rtl"
                   />
                 </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Team</label>
+                <Input
+                  placeholder="e.g., Engineering Team, Design Team" 
+                  value={formData.team}
+                  onChange={(e) => handleInputChange('team', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Team (Arabic)</label>
+                <Input
+                  placeholder="مثال: فريق الهندسة، فريق التصميم" 
+                  value={formData.teamAr || ''}
+                  onChange={(e) => handleInputChange('teamAr', e.target.value)}
+                  dir="rtl"
+                />
+              </div>
               </div>
 
               <div>
@@ -389,6 +459,16 @@ export function CareerPage() {
                   rows={4}
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description (Arabic) *</label>
+                <Textarea 
+                  placeholder="اوصف الدور والمسؤوليات وما سيعمل عليه المرشح..." 
+                  rows={4}
+                  value={formData.descriptionAr || ''}
+                  onChange={(e) => handleInputChange('descriptionAr', e.target.value)}
+                  dir="rtl"
                 />
               </div>
 
@@ -403,6 +483,21 @@ export function CareerPage() {
                 />
                 <p className="text-sm text-gray-500 mt-1">Enter each requirement on a new line</p>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements (Arabic)</label>
+                <Textarea 
+                  placeholder="اذكر المتطلبات الرئيسية، سطر واحد لكل متطلب..." 
+                  rows={3}
+                  value={(formData.requirementsAr || []).join('\n')}
+                  onChange={(e) => {
+                    const array = e.target.value.split('\n')
+                    setFormData(prev => ({ ...prev, requirementsAr: array }))
+                  }}
+                  className="resize-y min-h-[80px]"
+                  dir="rtl"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter each requirement on a new line</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
@@ -412,6 +507,21 @@ export function CareerPage() {
                   value={formData.benefits.join('\n')}
                   onChange={(e) => handleArrayInputChange('benefits', e.target.value)}
                   className="resize-y min-h-[80px]"
+                />
+                <p className="text-sm text-gray-500 mt-1">Enter each benefit on a new line</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits (Arabic)</label>
+                <Textarea 
+                  placeholder="اذكر مزايا الشركة، سطر واحد لكل ميزة..." 
+                  rows={3}
+                  value={(formData.benefitsAr || []).join('\n')}
+                  onChange={(e) => {
+                    const array = e.target.value.split('\n')
+                    setFormData(prev => ({ ...prev, benefitsAr: array }))
+                  }}
+                  className="resize-y min-h-[80px]"
+                  dir="rtl"
                 />
                 <p className="text-sm text-gray-500 mt-1">Enter each benefit on a new line</p>
               </div>

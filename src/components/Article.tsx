@@ -1,46 +1,98 @@
-import Link from 'next/link'
+'use client'
+
+import { Link } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
 import { Article } from '@/hooks/useArticle'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
+import { useState, useEffect } from 'react'
 
-  // Helper function to get the correct image source
-  const getImageSrc = (image: string) => {
-    if (!image) return null;
+// Helper function to get the correct image source
+const getImageSrc = (image: string) => {
+  if (!image) return null;
 
-    // If it's a full URL (http, https, or blob), return as is
-    if (image.startsWith('http') || image.startsWith('blob:')) {
-      return image;
-    }
+  // If it's a full URL (http, https, or blob), return as is
+  if (image.startsWith('http') || image.startsWith('blob:')) {
+    return image;
+  }
 
-    // If it's a base64 image, return as is
-    if (image.startsWith('data:image/')) {
-      return image;
-    }
+  // If it's a base64 image, return as is
+  if (image.startsWith('data:image/')) {
+    return image;
+  }
 
-    // If it's a filename (contains extension), construct the full URL
-    if (image.includes('.') && image.length > 10) {
-      return `http://localhost:3002/uploads/images/${image}`;
-    }
+  // If it's a filename (contains extension), construct the full URL
+  if (image.includes('.') && image.length > 10) {
+    return `http://localhost:3002/uploads/images/${image}`;
+  }
 
-    // For anything else (like emojis), return null to show as emoji
-    return null;
-  };
+  // For anything else (like emojis), return null to show as emoji
+  return null;
+};
 
 interface ArticleProps {
   article: Article;
   loading: boolean;
   error: string | null;
-  handleRetry: () => void;
+  handleRetry?: () => void;
 }
 
 export function ArticleComponent({ article, loading, error, handleRetry }: ArticleProps) {
+  const t = useTranslations('blog')
+  const tCommon = useTranslations('common')
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
+  const [formattedDate, setFormattedDate] = useState<string>('')
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Format readTime for display based on locale
+  const formatReadTime = (readTime: string) => {
+    if (!readTime) return readTime
+    
+    // If readTime contains "min read" or similar, format it based on locale
+    if (readTime.includes('min') || readTime.includes('دقيقة')) {
+      if (isRTL) {
+        // For Arabic: extract number and format as "4 min read" -> "4 دقيقة قراءة"
+        const match = readTime.match(/(\d+)\s*(?:min|دقيقة)/i)
+        if (match) {
+          const minutes = match[1]
+          return `${minutes} دقيقة قراءة`
+        }
+        // If already in Arabic format, return as is
+        return readTime
+      } else {
+        // For English: ensure format is "4 min read"
+        const match = readTime.match(/(\d+)\s*(?:min|دقيقة)/i)
+        if (match) {
+          const minutes = match[1]
+          return `${minutes} min read`
+        }
+        return readTime
+      }
+    }
+    
+    return readTime
+  }
+
+  useEffect(() => {
+    setIsMounted(true)
+    const date = new Date(article.createdAt)
+    const formatted = date.toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+    setFormattedDate(formatted)
+  }, [article.createdAt, locale])
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading article...</p>
+          <p className="text-gray-600">{t('loadingArticle')}</p>
         </div>
       </div>
     )
@@ -56,14 +108,16 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-red-800 mb-2">Error Loading Article</h3>
+            <h3 className="text-lg font-semibold text-red-800 mb-2">{t('errorLoadingArticle')}</h3>
             <p className="text-red-600 mb-4">{error}</p>
-            <button 
-              onClick={handleRetry} 
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-            >
-              Try Again
-            </button>
+            {handleRetry && (
+              <button
+                onClick={handleRetry}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                {t('tryAgain')}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -74,13 +128,13 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Article Not Found</h1>
-          <p className="text-gray-600 mb-6">The article you're looking for doesn't exist.</p>
-          <Link 
-            href="/blog" 
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('articleNotFound')}</h1>
+          <p className="text-gray-600 mb-6">{t('articleNotFoundDescription')}</p>
+          <Link
+            href="/blog"
             className="bg-[#6812F7] text-white px-6 py-3 rounded-lg hover:bg-[#5a0fd4] transition-colors"
           >
-            Back to Blog
+            {t('backToBlog')}
           </Link>
         </div>
       </div>
@@ -95,9 +149,9 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
           {/* Breadcrumb */}
           <nav className="mb-8">
             <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <Link href="/" className="hover:text-[#6812F7] transition-colors">Home</Link>
+              <Link href="/" className="hover:text-[#6812F7] transition-colors">{tCommon('home')}</Link>
               <span>›</span>
-              <Link href="/blog" className="hover:text-[#6812F7] transition-colors">Blog</Link>
+              <Link href="/blog" className="hover:text-[#6812F7] transition-colors">{tCommon('blog')}</Link>
               <span>›</span>
               <span className="text-gray-900">{article.category.name}</span>
             </div>
@@ -105,9 +159,9 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
 
           {/* Article Meta */}
           <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
-            <span>{article.readTime}</span>
+            <span>{formatReadTime(article.readTime)}</span>
             <span>•</span>
-            <span>{new Date(article.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            <span suppressHydrationWarning>{isMounted ? formattedDate : ''}</span>
             <span>•</span>
             <span className="bg-[#6812F7] text-white px-3 py-1 rounded-full text-xs font-semibold">
               {article.category.name}
@@ -141,8 +195,8 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
           {/* Article Image */}
           {getImageSrc(article.image) ? (
             <div className="aspect-video relative rounded-3xl overflow-hidden">
-              <img 
-                src={getImageSrc(article.image)!} 
+              <img
+                src={getImageSrc(article.image)!}
                 alt={article.title}
                 className="w-full h-full object-cover"
               />
@@ -225,8 +279,8 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
         <section className="py-16 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Related Articles</h2>
-              <p className="text-lg text-gray-600">Continue exploring similar content</p>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('relatedArticles')}</h2>
+              <p className="text-lg text-gray-600">{t('relatedArticlesDescription')}</p>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {article.relatedArticles.map((relatedArticle: any, index: number) => (
@@ -238,8 +292,8 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
                   {/* Article Image */}
                   <div className="aspect-video relative overflow-hidden">
                     {getImageSrc(relatedArticle.image) ? (
-                      <img 
-                        src={getImageSrc(relatedArticle.image)!} 
+                      <img
+                        src={getImageSrc(relatedArticle.image)!}
                         alt={relatedArticle.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -256,17 +310,20 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
                       </span>
                     </div>
                   </div>
-                  
+
                   {/* Article Content */}
                   <div className="p-6">
                     <div className="flex items-center space-x-3 mb-3">
-                      <span className="text-sm text-gray-500">{relatedArticle.readTime}</span>
+                      <span className="text-sm text-gray-500">{formatReadTime(relatedArticle.readTime)}</span>
                       <span>•</span>
-                      <span className="text-sm text-gray-500">
-                        {new Date(relatedArticle.createdAt).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
+                      <span className="text-sm text-gray-500" suppressHydrationWarning>
+                        {isMounted 
+                          ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
+                              month: 'short',
+                              day: 'numeric'
+                            })
+                          : ''
+                        }
                       </span>
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors mb-3 line-clamp-2">
@@ -287,23 +344,39 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
 
       {/* Newsletter Signup */}
       <section className="py-20 gradient-primary">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 ${locale === 'ar' ? 'text-right' : 'text-center'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Enjoyed This Article?
+            {t('enjoyedArticle')}
           </h2>
           <p className="text-xl text-white/80 mb-8">
-            Subscribe to our newsletter and get more insights like this delivered to your inbox.
+            {t('newsletterSubscribeDescription')}
           </p>
-          <div className="max-w-md mx-auto">
-            <div className="flex">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium"
-              />
-              <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
-                Subscribe
-              </button>
+          <div className={`max-w-md ${locale === 'ar' ? 'ml-auto mr-0' : 'mx-auto'}`}>
+            <div className={`flex ${locale === 'ar' ? 'justify-end' : ''}`}>
+              {locale === 'ar' ? (
+                <>
+                  <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
+                    {t('subscribe')}
+                  </button>
+                  <input
+                    type="email"
+                    placeholder={t('enterYourEmail')}
+                    className="flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium"
+                    dir="rtl"
+                  />
+                </>
+              ) : (
+                <>
+                  <input
+                    type="email"
+                    placeholder={t('enterYourEmail')}
+                    className="flex-1 px-6 py-4 rounded-l-full text-gray-900 bg-white/95 backdrop-blur-sm border-2 border-white/20 focus:outline-none focus:ring-2 focus:ring-white focus:border-white/40 placeholder-gray-600 font-medium"
+                  />
+                  <button className="bg-white text-[#6812F7] px-8 py-4 rounded-r-full font-semibold hover:bg-gray-100 transition-colors duration-300 shadow-lg hover:shadow-xl">
+                    {t('subscribe')}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

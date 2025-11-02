@@ -89,6 +89,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           router.push('/admin')
         } else if (user.role === 'employee') {
           router.push('/employee')
+        } else {
+          // Default redirect if role is unknown
+          router.push('/admin')
         }
         
         return true
@@ -96,7 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false
     } catch (error) {
       console.error('Login failed:', error)
-      return false
+      // Re-throw error so login page can handle it
+      throw error
     } finally {
       setLoading(false)
     }

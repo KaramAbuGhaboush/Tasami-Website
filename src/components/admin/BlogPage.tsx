@@ -45,8 +45,11 @@ export function BlogPage() {
   // Form states
   const [articleForm, setArticleForm] = useState({
     title: '',
+    titleAr: '',
     excerpt: '',
+    excerptAr: '',
     content: '',
+    contentAr: '',
     image: '',
     readTime: '',
     featured: false,
@@ -61,20 +64,27 @@ export function BlogPage() {
   
   const [categoryForm, setCategoryForm] = useState({
     name: '',
+    nameAr: '',
     description: '',
+    descriptionAr: '',
     color: '#6812F7',
     icon: '📝',
     featured: false,
     seoTitle: '',
-    seoDescription: ''
+    seoTitleAr: '',
+    seoDescription: '',
+    seoDescriptionAr: ''
   })
   
   const [authorForm, setAuthorForm] = useState({
     name: '',
+    nameAr: '',
     email: '',
     role: '',
+    roleAr: '',
     avatar: '',
     bio: '',
+    bioAr: '',
     expertise: [] as string[],
     socialLinks: {
       twitter: '',
@@ -159,8 +169,11 @@ export function BlogPage() {
     if (success) {
       setArticleForm({
         title: '',
+        titleAr: '',
         excerpt: '',
+        excerptAr: '',
         content: '',
+        contentAr: '',
         image: '',
         readTime: '',
         featured: false,
@@ -188,8 +201,11 @@ export function BlogPage() {
     setEditingArticle(article)
     setArticleForm({
       title: article.title,
+      titleAr: (article as any).titleAr || '',
       excerpt: article.excerpt,
+      excerptAr: (article as any).excerptAr || '',
       content: article.content,
+      contentAr: (article as any).contentAr || '',
       image: article.image || '',
       readTime: article.readTime,
       featured: article.featured,
@@ -218,8 +234,11 @@ export function BlogPage() {
       setEditingArticle(null)
       setArticleForm({
         title: '',
+        titleAr: '',
         excerpt: '',
+        excerptAr: '',
         content: '',
+        contentAr: '',
         image: '',
         readTime: '',
         featured: false,
@@ -253,12 +272,16 @@ export function BlogPage() {
     if (success) {
       setCategoryForm({
         name: '',
+        nameAr: '',
         description: '',
+        descriptionAr: '',
         color: '#6812F7',
         icon: '📝',
         featured: false,
         seoTitle: '',
-        seoDescription: ''
+        seoTitleAr: '',
+        seoDescription: '',
+        seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
       alert('Category created successfully!')
@@ -271,12 +294,16 @@ export function BlogPage() {
     setEditingCategory(category)
     setCategoryForm({
       name: category.name,
+      nameAr: (category as any).nameAr || '',
       description: category.description,
+      descriptionAr: (category as any).descriptionAr || '',
       color: category.color,
       icon: category.icon,
       featured: category.featured,
       seoTitle: category.seoTitle,
-      seoDescription: category.seoDescription
+      seoTitleAr: (category as any).seoTitleAr || '',
+      seoDescription: category.seoDescription,
+      seoDescriptionAr: (category as any).seoDescriptionAr || ''
     })
     setCategoryDialogOpen(true)
   }
@@ -294,12 +321,16 @@ export function BlogPage() {
       setEditingCategory(null)
       setCategoryForm({
         name: '',
+        nameAr: '',
         description: '',
+        descriptionAr: '',
         color: '#6812F7',
         icon: '📝',
         featured: false,
         seoTitle: '',
-        seoDescription: ''
+        seoTitleAr: '',
+        seoDescription: '',
+        seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
       alert('Category updated successfully!')
@@ -318,10 +349,13 @@ export function BlogPage() {
     if (success) {
       setAuthorForm({
         name: '',
+        nameAr: '',
         email: '',
         role: '',
+        roleAr: '',
         avatar: '',
         bio: '',
+        bioAr: '',
         expertise: [],
         socialLinks: {
           twitter: '',
@@ -342,8 +376,10 @@ export function BlogPage() {
     setEditingAuthor(author)
     setAuthorForm({
       name: author.name,
+      nameAr: (author as any).nameAr || '',
       email: author.email,
       role: author.role,
+      roleAr: (author as any).roleAr || '',
       avatar: author.avatar,
       bio: author.bio,
       expertise: author.expertise,
@@ -370,10 +406,13 @@ export function BlogPage() {
       setEditingAuthor(null)
       setAuthorForm({
         name: '',
+        nameAr: '',
         email: '',
         role: '',
+        roleAr: '',
         avatar: '',
         bio: '',
+        bioAr: '',
         expertise: [],
         socialLinks: {
           twitter: '',
@@ -725,7 +764,7 @@ export function BlogPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Title (English) *</label>
                     <Input 
                       placeholder="Enter a clear, descriptive article title..." 
                       value={articleForm.title}
@@ -733,6 +772,17 @@ export function BlogPage() {
                       className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                     />
                     <p className="text-xs text-gray-500 mt-1">{articleForm.title.length}/60 characters (SEO optimized)</p>
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Title (Arabic)</label>
+                    <Input 
+                      placeholder="أدخل عنوان المقال بالعربية..." 
+                      value={articleForm.titleAr || ''}
+                      onChange={(e) => setArticleForm({...articleForm, titleAr: e.target.value})}
+                      className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                      dir="rtl"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">{(articleForm.titleAr || '').length}/60 characters</p>
                 </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Author *</label>
@@ -944,7 +994,7 @@ export function BlogPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt (English) *</label>
                   <Textarea 
                     placeholder="Write a compelling 1-2 sentence summary that will appear in blog cards and search results..." 
                     rows={3}
@@ -952,6 +1002,17 @@ export function BlogPage() {
                     onChange={(e) => setArticleForm({...articleForm, excerpt: e.target.value})}
                   />
                   <p className="text-xs text-gray-500 mt-1">{articleForm.excerpt.length}/200 characters</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Excerpt (Arabic)</label>
+                  <Textarea 
+                    placeholder="اكتب ملخصاً مقنعاً من جملة إلى جملتين سيظهر في بطاقات المدونة..." 
+                    rows={3}
+                    value={articleForm.excerptAr || ''}
+                    onChange={(e) => setArticleForm({...articleForm, excerptAr: e.target.value})}
+                    dir="rtl"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">{(articleForm.excerptAr || '').length}/200 characters</p>
                 </div>
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -982,10 +1043,13 @@ export function BlogPage() {
                     </div>
                   </div>
                   
-                  {editorMode === 'write' ? (
-                    <div className="space-y-2">
-                      <Textarea 
-                        placeholder="Write your article content in Markdown format...
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Content (English) *</label>
+                      {editorMode === 'write' ? (
+                        <>
+                          <Textarea 
+                            placeholder="Write your article content in Markdown format...
 
 # Heading 1
 
@@ -1018,30 +1082,43 @@ const example = 'Hello World';
                         onChange={(e) => setArticleForm({...articleForm, content: e.target.value})}
                         className="font-mono text-sm"
                       />
-                      <div className="text-xs text-gray-500 space-y-1">
-                        <p><strong>Markdown Tips:</strong></p>
-                        <p>• Use # for headings, ## for subheadings, ### for smaller headings</p>
-                        <p>• Use **bold** and *italic* for emphasis</p>
-                        <p>• Use - or * for bullet lists, 1. for numbered lists</p>
-                        <p>• Use [text](url) for links and ![alt](url) for images</p>
-                        <p>• Use ```language for code blocks</p>
-                        <p>• <strong>Important:</strong> Add blank lines between paragraphs for proper spacing</p>
-                      </div>
+                          <div className="text-xs text-gray-500 space-y-1">
+                            <p><strong>Markdown Tips:</strong></p>
+                            <p>• Use # for headings, ## for subheadings, ### for smaller headings</p>
+                            <p>• Use **bold** and *italic* for emphasis</p>
+                            <p>• Use - or * for bullet lists, 1. for numbered lists</p>
+                            <p>• Use [text](url) for links and ![alt](url) for images</p>
+                            <p>• Use ```language for code blocks</p>
+                            <p>• <strong>Important:</strong> Add blank lines between paragraphs for proper spacing</p>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="border border-gray-200 rounded-lg p-4 min-h-[400px] bg-white">
+                          <div className="prose prose-sm max-w-none">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              rehypePlugins={[rehypeHighlight]}
+                            >
+                              {articleForm.content || '*No content to preview*'}
+                            </ReactMarkdown>
+                          </div>
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500 mt-1">{articleForm.content.length} characters</p>
                     </div>
-                  ) : (
-                    <div className="border border-gray-200 rounded-lg p-4 min-h-[400px] bg-white">
-                      <div className="prose prose-sm max-w-none">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          rehypePlugins={[rehypeHighlight]}
-                        >
-                          {articleForm.content || '*No content to preview*'}
-                        </ReactMarkdown>
-                      </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Content (Arabic)</label>
+                      <Textarea 
+                        placeholder="اكتب محتوى المقال بصيغة Markdown..." 
+                        rows={15}
+                        value={articleForm.contentAr || ''}
+                        onChange={(e) => setArticleForm({...articleForm, contentAr: e.target.value})}
+                        className="font-mono text-sm"
+                        dir="rtl"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">{(articleForm.contentAr || '').length} characters</p>
                     </div>
-                  )}
-                  
-                  <p className="text-xs text-gray-500 mt-1">{articleForm.content.length} characters</p>
+                  </div>
                 </div>
               </div>
 
@@ -1552,12 +1629,22 @@ const example = 'Hello World';
                       </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
                       <Input 
                         placeholder="Category name" 
                         value={categoryForm.name}
                         onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
                         className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name (Arabic)</label>
+                      <Input 
+                        placeholder="اسم الفئة بالعربية" 
+                        value={categoryForm.nameAr}
+                        onChange={(e) => setCategoryForm({...categoryForm, nameAr: e.target.value})}
+                        className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                        dir="rtl"
                       />
                     </div>
                     <div>
@@ -1571,12 +1658,22 @@ const example = 'Hello World';
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
                     <Textarea 
                       placeholder="Category description" 
                       rows={3}
                       value={categoryForm.description}
                       onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Description (Arabic)</label>
+                    <Textarea 
+                      placeholder="وصف الفئة بالعربية" 
+                      rows={3}
+                      value={categoryForm.descriptionAr}
+                      onChange={(e) => setCategoryForm({...categoryForm, descriptionAr: e.target.value})}
+                      dir="rtl"
                     />
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1779,12 +1876,22 @@ const example = 'Hello World';
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
                         <Input 
                           placeholder="Author name" 
                           value={authorForm.name}
                           onChange={(e) => setAuthorForm({...authorForm, name: e.target.value})}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Name (Arabic)</label>
+                        <Input 
+                          placeholder="اسم الكاتب بالعربية" 
+                          value={authorForm.nameAr || ''}
+                          onChange={(e) => setAuthorForm({...authorForm, nameAr: e.target.value})}
+                          className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                          dir="rtl"
                         />
                       </div>
                       <div>
@@ -1800,12 +1907,22 @@ const example = 'Hello World';
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Role (English)</label>
                         <Input 
                           placeholder="Senior Writer" 
-                          value={authorForm.role}
+                          value={authorForm.role || ''}
                           onChange={(e) => setAuthorForm({...authorForm, role: e.target.value})}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Role (Arabic)</label>
+                        <Input 
+                          placeholder="كاتب أول" 
+                          value={authorForm.roleAr || ''}
+                          onChange={(e) => setAuthorForm({...authorForm, roleAr: e.target.value})}
+                          className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                          dir="rtl"
                         />
                       </div>
                       <div>
@@ -1819,12 +1936,22 @@ const example = 'Hello World';
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio (English)</label>
                       <Textarea 
                         placeholder="Author biography" 
                         rows={3}
-                        value={authorForm.bio}
+                        value={authorForm.bio || ''}
                         onChange={(e) => setAuthorForm({...authorForm, bio: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio (Arabic)</label>
+                      <Textarea 
+                        placeholder="سيرة الكاتب بالعربية" 
+                        rows={3}
+                        value={authorForm.bioAr || ''}
+                        onChange={(e) => setAuthorForm({...authorForm, bioAr: e.target.value})}
+                        dir="rtl"
                       />
                     </div>
                   </div>
@@ -1943,10 +2070,13 @@ const example = 'Hello World';
                         setEditingAuthor(null)
                         setAuthorForm({
                           name: '',
+                          nameAr: '',
                           email: '',
                           role: '',
+                          roleAr: '',
                           avatar: '',
                           bio: '',
+                          bioAr: '',
                           expertise: [],
                           socialLinks: {
                             twitter: '',

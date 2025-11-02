@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { Project } from '@/hooks/useProject'
 
 interface ProjectProps {
@@ -37,7 +37,7 @@ export function ProjectComponent({ project }: ProjectProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/5 via-transparent to-[#9253F0]/5"></div>
         <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-[#6812F7]/10 to-[#9253F0]/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#DFC7FE]/20 to-transparent rounded-full blur-3xl"></div>
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-12">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-[#6812F7]/10 to-[#9253F0]/10 border border-[#6812F7]/20 mb-8">
@@ -52,7 +52,7 @@ export function ProjectComponent({ project }: ProjectProps) {
               {project.description}
             </p>
           </div>
-          
+
           {/* Project Meta Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="luxury-card rounded-2xl p-6 text-center hover-lift">
@@ -64,7 +64,7 @@ export function ProjectComponent({ project }: ProjectProps) {
               <div className="text-sm text-gray-500 mb-2 uppercase tracking-wide">Timeline</div>
               <div className="text-xl font-bold text-gray-900">{project.timeline}</div>
             </div>
-            
+
             <div className="luxury-card rounded-2xl p-6 text-center hover-lift">
               <div className="w-12 h-12 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-xl mx-auto mb-4 flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ export function ProjectComponent({ project }: ProjectProps) {
               <div className="text-sm text-gray-500 mb-2 uppercase tracking-wide">Team Size</div>
               <div className="text-xl font-bold text-gray-900">{project.teamSize}</div>
             </div>
-            
+
             <div className="luxury-card rounded-2xl p-6 text-center hover-lift">
               <div className="w-12 h-12 bg-gradient-to-br from-[#DFC7FE] to-[#6812F7] rounded-xl mx-auto mb-4 flex items-center justify-center">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,8 +95,8 @@ export function ProjectComponent({ project }: ProjectProps) {
             {getImageSrc(project.headerImage) ? (
               /* Project Image Display */
               <div className="rounded-3xl overflow-hidden shadow-2xl hover-lift">
-                <img 
-                  src={getImageSrc(project.headerImage)!} 
+                <img
+                  src={getImageSrc(project.headerImage)!}
                   alt={project.title}
                   className="w-full h-auto object-cover"
                   style={{ maxHeight: '600px' }}
@@ -109,7 +109,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                   {/* Animated Background Elements */}
                   <div className="absolute top-10 right-10 w-32 h-32 bg-white/20 rounded-full blur-xl animate-pulse"></div>
                   <div className="absolute bottom-10 left-10 w-24 h-24 bg-white/15 rounded-full blur-lg float-animation"></div>
-                  
+
                   <div className="text-white text-center relative z-10">
                     <div className="w-32 h-32 bg-white/20 rounded-3xl mx-auto mb-6 flex items-center justify-center hover-lift">
                       <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,10 +122,10 @@ export function ProjectComponent({ project }: ProjectProps) {
                 </div>
               </div>
             )}
-            
+
             {/* Floating Elements */}
             <div className="absolute -top-4 -right-4 w-20 h-20 bg-gradient-to-br from-[#DFC7FE] to-[#9253F0] rounded-2xl rotate-12 float-animation"></div>
-            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-xl -rotate-12 float-animation" style={{animationDelay: '1s'}}></div>
+            <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-xl -rotate-12 float-animation" style={{ animationDelay: '1s' }}></div>
           </div>
         </div>
       </section>
@@ -139,7 +139,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-[#6812F7] to-[#9253F0] mx-auto rounded-full"></div>
           </div>
-          
+
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8">
               <div className="luxury-card rounded-3xl p-8 hover-lift">
@@ -153,7 +153,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                 </h3>
                 <p className="text-gray-600 text-lg leading-relaxed">{project.description}</p>
               </div>
-              
+
               <div className="luxury-card rounded-3xl p-8 hover-lift">
                 <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
                   <div className="w-8 h-8 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-lg mr-3 flex items-center justify-center">
@@ -166,7 +166,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                 <p className="text-gray-600 text-lg leading-relaxed">{project.solution}</p>
               </div>
             </div>
-            
+
             {/* Visual Element */}
             <div className="relative">
               <div className="bg-gradient-to-br from-[#6812F7]/10 to-[#9253F0]/10 rounded-3xl p-8 min-h-[400px] flex items-center justify-center">
@@ -180,10 +180,10 @@ export function ProjectComponent({ project }: ProjectProps) {
                   <p className="text-gray-600">Cutting-edge technology meets creative solutions</p>
                 </div>
               </div>
-              
+
               {/* Floating decorative elements */}
               <div className="absolute -top-6 -right-6 w-12 h-12 bg-gradient-to-br from-[#DFC7FE] to-[#9253F0] rounded-2xl rotate-45 float-animation"></div>
-              <div className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-2xl -rotate-12 float-animation" style={{animationDelay: '2s'}}></div>
+              <div className="absolute -bottom-6 -left-6 w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-2xl -rotate-12 float-animation" style={{ animationDelay: '2s' }}></div>
             </div>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Explore the visual journey of our project development</p>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((item) => (
               <div key={item} className="group relative">
@@ -207,7 +207,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                   <h4 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">Mobile View {item}</h4>
                   <p className="text-xs sm:text-sm text-gray-600 text-center">Responsive design showcase</p>
                 </div>
-                
+
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/20 to-[#9253F0]/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 text-center">
@@ -233,7 +233,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-[#6812F7] to-[#9253F0] mx-auto rounded-full"></div>
           </div>
-          
+
           <div className="luxury-card rounded-3xl p-8 md:p-12 hover-lift">
             <div className="flex items-start space-x-6">
               <div className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-2xl flex items-center justify-center">
@@ -259,7 +259,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-[#6812F7] to-[#9253F0] mx-auto rounded-full"></div>
           </div>
-          
+
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             <div className="luxury-card rounded-3xl p-8 hover-lift">
               <div className="flex items-start space-x-6 mb-8">
@@ -274,7 +274,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Key Technologies</h3>
               {project.technologies.slice(0, 4).map((tech, index) => (
@@ -302,14 +302,14 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Full-featured desktop experience with advanced functionality</p>
           </div>
-          
+
           <div className="relative">
             <div className="bg-gradient-to-br from-[#6812F7] via-[#9253F0] to-[#DFC7FE] rounded-3xl p-8 md:p-16 shadow-2xl hover-lift">
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 md:p-12 flex items-center justify-center min-h-[600px] relative overflow-hidden">
                 {/* Animated background elements */}
                 <div className="absolute top-8 right-8 w-40 h-40 bg-white/20 rounded-full blur-2xl animate-pulse"></div>
                 <div className="absolute bottom-8 left-8 w-32 h-32 bg-white/15 rounded-full blur-xl float-animation"></div>
-                
+
                 <div className="text-white text-center relative z-10">
                   <div className="w-48 h-32 bg-white/20 rounded-2xl mx-auto mb-6 flex items-center justify-center hover-lift">
                     <svg className="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,10 +321,10 @@ export function ProjectComponent({ project }: ProjectProps) {
                 </div>
               </div>
             </div>
-            
+
             {/* Floating decorative elements */}
             <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-[#DFC7FE] to-[#9253F0] rounded-3xl rotate-12 float-animation"></div>
-            <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-2xl -rotate-12 float-animation" style={{animationDelay: '1.5s'}}></div>
+            <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-2xl -rotate-12 float-animation" style={{ animationDelay: '1.5s' }}></div>
           </div>
         </div>
       </section>
@@ -338,7 +338,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">Designed with the end user in mind</p>
           </div>
-          
+
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="relative">
               <div className="bg-gradient-to-br from-[#6812F7] via-[#9253F0] to-[#DFC7FE] rounded-3xl p-8 md:p-12 hover-lift min-h-[500px] flex items-center justify-center">
@@ -351,13 +351,13 @@ export function ProjectComponent({ project }: ProjectProps) {
                   <h3 className="text-2xl md:text-3xl font-bold mb-4">User Persona</h3>
                   <p className="text-lg opacity-90">Understanding our target audience</p>
                 </div>
-                
+
                 {/* Animated background elements */}
                 <div className="absolute top-6 right-6 w-24 h-24 bg-white/20 rounded-full blur-xl animate-pulse"></div>
                 <div className="absolute bottom-6 left-6 w-20 h-20 bg-white/15 rounded-full blur-lg float-animation"></div>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               <h3 className="text-3xl font-bold text-gray-900 mb-8">Key Features</h3>
               {[
@@ -391,7 +391,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             Style Guide
           </h2>
         </div>
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Typography */}
@@ -456,7 +456,7 @@ export function ProjectComponent({ project }: ProjectProps) {
           </h2>
           <p className="text-gray-600 text-lg">Smooth transitions and micro-interactions enhance the user experience.</p>
         </div>
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-teal-400 to-emerald-600 rounded-3xl p-8 md:p-16">
             <div className="bg-white rounded-2xl p-12 flex items-center justify-center min-h-[400px]">
@@ -513,7 +513,7 @@ export function ProjectComponent({ project }: ProjectProps) {
                 </div>
               </div>
             </div>
-            
+
             <div className="bg-gradient-to-br from-blue-400 via-indigo-400 to-purple-500 rounded-3xl p-8 shadow-2xl">
               <div className="bg-white rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
                 <div className="text-center text-gray-400">
@@ -535,7 +535,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-[#6812F7] to-[#9253F0] mx-auto rounded-full"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {project.results.map((result, index) => (
               <div key={index} className="luxury-card rounded-3xl p-6 sm:p-8 text-center hover-lift">
@@ -560,7 +560,7 @@ export function ProjectComponent({ project }: ProjectProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/90 via-[#9253F0]/90 to-[#DFC7FE]/90"></div>
         <div className="absolute top-20 right-20 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
-        
+
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
@@ -569,7 +569,7 @@ export function ProjectComponent({ project }: ProjectProps) {
             <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-4xl mx-auto">
               Let's transform your ideas into reality with cutting-edge technology and innovative solutions.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <button className="btn-primary text-lg px-8 py-4">
                 Start Your Project

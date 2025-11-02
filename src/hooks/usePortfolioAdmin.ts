@@ -76,28 +76,37 @@ export interface Project {
 
 export interface CreateProjectData {
   title: string
+  titleAr?: string
   description: string
+  descriptionAr?: string
   headerImage?: string
   challenge?: string
+  challengeAr?: string
   solution?: string
+  solutionAr?: string
   timeline?: string
   teamSize?: string
   status: 'planning' | 'active' | 'completed' | 'on-hold'
   categoryId: string
-  technologies: { name: string; description: string }[]
-  results: { metric: string; description: string }[]
+  technologies: { name: string; nameAr?: string; description: string; descriptionAr?: string }[]
+  results: { metric: string; metricAr?: string; description: string; descriptionAr?: string }[]
   testimonial?: {
     quote: string
+    quoteAr?: string
     author: string
+    authorAr?: string
     position: string
+    positionAr?: string
   }
   contentBlocks: Omit<ContentBlock, 'id' | 'projectId' | 'createdAt' | 'updatedAt'>[]
 }
 
 export interface CreateCategoryData {
   name: string
+  nameAr?: string
   slug: string
   description: string
+  descriptionAr?: string
   color: string
   icon: string
   featured: boolean

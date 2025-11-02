@@ -36,10 +36,13 @@ model User {
 model BlogAuthor {
   id          String   @id @default(cuid())
   name        String
+  nameAr      String?
   role        String
+  roleAr      String?
   email       String   @unique
   avatar      String?
   bio         String?
+  bioAr       String?
   socialLinks Json?
   expertise   Json
   joinDate    DateTime @default(now())
@@ -54,12 +57,16 @@ model BlogAuthor {
 model BlogCategory {
   id            String   @id @default(cuid())
   name          String   @unique
+  nameAr        String?
   slug          String   @unique
   description   String?
+  descriptionAr String?
   color         String?
   icon          String?
   seoTitle      String?
+  seoTitleAr    String?
   seoDescription String?
+  seoDescriptionAr String?
   featured     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -75,8 +82,11 @@ model BlogCategory {
 model BlogArticle {
   id              String   @id @default(cuid())
   title           String
+  titleAr         String?
   excerpt         String?
+  excerptAr       String?
   content         String?
+  contentAr       String?
   slug            String   @unique
   image           String?
   readTime        String?
@@ -108,10 +118,14 @@ model BlogArticle {
 model Project {
   id                String   @id @default(cuid())
   title             String
+  titleAr           String?
   description       String
+  descriptionAr     String?
   headerImage       String?
   challenge         String?
+  challengeAr       String?
   solution          String?
+  solutionAr        String?
   timeline          String?
   teamSize          String?
   status            String   @default("planning")
@@ -131,7 +145,9 @@ model Project {
 model ProjectTechnology {
   id          String   @id @default(cuid())
   name        String
+  nameAr      String?
   description String
+  descriptionAr String?
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -141,7 +157,9 @@ model ProjectTechnology {
 model ProjectResult {
   id          String   @id @default(cuid())
   metric      String
+  metricAr    String?
   description String
+  descriptionAr String?
   projectId   String
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -151,8 +169,11 @@ model ProjectResult {
 model ProjectTestimonial {
   id        String   @id @default(cuid())
   quote     String
+  quoteAr   String?
   author    String
+  authorAr  String?
   position  String
+  positionAr String?
   projectId String   @unique
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -164,11 +185,14 @@ model ContentBlock {
   type        String   // 'heading', 'paragraph', 'image', 'imageGrid'
   order       Int      // For ordering blocks
   content     String?  // For text content (headings, paragraphs)
+  contentAr   String?  // Arabic text content
   src         String?  // For image source
   alt         String?  // For image alt text
+  altAr       String?  // Arabic alt text
   width       Int?     // For image width
   height      Int?     // For image height
   caption     String?  // For image caption
+  captionAr   String?  // Arabic caption
   level       Int?     // For heading level (2, 3, 4)
   columns     Int?     // For imageGrid columns (2, 3, 4)
   images      Json?    // For imageGrid - array of image objects
@@ -185,19 +209,29 @@ model ContentBlock {
 model Job {
   id              String   @id @default(cuid())
   title           String
+  titleAr         String?
   department      String
+  departmentAr    String?
   location        String
+  locationAr      String?
   type            String
+  typeAr          String?
   experience      String
+  experienceAr    String?
   description     String
+  descriptionAr   String?
   requirements    Json
+  requirementsAr  Json?
   benefits        Json
+  benefitsAr      Json?
   status          String   @default("active")
   postedDate      DateTime @default(now())
   applicationDeadline DateTime?
   applications    Int      @default(0)
   salary          String?
+  salaryAr        String?
   team            String?
+  teamAr          String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -279,8 +313,10 @@ model Testimonial {
 model ProjectCategory {
   id          String   @id @default(cuid())
   name        String   @unique
+  nameAr      String?
   slug        String   @unique
   description String?
+  descriptionAr String?
   color       String?
   icon        String?
   featured    Boolean  @default(false)

@@ -106,10 +106,10 @@ export const createCacheMiddleware = (ttl: number = 300000, keyGenerator?: (req:
 
 // Predefined cache configurations for different endpoints
 export const cacheConfigs = {
-  // Blog articles - cache for 10 minutes
+  // Blog articles - cache for 10 minutes (locale-aware)
   blogArticles: createCacheMiddleware(600000, (req) => {
-    const { page = 1, limit = 10, category, featured } = req.query;
-    return `blog:articles:${page}:${limit}:${category || 'all'}:${featured || 'all'}`;
+    const { page = 1, limit = 10, category, featured, locale = 'en' } = req.query;
+    return `blog:articles:${page}:${limit}:${category || 'all'}:${featured || 'all'}:locale:${locale}`;
   }),
 
   // Projects - cache for 15 minutes
@@ -124,8 +124,11 @@ export const cacheConfigs = {
     return `testimonials:${featured || 'all'}`;
   }),
 
-  // Categories - cache for 1 hour
-  categories: createCacheMiddleware(3600000, () => 'categories:all'),
+  // Categories - cache for 1 hour (locale-aware for blog categories)
+  blogCategories: createCacheMiddleware(3600000, (req) => {
+    const { locale = 'en' } = req.query;
+    return `blog:categories:locale:${locale}`;
+  }),
 
   // Jobs - cache for 20 minutes
   jobs: createCacheMiddleware(1200000, (req) => {

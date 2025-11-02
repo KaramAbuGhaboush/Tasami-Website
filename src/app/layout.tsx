@@ -1,12 +1,5 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import ConditionalNavbar, { ConditionalFooter } from "@/components/ConditionalNavbar";
-import { AuthProvider } from "@/contexts/AuthContext";
-
-export const metadata: Metadata = {
-  title: "Tasami - AI, Automation, Design & Marketing Solutions",
-  description: "Leading tech company specializing in AI, automation, design, UX/UI, and marketing solutions. Transform your business with cutting-edge technology.",
-};
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export default function RootLayout({
   children,
@@ -14,14 +7,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className="antialiased"
-      >
+    <html suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <AuthProvider>
-          <ConditionalNavbar />
           {children}
-          <ConditionalFooter />
         </AuthProvider>
       </body>
     </html>

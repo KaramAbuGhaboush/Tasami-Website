@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useLocale } from 'next-intl'
 import { apiClient } from '@/lib/api'
 
 export interface BlogPost {
@@ -27,9 +28,20 @@ export interface BlogPost {
   };
 }
 
+export interface BlogCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  slug: string;
+  color: string;
+  icon: string | null;
+  featured: boolean;
+}
+
 export interface UseBlogReturn {
   blogPosts: BlogPost[];
   categories: string[];
+  categoryObjects: BlogCategory[];
   loading: boolean;
   error: string | null;
   featuredPost: BlogPost | undefined;
@@ -38,27 +50,48 @@ export interface UseBlogReturn {
 }
 
 export function useBlog(): UseBlogReturn {
+  const locale = useLocale() as 'en' | 'ar'
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
+  const [categoryObjects, setCategoryObjects] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      
       const [articlesResponse, categoriesResponse] = await Promise.all([
-        apiClient.getBlogArticles(),
-        apiClient.getBlogCategories()
+        apiClient.getBlogArticles({ locale }),
+        apiClient.getBlogCategories(locale)
       ]);
 
       if (articlesResponse.success) {
         setBlogPosts(articlesResponse.data.articles);
+      } else {
+        setError('Failed to load blog posts.');
       }
 
       if (categoriesResponse.success) {
-        const categoryNames = ["All", ...categoriesResponse.data.categories.map((cat: any) => cat.name)];
+        // Categories will be translated by the backend based on locale
+        // The backend returns transformed categories where 'name' field contains the localized name
+        const categoryNames = categoriesResponse.data.categories.map((cat: any) => cat.name);
         setCategories(categoryNames);
+        
+        // Store full category objects for Popular Topics section
+        const fullCategories: BlogCategory[] = categoriesResponse.data.categories.map((cat: any) => ({
+          id: cat.id,
+          name: cat.name,
+          description: cat.description || null,
+          slug: cat.slug,
+          color: cat.color || '#6812F7',
+          icon: cat.icon || '📝',
+          featured: cat.featured || false
+        }));
+        setCategoryObjects(fullCategories);
+      } else {
+        setError('Failed to load categories.');
       }
     } catch (err) {
       console.error('Error fetching blog data:', err);
@@ -66,22 +99,30 @@ export function useBlog(): UseBlogReturn {
     } finally {
       setLoading(false);
     }
-  };
+  }, [locale]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
-  const handleRetry = () => {
+  const handleRetry = useCallback(() => {
     fetchData();
-  };
+  }, [fetchData]);
 
-  const featuredPost = blogPosts.find(post => post.featured);
-  const regularPosts = blogPosts.filter(post => !post.featured);
+  const featuredPost = useMemo(() => 
+    blogPosts.find(post => post.featured), 
+    [blogPosts]
+  );
+  
+  const regularPosts = useMemo(() => 
+    blogPosts.filter(post => !post.featured), 
+    [blogPosts]
+  );
 
   return {
     blogPosts,
     categories,
+    categoryObjects,
     loading,
     error,
     featuredPost,

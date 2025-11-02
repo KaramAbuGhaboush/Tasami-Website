@@ -260,7 +260,7 @@ export function OverviewPage() {
                         {(activity.value || activity.views || activity.role || activity.improvement) && (
                           <div className="mt-2">
                             <Badge variant="outline" className="text-xs">
-                              {activity.value || activity.views || activity.role || activity.improvement}
+                              {String(activity.value || activity.views || activity.role || activity.improvement || '')}
                             </Badge>
                           </div>
                         )}

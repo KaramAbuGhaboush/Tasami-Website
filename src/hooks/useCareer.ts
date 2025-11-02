@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocale } from 'next-intl'
 import { apiClient } from '@/lib/api'
 
 export interface Job {
@@ -25,6 +26,7 @@ export interface UseCareerReturn {
 }
 
 export function useCareer(): UseCareerReturn {
+  const locale = useLocale() as 'en' | 'ar'
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function useCareer(): UseCareerReturn {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiClient.getJobs();
+      const response = await apiClient.getJobs({ locale });
       
       if (response.success) {
         setJobs(response.data.jobs);
@@ -50,7 +52,7 @@ export function useCareer(): UseCareerReturn {
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [locale]);
 
   const handleRetry = () => {
     fetchJobs();
