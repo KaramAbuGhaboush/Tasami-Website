@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useContactAdmin, type ContactMessage } from '@/hooks/useContactAdmin'
+import { useNotification } from '@/hooks/useNotification'
 import { Pagination } from '@/components/ui/pagination'
 import { 
   Search,
@@ -30,6 +31,7 @@ import {
 } from 'lucide-react'
 
 export function ContactPage() {
+  const { success, error: showError, confirm } = useNotification()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterService, setFilterService] = useState('all')
@@ -101,7 +103,13 @@ export function ContactPage() {
   }
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (window.confirm('Are you sure you want to delete this message?')) {
+    const confirmed = await confirm('Are you sure you want to delete this message?', {
+      title: 'Delete Message',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       await deleteMessage(messageId)
     }
   }
@@ -114,9 +122,9 @@ export function ContactPage() {
   const handleTestEmail = async () => {
     const result = await testEmail()
     if (result.success) {
-      alert('Email test successful!')
+      success('Email test successful!')
     } else {
-      alert(`Email test failed: ${result.message}`)
+      showError(`Email test failed: ${result.message}`)
     }
   }
 

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -43,6 +44,27 @@ export function Admin({
   stats, 
   recentActivities 
 }: AdminProps) {
+  const router = useRouter()
+
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case 'portfolio':
+        router.push('/admin/portfolio?action=create')
+        break
+      case 'blog':
+        router.push('/admin/blog?action=create')
+        break
+      case 'users':
+        router.push('/admin/users?action=add')
+        break
+      case 'contact':
+        router.push('/admin/contact')
+        break
+      default:
+        setActiveTab(action)
+    }
+  }
+
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -107,19 +129,34 @@ export function Admin({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <Button className="h-20 flex-col space-y-2 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white">
+                  <Button 
+                    onClick={() => handleQuickAction('portfolio')}
+                    className="h-20 flex-col space-y-2 bg-gradient-to-br from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white"
+                  >
                     <Plus className="w-6 h-6" />
                     <span className="text-sm">Add Project</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                  <Button 
+                    onClick={() => handleQuickAction('blog')}
+                    variant="outline" 
+                    className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50"
+                  >
                     <Edit className="w-6 h-6" />
                     <span className="text-sm">New Blog Post</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                  <Button 
+                    onClick={() => handleQuickAction('users')}
+                    variant="outline" 
+                    className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50"
+                  >
                     <Eye className="w-6 h-6" />
                     <span className="text-sm">Add Team Member</span>
                   </Button>
-                  <Button variant="outline" className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50">
+                  <Button 
+                    onClick={() => handleQuickAction('contact')}
+                    variant="outline" 
+                    className="h-20 flex-col space-y-2 border-2 hover:bg-gray-50"
+                  >
                     <Search className="w-6 h-6" />
                     <span className="text-sm">View Messages</span>
                   </Button>

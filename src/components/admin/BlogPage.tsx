@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useBlogAdmin, BlogArticle, BlogCategory, BlogAuthor } from '@/hooks/useBlogAdmin'
+import { useNotification } from '@/hooks/useNotification'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
@@ -37,6 +38,7 @@ import {
 } from 'lucide-react'
 
 export function BlogPage() {
+  const { success, error: showError, warning: showWarning, confirm, info } = useNotification()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
@@ -161,12 +163,12 @@ export function BlogPage() {
   // Form handlers
   const handleCreateArticle = async () => {
     if (!articleForm.title || !articleForm.excerpt || !articleForm.content || !articleForm.authorId || !articleForm.categoryId) {
-      alert('Please fill in all required fields')
+      showWarning('Please fill in all required fields')
       return
     }
     
-    const success = await createArticle(articleForm)
-    if (success) {
+    const created = await createArticle(articleForm)
+    if (created) {
       setArticleForm({
         title: '',
         titleAr: '',
@@ -191,9 +193,9 @@ export function BlogPage() {
       setRelatedArticleSearch('')
       setShowRelatedDropdown(false)
       setArticleDialogOpen(false)
-      alert('Article created successfully!')
+      success('Article created successfully!')
     } else {
-      alert('Failed to create article')
+      showError('Failed to create article')
     }
   }
 
@@ -225,51 +227,61 @@ export function BlogPage() {
     if (!editingArticle) return
     
     if (!articleForm.title || !articleForm.excerpt || !articleForm.content || !articleForm.authorId || !articleForm.categoryId) {
-      alert('Please fill in all required fields')
+      showWarning('Please fill in all required fields')
       return
     }
     
-    const success = await updateArticle(editingArticle.id, articleForm)
-    if (success) {
-      setEditingArticle(null)
-      setArticleForm({
-        title: '',
-        titleAr: '',
-        excerpt: '',
-        excerptAr: '',
-        content: '',
-        contentAr: '',
-        image: '',
-        readTime: '',
-        featured: false,
-        status: 'draft',
-        tags: [],
-        authorId: '',
-        categoryId: '',
-        seoTitle: '',
-        seoDescription: '',
-        relatedArticles: []
-      })
-      setImagePreview('')
-      setTagInput('')
-      setRelatedArticleInput('')
-      setRelatedArticleSearch('')
-      setShowRelatedDropdown(false)
-      setArticleDialogOpen(false)
-      alert('Article updated successfully!')
-    } else {
-      alert('Failed to update article')
+    try {
+      const updated = await updateArticle(editingArticle.id, articleForm)
+      if (updated) {
+        // Wait a bit more to ensure the backend has processed the update
+        await new Promise(resolve => setTimeout(resolve, 200));
+        // Force refresh all data
+        await refreshAll();
+        
+        setEditingArticle(null)
+        setArticleForm({
+          title: '',
+          titleAr: '',
+          excerpt: '',
+          excerptAr: '',
+          content: '',
+          contentAr: '',
+          image: '',
+          readTime: '',
+          featured: false,
+          status: 'draft',
+          tags: [],
+          authorId: '',
+          categoryId: '',
+          seoTitle: '',
+          seoDescription: '',
+          relatedArticles: []
+        })
+        setImagePreview('')
+        setTagInput('')
+        setRelatedArticleInput('')
+        setRelatedArticleSearch('')
+        setShowRelatedDropdown(false)
+        setArticleDialogOpen(false)
+        success('Article updated successfully!')
+      } else {
+        showError('Failed to update article')
+      }
+    } catch (err) {
+      console.error('Error updating article:', err)
+      showError('Failed to update article. Please try again.')
     }
   }
 
   const handleCreateCategory = async () => {
     if (!categoryForm.name) {
-      alert('Please fill in the category name')
+      showWarning('Please fill in the category name')
       return
     }
     
-    const success = await createCategory(categoryForm)
-    if (success) {
+    const created = await createCategory(categoryForm)
+    if (created) {
       setCategoryForm({
         name: '',
         nameAr: '',
@@ -284,9 +296,9 @@ export function BlogPage() {
         seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
-      alert('Category created successfully!')
+      success('Category created successfully!')
     } else {
-      alert('Failed to create category')
+      showError('Failed to create category')
     }
   }
 
@@ -312,12 +324,12 @@ export function BlogPage() {
     if (!editingCategory) return
     
     if (!categoryForm.name) {
-      alert('Please fill in the category name')
+      showWarning('Please fill in the category name')
       return
     }
     
-    const success = await updateCategory(editingCategory.id, categoryForm)
-    if (success) {
+    const updated = await updateCategory(editingCategory.id, categoryForm)
+    if (updated) {
       setEditingCategory(null)
       setCategoryForm({
         name: '',
@@ -333,20 +345,20 @@ export function BlogPage() {
         seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
-      alert('Category updated successfully!')
+      success('Category updated successfully!')
     } else {
-      alert('Failed to update category')
+      showError('Failed to update category')
     }
   }
 
   const handleCreateAuthor = async () => {
     if (!authorForm.name || !authorForm.email) {
-      alert('Please fill in the required fields')
+      showWarning('Please fill in the required fields')
       return
     }
     
-    const success = await createAuthor(authorForm)
-    if (success) {
+    const created = await createAuthor(authorForm)
+    if (created) {
       setAuthorForm({
         name: '',
         nameAr: '',
@@ -366,9 +378,9 @@ export function BlogPage() {
       })
       setExpertiseInput('')
       setAuthorDialogOpen(false)
-      alert('Author created successfully!')
+      success('Author created successfully!')
     } else {
-      alert('Failed to create author')
+      showError('Failed to create author')
     }
   }
 
@@ -397,12 +409,12 @@ export function BlogPage() {
     if (!editingAuthor) return
     
     if (!authorForm.name || !authorForm.email) {
-      alert('Please fill in the required fields')
+      showWarning('Please fill in the required fields')
       return
     }
     
-    const success = await updateAuthor(editingAuthor.id, authorForm)
-    if (success) {
+    const updated = await updateAuthor(editingAuthor.id, authorForm)
+    if (updated) {
       setEditingAuthor(null)
       setAuthorForm({
         name: '',
@@ -423,41 +435,59 @@ export function BlogPage() {
       })
       setExpertiseInput('')
       setAuthorDialogOpen(false)
-      alert('Author updated successfully!')
+      success('Author updated successfully!')
     } else {
-      alert('Failed to update author')
+      showError('Failed to update author')
     }
   }
 
   const handleDeleteArticle = async (id: string) => {
-    if (confirm('Are you sure you want to delete this article?')) {
-      const success = await deleteArticle(id)
-      if (success) {
-        alert('Article deleted successfully!')
+    const confirmed = await confirm('Are you sure you want to delete this article?', {
+      title: 'Delete Article',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
+      const deleted = await deleteArticle(id)
+      if (deleted) {
+        success('Article deleted successfully!')
       } else {
-        alert('Failed to delete article')
+        showError('Failed to delete article')
       }
     }
   }
 
   const handleDeleteCategory = async (id: string) => {
-    if (confirm('Are you sure you want to delete this category?')) {
-      const success = await deleteCategory(id)
-      if (success) {
-        alert('Category deleted successfully!')
+    const confirmed = await confirm('Are you sure you want to delete this category?', {
+      title: 'Delete Category',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
+      const deleted = await deleteCategory(id)
+      if (deleted) {
+        success('Category deleted successfully!')
       } else {
-        alert('Failed to delete category')
+        showError('Failed to delete category')
       }
     }
   }
 
   const handleDeleteAuthor = async (id: string) => {
-    if (confirm('Are you sure you want to delete this author?')) {
+    const confirmed = await confirm('Are you sure you want to delete this author?', {
+      title: 'Delete Author',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       const result = await deleteAuthor(id)
       if (result.success) {
-        alert('Author deleted successfully!')
+        success('Author deleted successfully!')
       } else {
-        alert(result.message || 'Failed to delete author')
+        showError(result.message || 'Failed to delete author')
       }
     }
   }
@@ -471,12 +501,14 @@ export function BlogPage() {
 
   const handleViewCategory = (category: BlogCategory) => {
     // Show category details or filter articles by category
-    alert(`Category: ${category.name}\nDescription: ${category.description}\nColor: ${category.color}\nFeatured: ${category.featured ? 'Yes' : 'No'}`)
+    const message = `Category: ${category.name}\nDescription: ${category.description}\nColor: ${category.color}\nFeatured: ${category.featured ? 'Yes' : 'No'}`
+    info(message, 7000)
   }
 
   const handleViewAuthor = (author: BlogAuthor) => {
     // Show author details
-    alert(`Author: ${author.name}\nEmail: ${author.email}\nRole: ${author.role}\nBio: ${author.bio}\nExpertise: ${author.expertise.join(', ')}`)
+    const message = `Author: ${author.name}\nEmail: ${author.email}\nRole: ${author.role}\nBio: ${author.bio}\nExpertise: ${author.expertise.join(', ')}`
+    info(message, 7000)
   }
 
   // Form helper functions

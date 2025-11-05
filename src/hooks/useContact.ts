@@ -69,11 +69,13 @@ export function useContact(): UseContactReturn {
         setIsSubmitted(true)
       } else {
         console.error('Form submission error:', response.message)
-        alert('Failed to submit form. Please try again.')
+        // Note: This hook doesn't have access to useNotification, so we'll let the parent component handle errors
+        // The parent component should handle error display
       }
     } catch (error) {
       console.error('Form submission error:', error)
-      alert('Failed to submit form. Please try again.')
+      // Note: This hook doesn't have access to useNotification, so we'll let the parent component handle errors
+      // The parent component should handle error display
     } finally {
       setIsSubmitting(false)
     }

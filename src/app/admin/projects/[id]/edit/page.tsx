@@ -39,10 +39,11 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
       //   body: JSON.stringify({ contentBlocks })
       // })
       
-      alert('Content saved successfully!')
+      // Success handled by parent component
+      console.log('Content saved successfully!')
     } catch (error) {
       console.error('Error saving content:', error)
-      alert('Error saving content')
+      // Error handled by parent component
     }
   }
 

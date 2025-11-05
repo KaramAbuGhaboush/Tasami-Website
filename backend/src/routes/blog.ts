@@ -1432,6 +1432,9 @@ router.put('/articles/:id', async (req, res) => {
       }
     });
 
+    // Invalidate blog cache after updating article
+    invalidateCache.blog();
+
     return res.json({
       success: true,
       data: { article: updatedArticle }

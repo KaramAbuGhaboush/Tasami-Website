@@ -1,5 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/components/ui/toast';
+import { AlertProvider } from '@/components/ui/alert-dialog';
 
 export default function RootLayout({
   children,
@@ -10,7 +12,11 @@ export default function RootLayout({
     <html suppressHydrationWarning>
       <body suppressHydrationWarning>
         <AuthProvider>
-          {children}
+          <ToastProvider>
+            <AlertProvider>
+              {children}
+            </AlertProvider>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

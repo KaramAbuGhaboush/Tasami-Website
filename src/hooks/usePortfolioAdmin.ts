@@ -42,11 +42,14 @@ export interface ContentBlock {
   type: 'heading' | 'paragraph' | 'image' | 'imageGrid'
   order: number
   content?: string
+  contentAr?: string
   src?: string
   alt?: string
+  altAr?: string
   width?: number
   height?: number
   caption?: string
+  captionAr?: string
   level?: number
   columns?: number
   images?: any[]
@@ -128,9 +131,21 @@ export function usePortfolioAdmin() {
       setLoading(true)
       setError(null)
       
+      // Add cache-busting and status parameter to get all projects (including planning, on-hold, etc.)
+      const timestamp = Date.now()
       const [projectsRes, categoriesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/projects`),
-        fetch(`${API_BASE_URL}/categories`)
+        fetch(`${API_BASE_URL}/projects?status=all&_t=${timestamp}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          }
+        }),
+        fetch(`${API_BASE_URL}/categories?_t=${timestamp}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          }
+        })
       ])
 
       if (!projectsRes.ok) throw new Error('Failed to fetch projects')
@@ -177,7 +192,13 @@ export function usePortfolioAdmin() {
         ...result.data.project,
         contentBlocks: result.data.project.contentBlocks || []
       }
-      setProjects(prev => [...prev, newProject])
+      
+      // Wait a bit to ensure backend has processed
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Refresh all projects to get the latest data
+      await fetchAll()
+      
       return true
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create project')

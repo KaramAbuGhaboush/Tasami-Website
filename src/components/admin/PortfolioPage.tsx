@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,9 +11,10 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { usePortfolioAdmin, Project, ProjectCategory, ContentBlock, CreateProjectData, CreateCategoryData } from '@/hooks/usePortfolioAdmin'
-import { 
-  Plus, 
-  Edit, 
+import { useNotification } from '@/hooks/useNotification'
+import {
+  Plus,
+  Edit,
   Eye,
   Search,
   Filter,
@@ -42,7 +43,9 @@ import {
 
 export function PortfolioPage() {
   const router = useRouter()
-  
+  const searchParams = useSearchParams()
+  const { success, error: showError, warning: showWarning, confirm } = useNotification()
+
   // Use the API hook
   const {
     projects,
@@ -67,13 +70,13 @@ export function PortfolioPage() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [activeTab, setActiveTab] = useState('projects')
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid')
-  
+
   // Form states
   const [projectDialogOpen, setProjectDialogOpen] = useState(false)
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [editingCategory, setEditingCategory] = useState<ProjectCategory | null>(null)
-  
+
   // Project form state
   const [projectForm, setProjectForm] = useState({
     title: '',
@@ -100,7 +103,7 @@ export function PortfolioPage() {
       positionAr: ''
     }
   })
-  
+
   // Category form state
   const [categoryForm, setCategoryForm] = useState({
     name: '',
@@ -114,12 +117,12 @@ export function PortfolioPage() {
     sortOrder: 0,
     status: 'active' as 'active' | 'inactive'
   })
-  
+
   // Form input states
   const [techInput, setTechInput] = useState('')
   const [resultInput, setResultInput] = useState({ metric: '', description: '' })
   const [imagePreview, setImagePreview] = useState('')
-  
+
   // Content blocks state
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([])
   const [newBlockType, setNewBlockType] = useState<'heading' | 'paragraph' | 'image' | 'imageGrid'>('paragraph')
@@ -132,12 +135,57 @@ export function PortfolioPage() {
   const [newBlockImageFile, setNewBlockImageFile] = useState<File | null>(null)
   const [newBlockImagePreview, setNewBlockImagePreview] = useState('')
   const [isUploadingImage, setIsUploadingImage] = useState(false)
+  // Image Grid state
+  const [gridImages, setGridImages] = useState<Array<{ id: string; src: string; alt: string; preview: string }>>([])
+  const [uploadingGridImageIndex, setUploadingGridImageIndex] = useState<number | null>(null)
 
+  // Fetch data on mount
+  useEffect(() => {
+    fetchAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Handle query parameters for quick actions
+  useEffect(() => {
+    const action = searchParams?.get('action')
+    if (action === 'create') {
+      // Reset form and open dialog
+      setEditingProject(null)
+      setProjectForm({
+        title: '',
+        titleAr: '',
+        description: '',
+        descriptionAr: '',
+        headerImage: '',
+        challenge: '',
+        challengeAr: '',
+        solution: '',
+        solutionAr: '',
+        timeline: '',
+        teamSize: '',
+        status: 'planning',
+        categoryId: '',
+        technologies: [],
+        results: [],
+        testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
+      })
+      setImagePreview('')
+      setContentBlocks([])
+      setGridImages([])
+      setNewBlockImagePreview('')
+      setNewBlockImage('')
+      setUploadingGridImageIndex(null)
+      setProjectDialogOpen(true)
+
+      // Clear the query parameter
+      router.replace('/admin/portfolio')
+    }
+  }, [searchParams, router])
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.category.name.toLowerCase().includes(searchTerm.toLowerCase())
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.category.name.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || project.status === filterStatus
     const matchesCategory = filterCategory === 'all' || project.category.id === filterCategory
     return matchesSearch && matchesStatus && matchesCategory
@@ -166,82 +214,95 @@ export function PortfolioPage() {
   // Form handlers
   const handleCreateProject = async () => {
     if (!projectForm.title || !projectForm.description || !projectForm.categoryId) {
-      alert('Please fill in all required fields')
+      showWarning('Please fill in all required fields (Title, Description, and Category)')
       return
     }
-    
-    const projectData: CreateProjectData = {
-      title: projectForm.title,
-      titleAr: projectForm.titleAr || undefined,
-      description: projectForm.description,
-      descriptionAr: projectForm.descriptionAr || undefined,
-      headerImage: projectForm.headerImage,
-      challenge: projectForm.challenge || undefined,
-      challengeAr: projectForm.challengeAr || undefined,
-      solution: projectForm.solution || undefined,
-      solutionAr: projectForm.solutionAr || undefined,
-      timeline: projectForm.timeline,
-      teamSize: projectForm.teamSize,
-      status: projectForm.status,
-      categoryId: projectForm.categoryId,
-      technologies: projectForm.technologies,
-      results: projectForm.results,
-      testimonial: projectForm.testimonial.quote ? projectForm.testimonial : undefined,
-      contentBlocks: Array.isArray(contentBlocks) ? contentBlocks.map(block => ({
-        type: block.type,
-        order: block.order,
-        content: block.content || undefined,
-        contentAr: block.contentAr || undefined,
-        level: block.level,
-        src: block.src || undefined,
-        alt: block.alt || undefined,
-        altAr: block.altAr || undefined,
-        caption: block.caption || undefined,
-        captionAr: block.captionAr || undefined,
-        columns: block.columns,
-        images: block.images
-      })) : []
-    }
-    
-    const success = await createProject(projectData)
-    if (success) {
-      // Refresh all data to get the latest content blocks
-      await fetchAll()
-      
-      // Reset form
-      setProjectForm({
-        title: '',
-        titleAr: '',
-        description: '',
-        descriptionAr: '',
-        headerImage: '',
-        challenge: '',
-        challengeAr: '',
-        solution: '',
-        solutionAr: '',
-        timeline: '',
-        teamSize: '',
-        status: 'planning',
-        categoryId: '',
-        technologies: [],
-        results: [],
-        testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
-      })
-      setImagePreview('')
-      setContentBlocks([])
-      setProjectDialogOpen(false)
+
+    try {
+      const projectData: CreateProjectData = {
+        title: projectForm.title,
+        titleAr: projectForm.titleAr || undefined,
+        description: projectForm.description,
+        descriptionAr: projectForm.descriptionAr || undefined,
+        headerImage: projectForm.headerImage,
+        challenge: projectForm.challenge || undefined,
+        challengeAr: projectForm.challengeAr || undefined,
+        solution: projectForm.solution || undefined,
+        solutionAr: projectForm.solutionAr || undefined,
+        timeline: projectForm.timeline,
+        teamSize: projectForm.teamSize,
+        status: projectForm.status,
+        categoryId: projectForm.categoryId,
+        technologies: projectForm.technologies,
+        results: projectForm.results,
+        testimonial: projectForm.testimonial.quote ? projectForm.testimonial : undefined,
+        contentBlocks: Array.isArray(contentBlocks) ? contentBlocks.map(block => ({
+          type: block.type,
+          order: block.order || 0,
+          content: block.content || undefined,
+          contentAr: block.contentAr || undefined,
+          level: block.level || undefined,
+          src: block.src || undefined,
+          alt: block.alt || undefined,
+          altAr: block.altAr || undefined,
+          caption: block.caption || undefined,
+          captionAr: block.captionAr || undefined,
+          columns: block.columns || undefined,
+          images: block.images || undefined
+        })) : []
+      }
+
+      console.log('Creating project with data:', { ...projectData, contentBlocks: projectData.contentBlocks.length })
+
+      const projectCreated = await createProject(projectData)
+      if (projectCreated) {
+        // Wait a bit to ensure backend processing
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        // Refresh all data to get the latest content blocks
+        await fetchAll()
+
+        // Reset form
+        setProjectForm({
+          title: '',
+          titleAr: '',
+          description: '',
+          descriptionAr: '',
+          headerImage: '',
+          challenge: '',
+          challengeAr: '',
+          solution: '',
+          solutionAr: '',
+          timeline: '',
+          teamSize: '',
+          status: 'planning',
+          categoryId: '',
+          technologies: [],
+          results: [],
+          testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
+        })
+        setImagePreview('')
+        setContentBlocks([])
+        setProjectDialogOpen(false)
+        success('Project created successfully!')
+      } else {
+        showError('Failed to create project. Please check the console for details.')
+      }
+    } catch (err) {
+      console.error('Error creating project:', err)
+      showError(`Failed to create project: ${err instanceof Error ? err.message : 'Unknown error'}`)
     }
   }
 
 
   const handleUpdateProject = async () => {
     if (!editingProject) return
-    
+
     if (!projectForm.title || !projectForm.description || !projectForm.categoryId) {
-      alert('Please fill in all required fields')
+      showWarning('Please fill in all required fields')
       return
     }
-    
+
     const projectData: Partial<CreateProjectData> = {
       title: projectForm.title,
       titleAr: projectForm.titleAr || undefined,
@@ -260,12 +321,12 @@ export function PortfolioPage() {
       results: projectForm.results,
       testimonial: projectForm.testimonial.quote ? projectForm.testimonial : undefined
     }
-    
+
     const success = await updateProject(editingProject.id, projectData)
     if (success) {
       // Refresh the projects data to get updated content blocks
       await fetchAll()
-      
+
       // Reset form
       setEditingProject(null)
       setProjectForm({
@@ -294,19 +355,19 @@ export function PortfolioPage() {
 
   const handleCreateCategory = async () => {
     if (!categoryForm.name) {
-      alert('Please fill in the category name')
+      showWarning('Please fill in the category name')
       return
     }
-    
+
     // Generate slug from name
     const slug = categoryForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    const categoryData: CreateCategoryData = { 
-      ...categoryForm, 
+    const categoryData: CreateCategoryData = {
+      ...categoryForm,
       slug,
       nameAr: categoryForm.nameAr || undefined,
       descriptionAr: categoryForm.descriptionAr || undefined
     }
-    
+
     const success = await createCategory(categoryData)
     if (success) {
       // Reset form
@@ -345,14 +406,14 @@ export function PortfolioPage() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory) return
-    
+
     if (!categoryForm.name) {
-      alert('Please fill in the category name')
+      showWarning('Please fill in the category name')
       return
     }
-    
+
     const categoryData: Partial<CreateCategoryData> = { ...categoryForm }
-    
+
     const success = await updateCategory(editingCategory.id, categoryData)
     if (success) {
       // Reset form
@@ -374,13 +435,25 @@ export function PortfolioPage() {
   }
 
   const handleDeleteProject = async (projectId: string) => {
-    if (confirm('Are you sure you want to delete this project?')) {
+    const confirmed = await confirm('Are you sure you want to delete this project?', {
+      title: 'Delete Project',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       await deleteProject(projectId)
     }
   }
 
   const handleDeleteCategory = async (categoryId: string) => {
-    if (confirm('Are you sure you want to delete this category?')) {
+    const confirmed = await confirm('Are you sure you want to delete this category?', {
+      title: 'Delete Category',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       await deleteCategory(categoryId)
     }
   }
@@ -453,7 +526,7 @@ export function PortfolioPage() {
     if (file) {
       setNewBlockImageFile(file)
       setIsUploadingImage(true)
-      
+
       // Show preview immediately
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -461,7 +534,7 @@ export function PortfolioPage() {
         setNewBlockImagePreview(result)
       }
       reader.readAsDataURL(file)
-      
+
       try {
         // Upload the image
         const uploadedUrl = await uploadImage(file)
@@ -470,50 +543,124 @@ export function PortfolioPage() {
           setNewBlockImagePreview(uploadedUrl)
         } else {
           // If upload fails, use base64 as fallback
-          setNewBlockImage(reader.result as string)
+          const base64Result = reader.result as string
+          setNewBlockImage(base64Result)
         }
       } catch (error) {
         console.error('Image upload failed:', error)
         // Use base64 as fallback
-        setNewBlockImage(reader.result as string)
+        const base64Result = reader.result as string
+        setNewBlockImage(base64Result)
       } finally {
         setIsUploadingImage(false)
+        // Reset file input to allow uploading the same file again
+        event.target.value = ''
       }
     }
+  }
+
+  // Image Grid upload handler
+  const handleGridImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index?: number) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const uploadIndex = index !== undefined ? index : gridImages.length
+      setUploadingGridImageIndex(uploadIndex)
+
+      // Show preview immediately
+      const reader = new FileReader()
+      reader.onload = async (e) => {
+        const preview = e.target?.result as string
+
+        try {
+          // Upload the image
+          const uploadedUrl = await uploadImage(file)
+          const imageUrl = uploadedUrl || preview
+
+          const newImage = {
+            id: `grid-img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            src: imageUrl,
+            alt: newBlockAlt || `Grid image ${uploadIndex + 1}`,
+            preview: preview
+          }
+
+          if (index !== undefined) {
+            // Replace existing image
+            setGridImages(prev => prev.map((img, i) => i === index ? newImage : img))
+          } else {
+            // Add new image
+            setGridImages(prev => [...prev, newImage])
+          }
+        } catch (error) {
+          console.error('Image upload failed:', error)
+          // Use base64 as fallback
+          const newImage = {
+            id: `grid-img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            src: preview,
+            alt: newBlockAlt || `Grid image ${uploadIndex + 1}`,
+            preview: preview
+          }
+          if (index !== undefined) {
+            setGridImages(prev => prev.map((img, i) => i === index ? newImage : img))
+          } else {
+            setGridImages(prev => [...prev, newImage])
+          }
+        } finally {
+          setUploadingGridImageIndex(null)
+          event.target.value = ''
+        }
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  // Remove image from grid
+  const handleRemoveGridImage = (imageId: string) => {
+    setGridImages(prev => prev.filter(img => img.id !== imageId))
   }
 
   // Content blocks handlers
   const handleAddContentBlock = async () => {
     if (!newBlockContent.trim() && newBlockType !== 'imageGrid' && newBlockType !== 'image') {
-      alert('Please enter content for the block')
+      showWarning('Please enter content for the block')
       return
     }
 
     if (newBlockType === 'image' && !newBlockImage.trim()) {
-      alert('Please upload an image or enter an image URL')
+      showWarning('Please upload an image or enter an image URL')
       return
     }
 
     // For new projects (not yet saved), add to local state
     if (!editingProject) {
+      // Ensure unique ID and correct order
+      const maxOrder = contentBlocks.length > 0
+        ? Math.max(...contentBlocks.map(b => b.order || 0))
+        : -1
+
       const newBlock: ContentBlock = {
-        id: `temp-${Date.now()}`,
+        id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: newBlockType,
-        order: contentBlocks.length,
-        content: newBlockContent,
+        order: maxOrder + 1,
+        content: newBlockContent.trim() || undefined,
+        contentAr: undefined, // Can be added later if needed
         level: newBlockType === 'heading' ? newBlockLevel : undefined,
-        src: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockImage : undefined,
-        alt: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockAlt : undefined,
-        caption: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockCaption : undefined,
+        src: newBlockType === 'image' ? newBlockImage.trim() || undefined : undefined,
+        alt: newBlockType === 'image' ? newBlockAlt.trim() || undefined : undefined,
+        altAr: undefined, // Can be added later if needed
+        caption: newBlockType === 'image' ? newBlockCaption.trim() || undefined : undefined,
+        captionAr: undefined, // Can be added later if needed
         columns: newBlockType === 'imageGrid' ? newBlockColumns : undefined,
-        images: newBlockType === 'imageGrid' ? [] : undefined,
+        images: newBlockType === 'imageGrid' ? gridImages.map(img => ({
+          src: img.src,
+          alt: img.alt
+        })) : undefined,
         projectId: '', // Will be set when project is created
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
 
       setContentBlocks([...contentBlocks, newBlock])
-      
+
       // Reset form
       setNewBlockContent('')
       setNewBlockImage('')
@@ -522,6 +669,8 @@ export function PortfolioPage() {
       setNewBlockImageFile(null)
       setNewBlockImagePreview('')
       setIsUploadingImage(false)
+      setGridImages([])
+      setUploadingGridImageIndex(null)
       return
     }
 
@@ -552,13 +701,19 @@ export function PortfolioPage() {
   }
 
   const handleRemoveContentBlock = async (blockId: string) => {
-    if (confirm('Are you sure you want to delete this content block?')) {
+    const confirmed = await confirm('Are you sure you want to delete this content block?', {
+      title: 'Delete Content Block',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       // For new projects (not yet saved), remove from local state
       if (!editingProject) {
         setContentBlocks(contentBlocks.filter(block => block.id !== blockId))
         return
       }
-      
+
       // For existing projects, delete via API
       await deleteContentBlock(editingProject.id, blockId)
     }
@@ -567,12 +722,12 @@ export function PortfolioPage() {
   const handleUpdateContentBlock = async (blockId: string, field: keyof ContentBlock, value: any) => {
     // For new projects (not yet saved), update local state
     if (!editingProject) {
-      setContentBlocks(contentBlocks.map(block => 
+      setContentBlocks(contentBlocks.map(block =>
         block.id === blockId ? { ...block, [field]: value } : block
       ))
       return
     }
-    
+
     // For existing projects, update via API
     await updateContentBlock(editingProject.id, blockId, { [field]: value })
   }
@@ -581,22 +736,22 @@ export function PortfolioPage() {
     const newBlocks = [...contentBlocks]
     const [movedBlock] = newBlocks.splice(fromIndex, 1)
     newBlocks.splice(toIndex, 0, movedBlock)
-    
+
     // Update order numbers
     const reorderedBlocks = newBlocks.map((block, index) => ({
       ...block,
       order: index
     }))
-    
+
     setContentBlocks(reorderedBlocks)
-    
+
     // For existing projects, update via API
     if (editingProject) {
       const blocksToUpdate = reorderedBlocks.map(block => ({
         id: block.id,
         order: block.order
       }))
-      
+
       await reorderContentBlocks(editingProject.id, blocksToUpdate)
     }
   }
@@ -617,14 +772,14 @@ export function PortfolioPage() {
       teamSize: project.teamSize || '',
       status: project.status,
       categoryId: project.category.id,
-      technologies: project.technologies.map(t => ({ 
-        name: t.name, 
+      technologies: project.technologies.map(t => ({
+        name: t.name,
         nameAr: (t as any).nameAr || '',
         description: t.description,
         descriptionAr: (t as any).descriptionAr || ''
       })),
-      results: project.results.map(r => ({ 
-        metric: r.metric, 
+      results: project.results.map(r => ({
+        metric: r.metric,
         metricAr: (r as any).metricAr || '',
         description: r.description,
         descriptionAr: (r as any).descriptionAr || ''
@@ -793,8 +948,8 @@ export function PortfolioPage() {
                 </Button>
               </div>
               <Dialog open={projectDialogOpen} onOpenChange={setProjectDialogOpen}>
-          <DialogTrigger asChild>
-                  <Button 
+                <DialogTrigger asChild>
+                  <Button
                     className="bg-[#6812F7] hover:bg-[#5a0fd4]"
                     onClick={() => {
                       setEditingProject(null)
@@ -818,13 +973,17 @@ export function PortfolioPage() {
                       })
                       setImagePreview('')
                       setContentBlocks([])
+                      setGridImages([])
+                      setNewBlockImagePreview('')
+                      setNewBlockImage('')
+                      setUploadingGridImageIndex(null)
                       setProjectDialogOpen(true)
                     }}
                   >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Project
-            </Button>
-          </DialogTrigger>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Project
+                  </Button>
+                </DialogTrigger>
                 <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col w-[95vw] 2xl:max-w-[1400px]">
                   <DialogHeader className="flex-shrink-0 pb-4 border-b border-gray-200">
                     <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -842,8 +1001,8 @@ export function PortfolioPage() {
                     </DialogTitle>
                     <DialogDescription className="text-gray-600 mt-2">
                       {editingProject ? 'Update the project details and settings' : 'Create a new project for your portfolio with comprehensive details'}
-              </DialogDescription>
-            </DialogHeader>
+                    </DialogDescription>
+                  </DialogHeader>
                   <div className="flex-1 overflow-y-auto px-1">
                     <div className="space-y-8 py-6">
                       {/* Basic Information */}
@@ -854,36 +1013,36 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Title (English) *</label>
-                            <Input 
-                              placeholder="Enter project title..." 
+                            <Input
+                              placeholder="Enter project title..."
                               value={projectForm.title}
-                              onChange={(e) => setProjectForm({...projectForm, title: e.target.value})}
+                              onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Title (Arabic)</label>
-                            <Input 
-                              placeholder="أدخل عنوان المشروع..." 
+                            <Input
+                              placeholder="أدخل عنوان المشروع..."
                               value={projectForm.titleAr}
-                              onChange={(e) => setProjectForm({...projectForm, titleAr: e.target.value})}
+                              onChange={(e) => setProjectForm({ ...projectForm, titleAr: e.target.value })}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                               dir="rtl"
                             />
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                            <select 
+                            <select
                               className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                               value={projectForm.categoryId}
-                              onChange={(e) => setProjectForm({...projectForm, categoryId: e.target.value})}
+                              onChange={(e) => setProjectForm({ ...projectForm, categoryId: e.target.value })}
                             >
                               <option value="">Select a category</option>
                               {categories.map(category => (
@@ -892,53 +1051,53 @@ export function PortfolioPage() {
                             </select>
                           </div>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Description (English) *</label>
-                          <Textarea 
-                            placeholder="Enter project description..." 
+                          <Textarea
+                            placeholder="Enter project description..."
                             rows={4}
                             value={projectForm.description}
-                            onChange={(e) => setProjectForm({...projectForm, description: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Description (Arabic)</label>
-                          <Textarea 
-                            placeholder="أدخل وصف المشروع..." 
+                          <Textarea
+                            placeholder="أدخل وصف المشروع..."
                             rows={4}
                             value={projectForm.descriptionAr}
-                            onChange={(e) => setProjectForm({...projectForm, descriptionAr: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, descriptionAr: e.target.value })}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             dir="rtl"
                           />
                         </div>
-                        
+
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
-                            <Input 
-                              placeholder="e.g., 6 months" 
+                            <Input
+                              placeholder="e.g., 6 months"
                               value={projectForm.timeline}
-                              onChange={(e) => setProjectForm({...projectForm, timeline: e.target.value})}
+                              onChange={(e) => setProjectForm({ ...projectForm, timeline: e.target.value })}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Team Size</label>
-                            <Input 
-                              placeholder="e.g., 8 developers" 
+                            <Input
+                              placeholder="e.g., 8 developers"
                               value={projectForm.teamSize}
-                              onChange={(e) => setProjectForm({...projectForm, teamSize: e.target.value})}
+                              onChange={(e) => setProjectForm({ ...projectForm, teamSize: e.target.value })}
                             />
                           </div>
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select 
+                            <select
                               className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                               value={projectForm.status}
-                              onChange={(e) => setProjectForm({...projectForm, status: e.target.value as any})}
+                              onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as any })}
                             >
                               <option value="planning">Planning</option>
                               <option value="active">Active</option>
@@ -957,45 +1116,45 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Project Details</h3>
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Challenge (English)</label>
-                          <Textarea 
-                            placeholder="What problem did this project solve?" 
+                          <Textarea
+                            placeholder="What problem did this project solve?"
                             rows={3}
                             value={projectForm.challenge}
-                            onChange={(e) => setProjectForm({...projectForm, challenge: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, challenge: e.target.value })}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Challenge (Arabic)</label>
-                          <Textarea 
-                            placeholder="ما هي المشكلة التي حل هذا المشروع؟" 
+                          <Textarea
+                            placeholder="ما هي المشكلة التي حل هذا المشروع؟"
                             rows={3}
                             value={projectForm.challengeAr}
-                            onChange={(e) => setProjectForm({...projectForm, challengeAr: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, challengeAr: e.target.value })}
                             dir="rtl"
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Solution (English)</label>
-                          <Textarea 
-                            placeholder="How did you solve the problem?" 
+                          <Textarea
+                            placeholder="How did you solve the problem?"
                             rows={3}
                             value={projectForm.solution}
-                            onChange={(e) => setProjectForm({...projectForm, solution: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, solution: e.target.value })}
                           />
                         </div>
-                        
+
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">Solution (Arabic)</label>
-                          <Textarea 
-                            placeholder="كيف قمت بحل المشكلة؟" 
+                          <Textarea
+                            placeholder="كيف قمت بحل المشكلة؟"
                             rows={3}
                             value={projectForm.solutionAr}
-                            onChange={(e) => setProjectForm({...projectForm, solutionAr: e.target.value})}
+                            onChange={(e) => setProjectForm({ ...projectForm, solutionAr: e.target.value })}
                             dir="rtl"
                           />
                         </div>
@@ -1009,10 +1168,10 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Project Image</h3>
                         </div>
-                        
+
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-            <div className="space-y-4">
+                            <div className="space-y-4">
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
                                 <div className="relative group">
@@ -1035,11 +1194,11 @@ export function PortfolioPage() {
                               </div>
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                                <Input 
-                                  placeholder="Or enter image URL (https://...)" 
+                                <Input
+                                  placeholder="Or enter image URL (https://...)"
                                   value={projectForm.headerImage}
                                   onChange={(e) => {
-                                    setProjectForm({...projectForm, headerImage: e.target.value})
+                                    setProjectForm({ ...projectForm, headerImage: e.target.value })
                                     setImagePreview(e.target.value)
                                   }}
                                   className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
@@ -1050,9 +1209,9 @@ export function PortfolioPage() {
                               <div className="space-y-2">
                                 <label className="block text-sm font-medium text-gray-700">Preview</label>
                                 <div className="relative aspect-video">
-                                  <img 
-                                    src={imagePreview} 
-                                    alt="Preview" 
+                                  <img
+                                    src={imagePreview}
+                                    alt="Preview"
                                     className="w-full h-full object-cover rounded-lg border-2 border-gray-200 shadow-sm"
                                   />
                                   <div className="absolute top-2 right-2">
@@ -1062,7 +1221,7 @@ export function PortfolioPage() {
                                       className="bg-white/90 hover:bg-white shadow-md"
                                       onClick={() => {
                                         setImagePreview('')
-                                        setProjectForm({...projectForm, headerImage: ''})
+                                        setProjectForm({ ...projectForm, headerImage: '' })
                                       }}
                                     >
                                       <Trash2 className="w-4 h-4 mr-1" />
@@ -1084,19 +1243,19 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Technologies Used</h3>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div className="flex space-x-2">
-                            <Input 
-                              placeholder="Add technology (e.g., React, Node.js)" 
+                            <Input
+                              placeholder="Add technology (e.g., React, Node.js)"
                               value={techInput}
                               onChange={(e) => setTechInput(e.target.value)}
                               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTechnology())}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
-                            <Button 
-                              type="button" 
-                              onClick={handleAddTechnology} 
+                            <Button
+                              type="button"
+                              onClick={handleAddTechnology}
                               variant="outline"
                               className="border-[#6812F7] text-[#6812F7] hover:bg-[#6812F7] hover:text-white transition-colors"
                             >
@@ -1104,26 +1263,26 @@ export function PortfolioPage() {
                               Add
                             </Button>
                           </div>
-                          
+
                           {projectForm.technologies.length > 0 && (
                             <div className="space-y-3">
                               {projectForm.technologies.map((tech, index) => (
                                 <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
                                   <div className="flex-1 grid grid-cols-2 gap-2">
-                                    <Input 
-                                      placeholder="Technology name" 
+                                    <Input
+                                      placeholder="Technology name"
                                       value={tech.name}
                                       onChange={(e) => handleUpdateTechnology(index, 'name', e.target.value)}
                                     />
-                                    <Input 
-                                      placeholder="Description" 
+                                    <Input
+                                      placeholder="Description"
                                       value={tech.description}
                                       onChange={(e) => handleUpdateTechnology(index, 'description', e.target.value)}
                                     />
                                   </div>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="text-red-600 hover:text-red-700"
                                     onClick={() => handleRemoveTechnology(index)}
                                   >
@@ -1144,24 +1303,24 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Project Results</h3>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <Input 
-                              placeholder="Metric (e.g., 40%)" 
+                            <Input
+                              placeholder="Metric (e.g., 40%)"
                               value={resultInput.metric}
-                              onChange={(e) => setResultInput({...resultInput, metric: e.target.value})}
+                              onChange={(e) => setResultInput({ ...resultInput, metric: e.target.value })}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
-                            <Input 
-                              placeholder="Description (e.g., Increase in conversion rate)" 
+                            <Input
+                              placeholder="Description (e.g., Increase in conversion rate)"
                               value={resultInput.description}
-                              onChange={(e) => setResultInput({...resultInput, description: e.target.value})}
+                              onChange={(e) => setResultInput({ ...resultInput, description: e.target.value })}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
-                            <Button 
-                              type="button" 
-                              onClick={handleAddResult} 
+                            <Button
+                              type="button"
+                              onClick={handleAddResult}
                               variant="outline"
                               className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors"
                             >
@@ -1169,26 +1328,26 @@ export function PortfolioPage() {
                               Add Result
                             </Button>
                           </div>
-                          
+
                           {projectForm.results.length > 0 && (
                             <div className="space-y-3">
                               {projectForm.results.map((result, index) => (
                                 <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
                                   <div className="flex-1 grid grid-cols-2 gap-2">
-                                    <Input 
-                                      placeholder="Metric" 
+                                    <Input
+                                      placeholder="Metric"
                                       value={result.metric}
                                       onChange={(e) => handleUpdateResult(index, 'metric', e.target.value)}
                                     />
-                                    <Input 
-                                      placeholder="Description" 
+                                    <Input
+                                      placeholder="Description"
                                       value={result.description}
                                       onChange={(e) => handleUpdateResult(index, 'description', e.target.value)}
                                     />
                                   </div>
-                                  <Button 
-                                    size="sm" 
-                                    variant="outline" 
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
                                     className="text-red-600 hover:text-red-700"
                                     onClick={() => handleRemoveResult(index)}
                                   >
@@ -1209,40 +1368,40 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Client Testimonial</h3>
                         </div>
-                        
+
                         <div className="space-y-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Quote</label>
-                            <Textarea 
-                              placeholder="Client testimonial quote..." 
+                            <Textarea
+                              placeholder="Client testimonial quote..."
                               rows={3}
                               value={projectForm.testimonial.quote}
                               onChange={(e) => setProjectForm({
-                                ...projectForm, 
-                                testimonial: {...projectForm.testimonial, quote: e.target.value}
+                                ...projectForm,
+                                testimonial: { ...projectForm.testimonial, quote: e.target.value }
                               })}
                             />
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
-                              <Input 
-                                placeholder="Client name" 
+                              <Input
+                                placeholder="Client name"
                                 value={projectForm.testimonial.author}
                                 onChange={(e) => setProjectForm({
-                                  ...projectForm, 
-                                  testimonial: {...projectForm.testimonial, author: e.target.value}
+                                  ...projectForm,
+                                  testimonial: { ...projectForm.testimonial, author: e.target.value }
                                 })}
                               />
                             </div>
                             <div>
                               <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
-                              <Input 
-                                placeholder="Client position/company" 
+                              <Input
+                                placeholder="Client position/company"
                                 value={projectForm.testimonial.position}
                                 onChange={(e) => setProjectForm({
-                                  ...projectForm, 
-                                  testimonial: {...projectForm.testimonial, position: e.target.value}
+                                  ...projectForm,
+                                  testimonial: { ...projectForm.testimonial, position: e.target.value }
                                 })}
                               />
                             </div>
@@ -1258,16 +1417,34 @@ export function PortfolioPage() {
                           </div>
                           <h3 className="text-lg font-semibold text-gray-900">Content Blocks</h3>
                         </div>
-                        
+
                         {/* Add New Block */}
                         <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center gap-4">
                             <div className="flex-1">
                               <label className="block text-sm font-medium text-gray-700 mb-2">Block Type</label>
-                              <select 
+                              <select
                                 className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                                 value={newBlockType}
-                                onChange={(e) => setNewBlockType(e.target.value as any)}
+                                onChange={(e) => {
+                                  const newType = e.target.value as any
+                                  setNewBlockType(newType)
+                                  // Reset relevant state when switching types
+                                  if (newType !== 'image') {
+                                    setNewBlockImage('')
+                                    setNewBlockImagePreview('')
+                                    setNewBlockImageFile(null)
+                                    setIsUploadingImage(false)
+                                  }
+                                  if (newType !== 'imageGrid') {
+                                    setGridImages([])
+                                    setUploadingGridImageIndex(null)
+                                  }
+                                  if (newType !== 'image' && newType !== 'imageGrid') {
+                                    setNewBlockAlt('')
+                                    setNewBlockCaption('')
+                                  }
+                                }}
                               >
                                 <option value="paragraph">Paragraph</option>
                                 <option value="heading">Heading</option>
@@ -1279,7 +1456,7 @@ export function PortfolioPage() {
                               <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
                               {newBlockType === 'heading' ? (
                                 <div className="flex space-x-2">
-                                  <select 
+                                  <select
                                     className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                                     value={newBlockLevel}
                                     onChange={(e) => setNewBlockLevel(parseInt(e.target.value))}
@@ -1288,8 +1465,8 @@ export function PortfolioPage() {
                                     <option value={3}>H3</option>
                                     <option value={4}>H4</option>
                                   </select>
-                                  <Input 
-                                    placeholder="Heading text..." 
+                                  <Input
+                                    placeholder="Heading text..."
                                     value={newBlockContent}
                                     onChange={(e) => setNewBlockContent(e.target.value)}
                                     className="flex-1"
@@ -1310,17 +1487,15 @@ export function PortfolioPage() {
                                             disabled={isUploadingImage}
                                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
                                           />
-                                          <div className={`w-full px-4 py-3 border-2 border-dashed rounded-lg transition-all duration-200 group-hover:shadow-sm ${
-                                            isUploadingImage 
-                                              ? 'border-blue-300 bg-blue-50/50 cursor-not-allowed' 
-                                              : 'border-gray-300 focus-within:border-[#6812F7] hover:border-[#6812F7] hover:bg-blue-50/30'
-                                          }`}>
+                                          <div className={`w-full px-4 py-3 border-2 border-dashed rounded-lg transition-all duration-200 group-hover:shadow-sm ${isUploadingImage
+                                            ? 'border-blue-300 bg-blue-50/50 cursor-not-allowed'
+                                            : 'border-gray-300 focus-within:border-[#6812F7] hover:border-[#6812F7] hover:bg-blue-50/30'
+                                            }`}>
                                             <div className="text-center">
-                                              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-2 transition-colors ${
-                                                isUploadingImage
-                                                  ? 'bg-blue-200 animate-pulse'
-                                                  : 'bg-gradient-to-br from-blue-100 to-indigo-100 group-hover:from-blue-200 group-hover:to-indigo-200'
-                                              }`}>
+                                              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-2 transition-colors ${isUploadingImage
+                                                ? 'bg-blue-200 animate-pulse'
+                                                : 'bg-gradient-to-br from-blue-100 to-indigo-100 group-hover:from-blue-200 group-hover:to-indigo-200'
+                                                }`}>
                                                 {isUploadingImage ? (
                                                   <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
                                                 ) : (
@@ -1362,7 +1537,7 @@ export function PortfolioPage() {
                                         </div>
                                       )}
                                     </div>
-                                    
+
                                     {/* OR Divider */}
                                     <div className="relative">
                                       <div className="absolute inset-0 flex items-center">
@@ -1372,12 +1547,12 @@ export function PortfolioPage() {
                                         <span className="px-2 bg-white text-gray-500">OR</span>
                                       </div>
                                     </div>
-                                    
+
                                     {/* URL Input */}
                                     <div>
                                       <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                                      <Input 
-                                        placeholder="Enter image URL (https://...)" 
+                                      <Input
+                                        placeholder="Enter image URL (https://...)"
                                         value={newBlockImage}
                                         onChange={(e) => {
                                           setNewBlockImage(e.target.value)
@@ -1389,49 +1564,145 @@ export function PortfolioPage() {
                                       />
                                     </div>
                                   </div>
-                                  
+
                                   {/* Image Details */}
                                   <div className="grid grid-cols-2 gap-2">
-                                    <Input 
-                                      placeholder="Alt text..." 
+                                    <Input
+                                      placeholder="Alt text..."
                                       value={newBlockAlt}
                                       onChange={(e) => setNewBlockAlt(e.target.value)}
                                     />
-                                    <Input 
-                                      placeholder="Caption..." 
+                                    <Input
+                                      placeholder="Caption..."
                                       value={newBlockCaption}
                                       onChange={(e) => setNewBlockCaption(e.target.value)}
                                     />
                                   </div>
                                 </div>
                               ) : newBlockType === 'imageGrid' ? (
-                                <div className="space-y-2">
-                                  <div className="flex space-x-2">
-                                    <Input 
-                                      placeholder="Number of columns..." 
-                                      type="number"
-                                      min="2"
-                                      max="4"
+                                <div className="space-y-4">
+                                  {/* Columns Selection */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Grid Columns</label>
+                                    <select
+                                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                                       value={newBlockColumns}
-                                      onChange={(e) => setNewBlockColumns(parseInt(e.target.value) || 2)}
-                                      className="w-32"
-                                    />
-                                    <Input 
-                                      placeholder="Image URL..." 
-                                      value={newBlockImage}
-                                      onChange={(e) => setNewBlockImage(e.target.value)}
-                                      className="flex-1"
+                                      onChange={(e) => {
+                                        const cols = parseInt(e.target.value)
+                                        if (cols === 2 || cols === 4) {
+                                          setNewBlockColumns(cols)
+                                        }
+                                      }}
+                                    >
+                                      <option value={2}>2 Columns</option>
+                                      <option value={4}>4 Columns</option>
+                                    </select>
+                                  </div>
+
+                                  {/* Default Alt Text */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Default Alt Text (for all images)</label>
+                                    <Input
+                                      placeholder="Enter alt text for images..."
+                                      value={newBlockAlt}
+                                      onChange={(e) => setNewBlockAlt(e.target.value)}
+                                      className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                                     />
                                   </div>
-                                  <Input 
-                                    placeholder="Alt text..." 
-                                    value={newBlockAlt}
-                                    onChange={(e) => setNewBlockAlt(e.target.value)}
-                                  />
+
+                                  {/* Image Grid Preview */}
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Images ({gridImages.length})
+                                    </label>
+                                    <div className={`grid gap-4 ${newBlockColumns === 2 ? 'grid-cols-2' : 'grid-cols-4'}`}>
+                                      {/* Existing images */}
+                                      {gridImages.map((img, index) => (
+                                        <div key={img.id} className="relative group">
+                                          <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
+                                            <img
+                                              src={img.preview || img.src}
+                                              alt={img.alt}
+                                              className="w-full h-full object-cover"
+                                            />
+                                            {uploadingGridImageIndex === index && (
+                                              <div className="absolute inset-0 bg-blue-500/50 flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                              </div>
+                                            )}
+                                            <button
+                                              type="button"
+                                              className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                                              onClick={() => handleRemoveGridImage(img.id)}
+                                            >
+                                              ×
+                                            </button>
+                                          </div>
+                                          <div className="mt-1">
+                                            <label className="block text-xs text-gray-600 mb-1">Alt text</label>
+                                            <Input
+                                              value={img.alt}
+                                              onChange={(e) => {
+                                                setGridImages(prev => prev.map(prevImg =>
+                                                  prevImg.id === img.id ? { ...prevImg, alt: e.target.value } : prevImg
+                                                ))
+                                              }}
+                                              className="text-xs py-1"
+                                              placeholder="Alt text"
+                                            />
+                                          </div>
+                                          <div className="mt-1">
+                                            <input
+                                              type="file"
+                                              accept="image/*"
+                                              onChange={(e) => handleGridImageUpload(e, index)}
+                                              className="hidden"
+                                              id={`grid-upload-${index}`}
+                                            />
+                                            <label
+                                              htmlFor={`grid-upload-${index}`}
+                                              className="block w-full text-center text-xs py-1 px-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 cursor-pointer transition-colors"
+                                            >
+                                              Replace
+                                            </label>
+                                          </div>
+                                        </div>
+                                      ))}
+
+                                      {/* Add new image button */}
+                                      {gridImages.length < (newBlockColumns === 2 ? 8 : 16) && (
+                                        <div className="relative aspect-square">
+                                          <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleGridImageUpload(e)}
+                                            className="hidden"
+                                            id="grid-add-image"
+                                          />
+                                          <label
+                                            htmlFor="grid-add-image"
+                                            className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg hover:border-[#6812F7] hover:bg-blue-50/30 cursor-pointer transition-all"
+                                          >
+                                            {uploadingGridImageIndex === gridImages.length ? (
+                                              <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
+                                            ) : (
+                                              <>
+                                                <Plus className="w-6 h-6 text-gray-400 mb-1" />
+                                                <span className="text-xs text-gray-500">Add Image</span>
+                                              </>
+                                            )}
+                                          </label>
+                                        </div>
+                                      )}
+                                    </div>
+                                    {gridImages.length === 0 && (
+                                      <p className="text-sm text-gray-500 mt-2">Click &quot;Add Image&quot; to upload images to the grid</p>
+                                    )}
+                                  </div>
                                 </div>
                               ) : (
-                                <Textarea 
-                                  placeholder="Paragraph content..." 
+                                <Textarea
+                                  placeholder="Paragraph content..."
                                   rows={3}
                                   value={newBlockContent}
                                   onChange={(e) => setNewBlockContent(e.target.value)}
@@ -1439,7 +1710,7 @@ export function PortfolioPage() {
                               )}
                             </div>
                             <div className="flex-shrink-0">
-                              <Button 
+                              <Button
                                 onClick={handleAddContentBlock}
                                 className="bg-[#6812F7] hover:bg-[#5a0fd4]"
                               >
@@ -1463,72 +1734,74 @@ export function PortfolioPage() {
                               {contentBlocks
                                 .sort((a, b) => a.order - b.order)
                                 .map((block, index) => (
-                                <div key={block.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border">
-                                  <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                      {block.type === 'heading' && <FileText className="w-4 h-4 text-blue-600" />}
-                                      {block.type === 'paragraph' && <FileText className="w-4 h-4 text-blue-600" />}
-                                      {block.type === 'image' && <Image className="w-4 h-4 text-blue-600" />}
-                                      {block.type === 'imageGrid' && <Image className="w-4 h-4 text-blue-600" />}
+                                  <div key={block.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg border">
+                                    <div className="flex-shrink-0">
+                                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        {block.type === 'heading' && <FileText className="w-4 h-4 text-blue-600" />}
+                                        {block.type === 'paragraph' && <FileText className="w-4 h-4 text-blue-600" />}
+                                        {block.type === 'image' && <Image className="w-4 h-4 text-blue-600" />}
+                                        {block.type === 'imageGrid' && <Image className="w-4 h-4 text-blue-600" />}
+                                      </div>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center space-x-2">
+                                        <span className="text-sm font-medium text-gray-900">
+                                          {block.type === 'heading' ? `H${block.level}` : block.type}
+                                        </span>
+                                        <Badge variant="outline" className="text-xs">
+                                          Order: {block.order}
+                                        </Badge>
+                                      </div>
+                                      <p className="text-sm text-gray-600 truncate">
+                                        {block.type === 'image'
+                                          ? `Image: ${block.src || 'No URL'}`
+                                          : block.type === 'imageGrid'
+                                            ? `Grid (${block.columns || 2} cols): ${Array.isArray(block.images) ? block.images.length : 0} images`
+                                            : block.content || 'No content'
+                                        }
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center space-x-1">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                          const newOrder = Math.max(0, index - 1)
+                                          handleReorderContentBlocks(index, newOrder)
+                                        }}
+                                        disabled={index === 0}
+                                      >
+                                        ↑
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => {
+                                          const newOrder = Math.min(contentBlocks.length - 1, index + 1)
+                                          handleReorderContentBlocks(index, newOrder)
+                                        }}
+                                        disabled={index === contentBlocks.length - 1}
+                                      >
+                                        ↓
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-red-600 hover:text-red-700"
+                                        onClick={() => handleRemoveContentBlock(block.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
                                     </div>
                                   </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center space-x-2">
-                                      <span className="text-sm font-medium text-gray-900">
-                                        {block.type === 'heading' ? `H${block.level}` : block.type}
-                                      </span>
-                                      <Badge variant="outline" className="text-xs">
-                                        Order: {block.order}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-sm text-gray-600 truncate">
-                                      {block.type === 'image' || block.type === 'imageGrid' 
-                                        ? `Image: ${block.src || 'No URL'}` 
-                                        : block.content || 'No content'
-                                      }
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center space-x-1">
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => {
-                                        const newOrder = Math.max(0, index - 1)
-                                        handleReorderContentBlocks(index, newOrder)
-                                      }}
-                                      disabled={index === 0}
-                                    >
-                                      ↑
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => {
-                                        const newOrder = Math.min(contentBlocks.length - 1, index + 1)
-                                        handleReorderContentBlocks(index, newOrder)
-                                      }}
-                                      disabled={index === contentBlocks.length - 1}
-                                    >
-                                      ↓
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline" 
-                                      className="text-red-600 hover:text-red-700"
-                                      onClick={() => handleRemoveContentBlock(block.id)}
-                                    >
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </div>
-                                </div>
-                              ))}
+                                ))}
                             </div>
                           ) : (
                             <div className="text-center py-8 text-gray-500">
                               <FileText className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                               <p className="text-sm">No content blocks yet</p>
                               <p className="text-xs text-gray-400 mt-1">
-                                {!editingProject 
+                                {!editingProject
                                   ? 'Add content blocks above before creating the project'
                                   : 'Add content blocks above to enhance your project'
                                 }
@@ -1541,8 +1814,8 @@ export function PortfolioPage() {
                   </div>
                   <div className="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-6 py-4">
                     <div className="flex justify-end space-x-3">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => {
                           setEditingProject(null)
                           setProjectForm({
@@ -1568,7 +1841,7 @@ export function PortfolioPage() {
                         Cancel
                       </Button>
                       {editingProject ? (
-                        <Button 
+                        <Button
                           className="bg-[#6812F7] hover:bg-[#5a0fd4] px-6 py-2 text-white font-medium transition-all duration-200 hover:shadow-lg"
                           onClick={handleUpdateProject}
                         >
@@ -1576,7 +1849,7 @@ export function PortfolioPage() {
                           Update Project
                         </Button>
                       ) : (
-                        <Button 
+                        <Button
                           className="bg-[#6812F7] hover:bg-[#5a0fd4] px-6 py-2 text-white font-medium transition-all duration-200 hover:shadow-lg"
                           onClick={handleCreateProject}
                         >
@@ -1585,35 +1858,35 @@ export function PortfolioPage() {
                         </Button>
                       )}
                     </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
-          </DialogContent>
-        </Dialog>
-            </div>
-      </div>
+          </div>
 
-      {/* Search and Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
+          {/* Search and Filter */}
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search projects..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+                <Input
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
-          />
+                />
               </div>
-        </div>
-        <div className="flex space-x-2">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="planning">Planning</option>
+            </div>
+            <div className="flex space-x-2">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="planning">Planning</option>
                 <option value="on-hold">On Hold</option>
               </select>
               <select
@@ -1625,20 +1898,20 @@ export function PortfolioPage() {
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
-          </select>
-        </div>
-      </div>
+              </select>
+            </div>
+          </div>
 
           {/* Projects Display */}
           {viewMode === 'grid' ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProjects.map((project) => (
-          <Card key={project.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-            <CardContent className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProjects.map((project) => (
+                <Card key={project.id} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  <CardContent className="p-6">
                     <div className="w-full h-32 bg-gradient-to-br from-[#6812F7]/20 to-[#9253F0]/20 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
                       {project.headerImage ? (
-                        <img 
-                          src={project.headerImage} 
+                        <img
+                          src={project.headerImage}
                           alt={project.title}
                           className="w-full h-full object-cover"
                         />
@@ -1651,50 +1924,50 @@ export function PortfolioPage() {
                           {project.status}
                         </Badge>
                       </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-start justify-between">
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between">
                         <h3 className="font-semibold text-gray-900 text-lg line-clamp-2">{project.title}</h3>
-                </div>
-                
+                      </div>
+
                       <p className="text-sm text-gray-600 line-clamp-3">{project.description}</p>
-                
-                <div className="flex items-center justify-between">
-                        <Badge 
-                          variant="outline" 
+
+                      <div className="flex items-center justify-between">
+                        <Badge
+                          variant="outline"
                           style={{ borderColor: project.category.color, color: project.category.color }}
                           className="flex items-center gap-1"
                         >
                           <span>{project.category.icon}</span>
                           {project.category.name}
                         </Badge>
-                  <div className="flex space-x-1">
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="h-8 w-8 p-0"
-                      onClick={() => handlePreviewProject(project.id)}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                          <Button 
-                            size="sm" 
+                        <div className="flex space-x-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            onClick={() => handlePreviewProject(project.id)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
                             className="h-8 w-8 p-0 bg-[#6812F7] hover:bg-[#5a0fd4]"
                             onClick={() => handleEditProject(project)}
                           >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                             onClick={() => handleDeleteProject(project.id)}
                           >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
 
                       {/* Project Details */}
                       <div className="space-y-2 pt-2 border-t border-gray-100">
@@ -1717,13 +1990,13 @@ export function PortfolioPage() {
                             <Target className="w-3 h-3" />
                             {project.results.length} results
                           </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : (
             <Card>
               <CardContent className="p-0">
@@ -1752,8 +2025,8 @@ export function PortfolioPage() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge 
-                              variant="outline" 
+                            <Badge
+                              variant="outline"
                               style={{ borderColor: project.category.color, color: project.category.color }}
                               className="flex items-center gap-1 w-fit"
                             >
@@ -1799,23 +2072,23 @@ export function PortfolioPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end space-x-2">
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 variant="outline"
                                 onClick={() => handlePreviewProject(project.id)}
                               >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
+                              <Button
+                                size="sm"
                                 className="bg-[#6812F7] hover:bg-[#5a0fd4]"
                                 onClick={() => handleEditProject(project)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
+                              <Button
+                                size="sm"
+                                variant="outline"
                                 className="text-red-600 hover:text-red-700"
                                 onClick={() => handleDeleteProject(project.id)}
                               >
@@ -1832,25 +2105,25 @@ export function PortfolioPage() {
             </Card>
           )}
 
-      {/* Empty State */}
-      {filteredProjects.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📁</div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects found</h3>
-          <p className="text-gray-600 mb-4">
+          {/* Empty State */}
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📁</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No projects found</h3>
+              <p className="text-gray-600 mb-4">
                 {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
-              ? 'Try adjusting your search or filter criteria'
-              : 'Get started by creating your first project'
-            }
-          </p>
+                  ? 'Try adjusting your search or filter criteria'
+                  : 'Get started by creating your first project'
+                }
+              </p>
               {!searchTerm && filterStatus === 'all' && filterCategory === 'all' && (
-            <Button className="bg-[#6812F7] hover:bg-[#5a0fd4]">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Project
-            </Button>
+                <Button className="bg-[#6812F7] hover:bg-[#5a0fd4]">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Project
+                </Button>
+              )}
+            </div>
           )}
-        </div>
-      )}
         </TabsContent>
 
         {/* Categories Tab */}
@@ -1862,7 +2135,7 @@ export function PortfolioPage() {
             </div>
             <Dialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="bg-[#6812F7] hover:bg-[#5a0fd4]"
                   onClick={() => {
                     setEditingCategory(null)
@@ -1910,73 +2183,73 @@ export function PortfolioPage() {
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900">Category Information</h3>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
-                        <Input 
-                          placeholder="Category name" 
+                        <Input
+                          placeholder="Category name"
                           value={categoryForm.name}
-                          onChange={(e) => setCategoryForm({...categoryForm, name: e.target.value})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Name (Arabic)</label>
-                        <Input 
-                          placeholder="اسم الفئة" 
+                        <Input
+                          placeholder="اسم الفئة"
                           value={categoryForm.nameAr}
-                          onChange={(e) => setCategoryForm({...categoryForm, nameAr: e.target.value})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, nameAr: e.target.value })}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                           dir="rtl"
                         />
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
-                        <Input 
-                          placeholder="📁" 
+                        <Input
+                          placeholder="📁"
                           value={categoryForm.icon}
-                          onChange={(e) => setCategoryForm({...categoryForm, icon: e.target.value})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                         />
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
-                      <Textarea 
-                        placeholder="Category description" 
+                      <Textarea
+                        placeholder="Category description"
                         rows={3}
                         value={categoryForm.description}
-                        onChange={(e) => setCategoryForm({...categoryForm, description: e.target.value})}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Description (Arabic)</label>
-                      <Textarea 
-                        placeholder="وصف الفئة" 
+                      <Textarea
+                        placeholder="وصف الفئة"
                         rows={3}
                         value={categoryForm.descriptionAr}
-                        onChange={(e) => setCategoryForm({...categoryForm, descriptionAr: e.target.value})}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, descriptionAr: e.target.value })}
                         dir="rtl"
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
                         <div className="flex space-x-2">
-                          <Input 
-                            placeholder="#6812F7" 
+                          <Input
+                            placeholder="#6812F7"
                             value={categoryForm.color}
-                            onChange={(e) => setCategoryForm({...categoryForm, color: e.target.value})}
+                            onChange={(e) => setCategoryForm({ ...categoryForm, color: e.target.value })}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                           />
-                          <div 
+                          <div
                             className="w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center"
                             style={{ backgroundColor: categoryForm.color }}
                           >
@@ -1986,33 +2259,33 @@ export function PortfolioPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Sort Order</label>
-                        <Input 
+                        <Input
                           type="number"
-                          placeholder="0" 
+                          placeholder="0"
                           value={categoryForm.sortOrder}
-                          onChange={(e) => setCategoryForm({...categoryForm, sortOrder: parseInt(e.target.value) || 0})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, sortOrder: parseInt(e.target.value) || 0 })}
                           className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                         />
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div className="flex items-center space-x-2">
-                        <input 
-                          type="checkbox" 
-                          id="featured" 
+                        <input
+                          type="checkbox"
+                          id="featured"
                           checked={categoryForm.featured}
-                          onChange={(e) => setCategoryForm({...categoryForm, featured: e.target.checked})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, featured: e.target.checked })}
                           className="w-4 h-4 text-[#6812F7] border-gray-300 rounded focus:ring-[#6812F7]"
                         />
                         <label htmlFor="featured" className="text-sm font-medium text-gray-700">Featured Category</label>
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select 
+                        <select
                           className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                           value={categoryForm.status}
-                          onChange={(e) => setCategoryForm({...categoryForm, status: e.target.value as 'active' | 'inactive'})}
+                          onChange={(e) => setCategoryForm({ ...categoryForm, status: e.target.value as 'active' | 'inactive' })}
                         >
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
@@ -2022,8 +2295,8 @@ export function PortfolioPage() {
                   </div>
                 </div>
                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => {
                       setEditingCategory(null)
                       setCategoryForm({
@@ -2045,7 +2318,7 @@ export function PortfolioPage() {
                     Cancel
                   </Button>
                   {editingCategory ? (
-                    <Button 
+                    <Button
                       className="bg-[#6812F7] hover:bg-[#5a0fd4] px-6 py-2 text-white font-medium transition-all duration-200 hover:shadow-lg"
                       onClick={handleUpdateCategory}
                     >
@@ -2053,7 +2326,7 @@ export function PortfolioPage() {
                       Update Category
                     </Button>
                   ) : (
-                    <Button 
+                    <Button
                       className="bg-[#6812F7] hover:bg-[#5a0fd4] px-6 py-2 text-white font-medium transition-all duration-200 hover:shadow-lg"
                       onClick={handleCreateCategory}
                     >
@@ -2094,8 +2367,8 @@ export function PortfolioPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Color:</span>
                       <div className="flex items-center">
-                        <div 
-                          className="w-4 h-4 rounded-full mr-2" 
+                        <div
+                          className="w-4 h-4 rounded-full mr-2"
                           style={{ backgroundColor: category.color }}
                         />
                         <span className="text-sm font-medium">{category.color}</span>
@@ -2112,16 +2385,16 @@ export function PortfolioPage() {
                     <Button size="sm" variant="outline">
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       variant="outline"
                       onClick={() => handleEditCategory(category)}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
+                    <Button
+                      size="sm"
+                      variant="outline"
                       className="text-red-600 hover:text-red-700"
                       onClick={() => handleDeleteCategory(category.id)}
                     >
@@ -2163,7 +2436,7 @@ export function PortfolioPage() {
                           <span>{count} projects ({percentage.toFixed(1)}%)</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
+                          <div
                             className={`h-2 rounded-full ${getStatusColor(status).split(' ')[0]}`}
                             style={{ width: `${percentage}%` }}
                           />
@@ -2197,9 +2470,9 @@ export function PortfolioPage() {
                           <span>{count} projects ({percentage.toFixed(1)}%)</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
+                          <div
                             className="h-2 rounded-full"
-                            style={{ 
+                            style={{
                               width: `${percentage}%`,
                               backgroundColor: category.color
                             }}

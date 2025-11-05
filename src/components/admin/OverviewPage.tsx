@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react'
 
 export function OverviewPage() {
+  const router = useRouter()
   const { stats, recentActivities, loading, error, refreshData } = useDashboardOverview()
   const { setActiveTab } = useAdmin()
 
@@ -76,16 +78,16 @@ export function OverviewPage() {
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'portfolio':
-        setActiveTab('portfolio')
+        router.push('/admin/portfolio?action=create')
         break
       case 'blog':
-        setActiveTab('blog')
+        router.push('/admin/blog?action=create')
         break
       case 'users':
-        setActiveTab('users')
+        router.push('/admin/users?action=add')
         break
       case 'contact':
-        setActiveTab('contact')
+        router.push('/admin/contact')
         break
       default:
         break

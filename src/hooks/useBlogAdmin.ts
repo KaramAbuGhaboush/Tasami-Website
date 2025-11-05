@@ -211,7 +211,8 @@ export function useBlogAdmin(): UseBlogAdminReturn {
     try {
       setArticlesLoading(true);
       setArticlesError(null);
-      const response = await apiClient.getBlogArticles();
+      // Add timestamp to prevent caching
+      const response = await apiClient.getBlogArticles({ page: 1, limit: 1000 });
       
       if (response.success) {
         setArticles(response.data.articles);
@@ -285,6 +286,8 @@ export function useBlogAdmin(): UseBlogAdminReturn {
     try {
       const response = await apiClient.updateArticle(id, data);
       if (response.success) {
+        // Force a refresh by waiting a bit and then fetching
+        await new Promise(resolve => setTimeout(resolve, 100));
         await fetchArticles();
         return true;
       }

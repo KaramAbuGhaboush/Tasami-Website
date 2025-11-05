@@ -39,6 +39,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { useNotification } from '@/hooks/useNotification'
 
 // Types matching API schema
 interface User {
@@ -105,6 +106,7 @@ interface ProjectDistribution {
 
 export function UsersPage() {
   const { user, isAuthenticated } = useAuth()
+  const { success, error: showError, warning: showWarning, confirm } = useNotification()
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRole, setFilterRole] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
@@ -372,31 +374,31 @@ export function UsersPage() {
     
     // Validate required fields
     if (!userForm.name || !userForm.email) {
-      alert('Name and email are required')
+      showWarning('Name and email are required')
       return
     }
 
     // Validate password for new users
     if (!editingUser && !userForm.password) {
-      alert('Password is required for new users')
+      showWarning('Password is required for new users')
       return
     }
 
     if (!editingUser && userForm.password.length < 6) {
-      alert('Password must be at least 6 characters long')
+      showWarning('Password must be at least 6 characters long')
       return
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(userForm.email)) {
-      alert('Please enter a valid email address')
+      showWarning('Please enter a valid email address')
       return
     }
 
     // Validate weekly goal
     if (userForm.weeklyGoal < 1 || userForm.weeklyGoal > 80) {
-      alert('Weekly goal must be between 1 and 80 hours')
+      showWarning('Weekly goal must be between 1 and 80 hours')
       return
     }
 
@@ -416,10 +418,10 @@ export function UsersPage() {
         })
         
         if (response.success) {
-          alert('User updated successfully!')
+          success('User updated successfully!')
           await loadData() // Refresh data
         } else {
-          alert('Failed to update user')
+          showError('Failed to update user')
         }
       } else {
         // Create new user
@@ -435,10 +437,10 @@ export function UsersPage() {
         })
         
         if (response.success) {
-          alert('User created successfully!')
+          success('User created successfully!')
           await loadData() // Refresh data
         } else {
-          alert('Failed to create user')
+          showError('Failed to create user')
         }
       }
       
@@ -459,7 +461,7 @@ export function UsersPage() {
       
     } catch (error) {
       console.error('Error saving user:', error)
-      alert('An error occurred while saving the user')
+      showError('An error occurred while saving the user')
     } finally {
       setIsSubmitting(false)
     }
@@ -491,34 +493,40 @@ export function UsersPage() {
       const response = await apiClient.toggleEmployeeStatus(user.id)
       
       if (response.success) {
-        alert(`${user.isActive ? 'Deactivated' : 'Activated'} user ${user.name}`)
+        success(`${user.isActive ? 'Deactivated' : 'Activated'} user ${user.name}`)
         await loadData() // Refresh data
       } else {
-        alert('Failed to toggle user status')
+        showError('Failed to toggle user status')
       }
     } catch (error) {
       console.error('Error toggling status:', error)
-      alert('An error occurred while toggling user status')
+      showError('An error occurred while toggling user status')
     } finally {
       setIsSubmitting(false)
     }
   }
 
   const handleDeleteUser = async (user: User) => {
-    if (window.confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`)) {
+    const confirmed = await confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`, {
+      title: 'Delete User',
+      type: 'warning',
+      confirmText: 'Delete',
+      cancelText: 'Cancel'
+    })
+    if (confirmed) {
       try {
         setIsSubmitting(true)
         const response = await apiClient.deleteEmployee(user.id)
         
         if (response.success) {
-          alert(`User ${user.name} deleted successfully`)
+          success(`User ${user.name} deleted successfully`)
           await loadData() // Refresh data
         } else {
-          alert('Failed to delete user')
+          showError('Failed to delete user')
         }
       } catch (error) {
         console.error('Error deleting user:', error)
-        alert('An error occurred while deleting user')
+        showError('An error occurred while deleting user')
       } finally {
         setIsSubmitting(false)
       }
@@ -534,13 +542,13 @@ export function UsersPage() {
       const response = await apiClient.resetEmployeePassword(actionUser.id, newPassword)
       
       if (response.success) {
-        alert(`Password reset for ${actionUser.name}`)
+        success(`Password reset for ${actionUser.name}`)
       } else {
-        alert('Failed to reset password')
+        showError('Failed to reset password')
       }
     } catch (error) {
       console.error('Error resetting password:', error)
-      alert('An error occurred while resetting password')
+      showError('An error occurred while resetting password')
     } finally {
       setIsSubmitting(false)
       setIsEditPasswordOpen(false)
@@ -556,14 +564,14 @@ export function UsersPage() {
       const response = await apiClient.updateEmployeeGoal(actionUser.id, newGoal)
       
       if (response.success) {
-        alert(`Weekly goal changed to ${newGoal} hours`)
+        success(`Weekly goal changed to ${newGoal} hours`)
         await loadData() // Refresh data
       } else {
-        alert('Failed to update weekly goal')
+        showError('Failed to update weekly goal')
       }
     } catch (error) {
       console.error('Error updating goal:', error)
-      alert('An error occurred while updating weekly goal')
+      showError('An error occurred while updating weekly goal')
     } finally {
       setIsSubmitting(false)
       setIsEditGoalOpen(false)

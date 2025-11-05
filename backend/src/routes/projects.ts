@@ -79,10 +79,22 @@ const prisma = new PrismaClient();
  */
 router.get('/', async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, status } = req.query;
     const locale = normalizeLocale(req.query.locale as string);
 
-    const where: any = { status: 'active' };
+    // In admin panel, we want to see all projects. For public API, only show active ones.
+    // Check if request has authorization header (admin request)
+    const isAdminRequest = req.headers.authorization;
+    const where: any = {};
+    
+    // Only filter by status if explicitly provided or if it's a public request
+    if (status && status !== 'all') {
+      where.status = status;
+    } else if (!isAdminRequest && status !== 'all') {
+      // For public requests, only show active projects (unless status='all' is specified)
+      where.status = 'active';
+    }
+    // If status='all' or isAdminRequest, don't filter by status (show all)
     // Filter by category - category can be ID, slug, or name
     if (category) {
       // Try to match by slug or name (transformed names won't match exactly, so filter by slug)
@@ -379,7 +391,8 @@ router.post('/', async (req, res) => {
       categoryId,
       technologies = [],
       results = [],
-      testimonial
+      testimonial,
+      contentBlocks = []
     } = req.body;
 
     // Validate required fields
@@ -445,13 +458,30 @@ router.post('/', async (req, res) => {
               positionAr: testimonial.positionAr || null,
             }
           }
-        })
+        }),
+        contentBlocks: {
+          create: Array.isArray(contentBlocks) ? contentBlocks.map((block: any) => ({
+            type: block.type,
+            order: block.order || 0,
+            content: block.content || null,
+            contentAr: block.contentAr || null,
+            level: block.level || null,
+            src: block.src || null,
+            alt: block.alt || null,
+            altAr: block.altAr || null,
+            caption: block.caption || null,
+            captionAr: block.captionAr || null,
+            columns: block.columns || null,
+            images: block.images || null,
+          })) : []
+        }
       } as any,
       include: {
         technologies: true,
         results: true,
         clientTestimonial: true,
-        category: true
+        category: true,
+        contentBlocks: true
       }
     });
 

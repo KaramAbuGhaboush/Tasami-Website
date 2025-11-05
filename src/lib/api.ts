@@ -68,6 +68,8 @@ class ApiClient {
     if (params?.locale) {
       searchParams.append('locale', params.locale);
     }
+    // Add cache-busting timestamp to prevent stale data
+    searchParams.append('_t', Date.now().toString());
     
     const queryString = searchParams.toString();
     const endpoint = `/blog/articles${queryString ? `?${queryString}` : ''}`;
@@ -117,15 +119,21 @@ class ApiClient {
 
   async createArticle(articleData: {
     title: string;
+    titleAr?: string;
     excerpt: string;
+    excerptAr?: string;
     content: string;
-    image: string;
-    readTime: string;
-    featured: boolean;
-    status: string;
-    tags: string[];
+    contentAr?: string;
+    image?: string;
+    readTime?: string;
+    featured?: boolean;
+    status?: string;
+    tags?: string[];
+    relatedArticles?: string[];
     authorId: string;
     categoryId: string;
+    seoTitle?: string;
+    seoDescription?: string;
   }) {
     return this.request<{
       success: boolean;
@@ -290,15 +298,21 @@ class ApiClient {
 
   async updateArticle(id: string, articleData: {
     title?: string;
+    titleAr?: string;
     excerpt?: string;
+    excerptAr?: string;
     content?: string;
+    contentAr?: string;
     image?: string;
     readTime?: string;
     featured?: boolean;
     status?: string;
     tags?: string[];
+    relatedArticles?: string[];
     authorId?: string;
     categoryId?: string;
+    seoTitle?: string;
+    seoDescription?: string;
   }) {
     return this.request<{
       success: boolean;
