@@ -1,5 +1,5 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Testimonial } from '@prisma/client';
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -81,7 +81,7 @@ router.get('/', async (req, res) => {
     });
 
     // Transform the response to match the desired format
-    const transformedTestimonials = testimonials.map(testimonial => ({
+    const transformedTestimonials = testimonials.map((testimonial: Testimonial) => ({
       id: testimonial.id,
       clientName: testimonial.name,
       clientCompany: testimonial.company,

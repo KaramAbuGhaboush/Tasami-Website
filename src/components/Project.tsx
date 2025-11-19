@@ -21,7 +21,8 @@ const getImageSrc = (image: string | null | undefined) => {
 
   // If it's a filename (contains extension), construct the full URL
   if (image.includes('.') && image.length > 10) {
-    return `http://localhost:3002/uploads/images/${image}`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://www.tasami.co/api';
+    return `${apiUrl.replace('/api', '')}/uploads/images/${image}`;
   }
 
   // For anything else, return null

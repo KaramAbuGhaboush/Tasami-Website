@@ -117,7 +117,7 @@ export interface CreateCategoryData {
   status: 'active' | 'inactive'
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api'
+import { API_BASE_URL } from '../lib/config'
 
 export function usePortfolioAdmin() {
   const [projects, setProjects] = useState<Project[]>([])

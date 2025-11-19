@@ -18,7 +18,7 @@ export declare const cacheConfigs: {
     blogArticles: (req: Request, res: Response, next: NextFunction) => void;
     projects: (req: Request, res: Response, next: NextFunction) => void;
     testimonials: (req: Request, res: Response, next: NextFunction) => void;
-    categories: (req: Request, res: Response, next: NextFunction) => void;
+    blogCategories: (req: Request, res: Response, next: NextFunction) => void;
     jobs: (req: Request, res: Response, next: NextFunction) => void;
     contactMessages: (req: Request, res: Response, next: NextFunction) => void;
 };

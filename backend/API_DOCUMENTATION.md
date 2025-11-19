@@ -5,17 +5,22 @@ This backend API provides comprehensive endpoints for the Tasami website, includ
 
 ## Interactive Documentation
 The API documentation is available through Swagger UI at:
-**http://localhost:3002/api-docs**
+**http://localhost:3002/api-docs** (or your configured API_BASE_URL/api-docs)
 
 ## Base URL
 ```
 http://localhost:3002/api
 ```
+**Note**: Configure using `BACKEND_URL` or `API_BASE_URL` environment variables in production.
 
 ## Server Information
 - **Port**: 3002 (configurable via PORT environment variable)
-- **Health Check**: `http://localhost:3002/health`
-- **API Test**: `http://localhost:3002/api/test`
+- **Health Check**: `http://localhost:3002/health` (or your configured BACKEND_URL/health)
+- **API Test**: `http://localhost:3002/api/test` (or your configured API_BASE_URL/api/test)
+
+**Note**: In production, configure these URLs using environment variables:
+- `BACKEND_URL` - Base URL for the backend server
+- `API_BASE_URL` - Full API base URL (if different from BACKEND_URL)
 
 ## Database Schema Overview
 

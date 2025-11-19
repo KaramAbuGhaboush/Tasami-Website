@@ -1,5 +1,5 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, ContentBlock } from '@prisma/client';
 import {
   normalizeLocale,
   transformProjectByLocale,
@@ -1416,7 +1416,7 @@ router.get('/:id/debug-content-blocks', async (req, res) => {
       data: {
         projectId: id,
         totalBlocks: allBlocks.length,
-        blocks: allBlocks.map(b => ({
+        blocks: allBlocks.map((b: ContentBlock) => ({
           id: b.id,
           type: b.type,
           order: b.order,
@@ -1465,7 +1465,7 @@ router.put('/:id/test-reorder', async (req, res) => {
     });
 
     console.log('Found blocks:', existingBlocks.length);
-    console.log('Found block IDs:', existingBlocks.map(b => b.id));
+    console.log('Found block IDs:', existingBlocks.map((b: ContentBlock) => b.id));
 
     if (existingBlocks.length === 0) {
       return res.status(404).json({
@@ -1486,7 +1486,7 @@ router.put('/:id/test-reorder', async (req, res) => {
         requestedIds: blockIds,
         projectId: id,
         foundBlocks: existingBlocks.length,
-        foundBlockIds: existingBlocks.map(b => b.id)
+        foundBlockIds: existingBlocks.map((b: ContentBlock) => b.id)
       }
     });
   } catch (error) {

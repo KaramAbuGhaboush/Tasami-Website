@@ -1,0 +1,348 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  password   String
+  role       String   @default("employee")
+  isActive   Boolean  @default(true)
+  weeklyGoal Int      @default(40) // Weekly goal in hours
+  department String?  // User's department
+  phone      String?  // User's phone number
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  timeEntries TimeEntry[]
+
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("users")
+}
+
+// Blog Models
+model BlogAuthor {
+  id          String   @id @default(cuid())
+  name        String
+  nameAr      String?
+  role        String
+  roleAr      String?
+  email       String   @unique
+  avatar      String?
+  bio         String?
+  bioAr       String?
+  socialLinks Json?
+  expertise   Json
+  joinDate    DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  articles    BlogArticle[]
+
+  @@map("blog_authors")
+}
+
+model BlogCategory {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  nameAr        String?
+  slug          String   @unique
+  description   String?
+  descriptionAr String?
+  color         String?
+  icon          String?
+  seoTitle      String?
+  seoTitleAr    String?
+  seoDescription String?
+  seoDescriptionAr String?
+  featured     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  articles      BlogArticle[]
+
+  @@index([slug])
+  @@index([featured])
+  @@index([createdAt])
+  @@map("blog_categories")
+}
+
+model BlogArticle {
+  id              String   @id @default(cuid())
+  title           String
+  titleAr         String?
+  excerpt         String?
+  excerptAr       String?
+  content         String?
+  contentAr       String?
+  slug            String   @unique
+  image           String?
+  readTime        String?
+  featured        Boolean  @default(false)
+  status          String   @default("draft")
+  views           Int      @default(0)
+  tags            Json
+  relatedArticles Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  authorId        String
+  author          BlogAuthor @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  categoryId      String
+  category        BlogCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([createdAt])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([views])
+  @@map("blog_articles")
+}
+
+// Project Models
+model Project {
+  id                String   @id @default(cuid())
+  title             String
+  titleAr           String?
+  description       String
+  descriptionAr     String?
+  headerImage       String?
+  challenge         String?
+  challengeAr       String?
+  solution          String?
+  solutionAr        String?
+  timeline          String?
+  teamSize          String?
+  status            String   @default("planning")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  categoryId        String
+  category          ProjectCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  technologies      ProjectTechnology[]
+  results           ProjectResult[]
+  clientTestimonial ProjectTestimonial?
+  contentBlocks     ContentBlock[]
+
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  id          String   @id @default(cuid())
+  name        String
+  nameAr      String?
+  description String
+  descriptionAr String?
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_technologies")
+}
+
+model ProjectResult {
+  id          String   @id @default(cuid())
+  metric      String
+  metricAr    String?
+  description String
+  descriptionAr String?
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_results")
+}
+
+model ProjectTestimonial {
+  id        String   @id @default(cuid())
+  quote     String
+  quoteAr   String?
+  author    String
+  authorAr  String?
+  position  String
+  positionAr String?
+  projectId String   @unique
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_testimonials")
+}
+
+model ContentBlock {
+  id          String   @id @default(cuid())
+  type        String   // 'heading', 'paragraph', 'image', 'imageGrid'
+  order       Int      // For ordering blocks
+  content     String?  // For text content (headings, paragraphs)
+  contentAr   String?  // Arabic text content
+  src         String?  // For image source
+  alt         String?  // For image alt text
+  altAr       String?  // Arabic alt text
+  width       Int?     // For image width
+  height      Int?     // For image height
+  caption     String?  // For image caption
+  captionAr   String?  // Arabic caption
+  level       Int?     // For heading level (2, 3, 4)
+  columns     Int?     // For imageGrid columns (2, 3, 4)
+  images      Json?    // For imageGrid - array of image objects
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("content_blocks")
+}
+
+// Career Models
+model Job {
+  id              String   @id @default(cuid())
+  title           String
+  titleAr         String?
+  department      String
+  departmentAr    String?
+  location        String
+  locationAr      String?
+  type            String
+  typeAr          String?
+  experience      String
+  experienceAr    String?
+  description     String
+  descriptionAr   String?
+  requirements    Json
+  requirementsAr  Json?
+  benefits        Json
+  benefitsAr      Json?
+  status          String   @default("active")
+  postedDate      DateTime @default(now())
+  applicationDeadline DateTime?
+  applications    Int      @default(0)
+  salary          String?
+  salaryAr        String?
+  team            String?
+  teamAr          String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("jobs")
+}
+
+// Contact Models
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  company     String?
+  message     String
+  service     String   // Required for API validation
+  budget      String   // Required for API validation
+  status      String   @default("new")
+  source      String   @default("website")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_messages")
+}
+
+
+model Employee {
+  id          String   @id @default(cuid())
+  name        String
+  position    String
+  email       String   @unique
+  department  String
+  salary      Float
+  hireDate    DateTime
+  status      String   @default("active")
+  benefits    Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  salaries    Salary[]
+
+  @@map("employees")
+}
+
+model Salary {
+  id          String   @id @default(cuid())
+  amount      Float
+  frequency   String   @default("annual")
+  lastPaid    DateTime?
+  nextPayment DateTime?
+  status      String   @default("active")
+  deductions  Json?
+  netPay      Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employeeId  String
+  employee    Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@map("salaries")
+}
+
+// Testimonial Models
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  company   String
+  quote     String
+  rating    Int      @default(5)
+  initials  String?
+  featured  Boolean  @default(false)
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+// Project Category Models
+model ProjectCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nameAr      String?
+  slug        String   @unique
+  description String?
+  descriptionAr String?
+  color       String?
+  icon        String?
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projects    Project[]
+
+  @@map("project_categories")
+}
+
+// Time Tracking Models
+model TimeEntry {
+  id          String   @id @default(cuid())
+  date        DateTime
+  hours       Int
+  minutes     Int
+  project     String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("time_entries")
+}

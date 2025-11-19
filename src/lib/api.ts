@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
+import { API_BASE_URL } from './config';
 
 class ApiClient {
   private baseUrl: string;
@@ -11,6 +11,12 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    // Ensure baseUrl is valid
+    if (!this.baseUrl || this.baseUrl === 'undefined' || this.baseUrl.includes('undefined')) {
+      console.error('Invalid API base URL:', this.baseUrl);
+      throw new Error('API base URL is not configured. Please set NEXT_PUBLIC_API_URL environment variable.');
+    }
+    
     const url = `${this.baseUrl}${endpoint}`;
     
     // Get token from localStorage (only in browser)
@@ -44,11 +50,23 @@ class ApiClient {
       const data = await response.json();
       return data;
     } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : error instanceof TypeError
+        ? error.message
+        : typeof error === 'string'
+        ? error
+        : error?.toString() || 'Unknown error';
+      
       console.error('API request error:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        url
+        message: errorMessage,
+        url,
+        baseUrl: this.baseUrl,
+        endpoint,
+        errorType: error?.constructor?.name || typeof error,
+        error: error
       });
-      throw error;
+      throw error instanceof Error ? error : new Error(errorMessage);
     }
   }
 

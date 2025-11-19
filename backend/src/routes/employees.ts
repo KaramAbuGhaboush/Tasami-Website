@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TimeEntry } from '@prisma/client';
 import { authMiddleware } from '../middleware/auth';
 import bcrypt from 'bcrypt';
 import { startOfWeek, endOfWeek } from 'date-fns';
@@ -393,8 +393,8 @@ router.get('/stats', authMiddleware, requireAdmin, async (req: Request, res: Res
 
     // Users meeting goals
     const usersMeetingGoals = users.filter(user => {
-      const userEntries = timeEntries.filter(entry => entry.userId === user.id);
-      const userHours = userEntries.reduce((total, entry) => {
+      const userEntries = timeEntries.filter((entry: TimeEntry) => entry.userId === user.id);
+      const userHours = userEntries.reduce((total: number, entry: TimeEntry) => {
         return total + entry.hours + (entry.minutes / 60);
       }, 0);
       const goal = user.weeklyGoal || 40;
@@ -1161,7 +1161,7 @@ router.get('/:id/weekly-summary', authMiddleware, requireAdmin, async (req: Requ
       }
     });
 
-    const totalHours = timeEntries.reduce((total, entry) => {
+    const totalHours = timeEntries.reduce((total: number, entry: TimeEntry) => {
       return total + entry.hours + (entry.minutes / 60);
     }, 0);
 
@@ -1629,7 +1629,7 @@ router.get('/analytics/team-summary', authMiddleware, requireAdmin, async (req: 
     const totalUsers = users.length;
     const activeUsers = users.filter(user => user.isActive).length;
     
-    const totalHours = timeEntries.reduce((total, entry) => {
+    const totalHours = timeEntries.reduce((total: number, entry: TimeEntry) => {
       return total + entry.hours + (entry.minutes / 60);
     }, 0);
 
@@ -1637,8 +1637,8 @@ router.get('/analytics/team-summary', authMiddleware, requireAdmin, async (req: 
 
     // Calculate goal achievement
     const userGoalStats = users.map(user => {
-      const userEntries = timeEntries.filter(entry => entry.userId === user.id);
-      const userHours = userEntries.reduce((total, entry) => {
+      const userEntries = timeEntries.filter((entry: TimeEntry) => entry.userId === user.id);
+      const userHours = userEntries.reduce((total: number, entry: TimeEntry) => {
         return total + entry.hours + (entry.minutes / 60);
       }, 0);
       
@@ -1759,7 +1759,7 @@ router.get('/analytics/project-distribution', authMiddleware, requireAdmin, asyn
     // Calculate project distribution
     const projectStats: { [key: string]: { hours: number; users: Set<string> } } = {};
     
-    timeEntries.forEach(entry => {
+    timeEntries.forEach((entry: TimeEntry) => {
       const project = entry.project;
       const hours = entry.hours + (entry.minutes / 60);
       

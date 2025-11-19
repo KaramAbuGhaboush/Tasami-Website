@@ -32,8 +32,18 @@ export interface Article {
   relatedArticles?: Array<{
     title: string;
     slug: string;
-    category: string;
+    category: {
+      name: string;
+      color: string;
+    };
     readTime: string;
+    excerpt?: string;
+    image?: string;
+    createdAt: string;
+    author?: {
+      name: string;
+      avatar: string;
+    };
   }>;
 }
 

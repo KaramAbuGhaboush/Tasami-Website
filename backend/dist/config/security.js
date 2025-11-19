@@ -26,10 +26,12 @@ exports.securityConfig = {
         authMaxRequests: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '5'),
     },
     cors: {
-        origin: process.env.CORS_ORIGIN?.split(',') || [
-            'http://localhost:3000',
-            'http://localhost:3001'
-        ],
+        origin: process.env.CORS_ORIGIN?.split(',') || (process.env.NODE_ENV === 'development'
+            ? [
+                process.env.FRONTEND_URL || `${process.env.FRONTEND_PROTOCOL || 'http'}://${process.env.FRONTEND_HOST || 'localhost'}:${process.env.FRONTEND_PORT || '3000'}`,
+                ...(process.env.FRONTEND_URL_ALT ? [process.env.FRONTEND_URL_ALT] : [])
+            ]
+            : process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
         credentials: true,
     },
     fileUpload: {

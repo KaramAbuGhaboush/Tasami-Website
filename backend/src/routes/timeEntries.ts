@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TimeEntry } from '@prisma/client';
 import { authMiddleware } from '../middleware/auth';
 import { startOfWeek, endOfWeek } from 'date-fns';
 
@@ -508,7 +508,7 @@ router.get('/weekly-summary', authMiddleware, async (req: Request, res: Response
       }
     });
 
-    const totalHours = timeEntries.reduce((total, entry) => {
+    const totalHours = timeEntries.reduce((total: number, entry: TimeEntry) => {
       return total + entry.hours + (entry.minutes / 60);
     }, 0);
 

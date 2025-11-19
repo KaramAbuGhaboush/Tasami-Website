@@ -25,7 +25,8 @@ const getImageSrc = (image: string) => {
 
   // If it's a filename (contains extension), construct the full URL
   if (image.includes('.') && image.length > 10) {
-    return `http://localhost:3002/uploads/images/${image}`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://www.tasami.co/api';
+    return `${apiUrl.replace('/api', '')}/uploads/images/${image}`;
   }
 
   // For anything else (like emojis), return null to show as emoji
@@ -284,58 +285,84 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {article.relatedArticles.map((relatedArticle: any, index: number) => (
-                <Link
-                  key={index}
-                  href={`/article/${relatedArticle.slug}`}
-                  className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group"
-                >
-                  {/* Article Image */}
-                  <div className="aspect-video relative overflow-hidden">
+                <article key={index} className="">
+                  {/* Image Section */}
+                  <Link href={`/article/${relatedArticle.slug}`} className="relative group block">
                     {getImageSrc(relatedArticle.image) ? (
-                      <img
-                        src={getImageSrc(relatedArticle.image)!}
-                        alt={relatedArticle.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                      <div className="aspect-video relative rounded-2xl overflow-hidden">
+                        <img
+                          src={getImageSrc(relatedArticle.image)!}
+                          alt={relatedArticle.title}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Category Badge */}
+                        <div className="absolute top-4 left-4">
+                          <span
+                            className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
+                            style={{ color: relatedArticle.category?.color || '#6812F7' }}
+                          >
+                            {relatedArticle.category?.name || 'Uncategorized'}
+                          </span>
+                        </div>
+                      </div>
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <div className="text-4xl mb-2">{relatedArticle.image || '📝'}</div>
+                      <div className="aspect-video bg-gradient-to-br from-[#6812F7] to-[#9253F0] flex items-center justify-center rounded-2xl">
+                        <div className="text-6xl text-white">{relatedArticle.image || '📝'}</div>
+                        {/* Category Badge for emoji images */}
+                        <div className="absolute top-4 left-4">
+                          <span
+                            className="bg-white px-4 py-1.5 rounded-full text-sm font-bold shadow-md"
+                            style={{ color: relatedArticle.category?.color || '#6812F7' }}
+                          >
+                            {relatedArticle.category?.name || 'Uncategorized'}
+                          </span>
                         </div>
                       </div>
                     )}
-                    <div className="absolute top-4 left-4">
-                      <span className="bg-[#6812F7] text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        {relatedArticle.category}
-                      </span>
-                    </div>
-                  </div>
+                  </Link>
 
-                  {/* Article Content */}
-                  <div className="p-6">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <span className="text-sm text-gray-500">{formatReadTime(relatedArticle.readTime)}</span>
-                      <span>•</span>
-                      <span className="text-sm text-gray-500" suppressHydrationWarning>
-                        {isMounted 
-                          ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US', {
-                              month: 'short',
-                              day: 'numeric'
-                            })
-                          : ''
-                        }
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors mb-3 line-clamp-2">
-                      {relatedArticle.title}
-                    </h3>
+                  {/* Title Section - No Background */}
+                  <div className="px-2 py-4 bg-transparent">
+                    <Link href={`/article/${relatedArticle.slug}`}>
+                      <h3 className="text-xl font-bold text-gray-900 leading-tight hover:text-[#6812F7] transition-colors">
+                        {relatedArticle.title}
+                      </h3>
+                    </Link>
                     {relatedArticle.excerpt && (
-                      <p className="text-gray-600 line-clamp-3">
+                      <p className="text-gray-600 mt-2 line-clamp-2">
                         {relatedArticle.excerpt}
                       </p>
                     )}
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="flex items-center">
+                        {relatedArticle.author ? (
+                          <>
+                            <div className="w-8 h-8 bg-gradient-to-r from-[#6812F7] to-[#9253F0] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                              {relatedArticle.author.avatar}
+                            </div>
+                            <div className="ml-3">
+                              <p className="font-semibold text-gray-900 text-sm">{relatedArticle.author.name}</p>
+                              <p className="text-xs text-gray-500" suppressHydrationWarning>
+                                {isMounted 
+                                  ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
+                                  : ''
+                                }
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <p className="text-xs text-gray-500" suppressHydrationWarning>
+                            {isMounted 
+                              ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
+                              : ''
+                            }
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-gray-500 text-sm">{formatReadTime(relatedArticle.readTime)}</span>
+                    </div>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
           </div>
@@ -343,7 +370,8 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
       )}
 
       {/* Newsletter Signup */}
-      <section className="py-20 gradient-primary">
+      {/* Commented out - hidden for now */}
+      {/* <section className="py-20 gradient-primary">
         <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 ${locale === 'ar' ? 'text-right' : 'text-center'}`}>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             {t('enjoyedArticle')}
@@ -380,7 +408,7 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   )
 }

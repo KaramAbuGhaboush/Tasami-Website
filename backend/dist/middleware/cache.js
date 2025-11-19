@@ -71,8 +71,8 @@ const createCacheMiddleware = (ttl = 300000, keyGenerator) => {
 exports.createCacheMiddleware = createCacheMiddleware;
 exports.cacheConfigs = {
     blogArticles: (0, exports.createCacheMiddleware)(600000, (req) => {
-        const { page = 1, limit = 10, category, featured } = req.query;
-        return `blog:articles:${page}:${limit}:${category || 'all'}:${featured || 'all'}`;
+        const { page = 1, limit = 10, category, featured, locale = 'en' } = req.query;
+        return `blog:articles:${page}:${limit}:${category || 'all'}:${featured || 'all'}:locale:${locale}`;
     }),
     projects: (0, exports.createCacheMiddleware)(900000, (req) => {
         const { page = 1, limit = 10, category, featured } = req.query;
@@ -82,7 +82,10 @@ exports.cacheConfigs = {
         const { featured } = req.query;
         return `testimonials:${featured || 'all'}`;
     }),
-    categories: (0, exports.createCacheMiddleware)(3600000, () => 'categories:all'),
+    blogCategories: (0, exports.createCacheMiddleware)(3600000, (req) => {
+        const { locale = 'en' } = req.query;
+        return `blog:categories:locale:${locale}`;
+    }),
     jobs: (0, exports.createCacheMiddleware)(1200000, (req) => {
         const { page = 1, limit = 10, department, location } = req.query;
         return `jobs:${page}:${limit}:${department || 'all'}:${location || 'all'}`;

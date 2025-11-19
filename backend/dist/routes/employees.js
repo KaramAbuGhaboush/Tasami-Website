@@ -173,7 +173,7 @@ router.get('/stats', auth_1.authMiddleware, requireAdmin, async (req, res) => {
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         const newUsersThisMonth = users.filter(user => new Date(user.createdAt) >= startOfMonth).length;
         const usersMeetingGoals = users.filter(user => {
-            const userEntries = timeEntries.filter(entry => entry.userId === user.id);
+            const userEntries = timeEntries.filter((entry) => entry.userId === user.id);
             const userHours = userEntries.reduce((total, entry) => {
                 return total + entry.hours + (entry.minutes / 60);
             }, 0);
@@ -767,7 +767,7 @@ router.get('/analytics/team-summary', auth_1.authMiddleware, requireAdmin, async
         }, 0);
         const averageHoursPerUser = activeUsers > 0 ? totalHours / activeUsers : 0;
         const userGoalStats = users.map(user => {
-            const userEntries = timeEntries.filter(entry => entry.userId === user.id);
+            const userEntries = timeEntries.filter((entry) => entry.userId === user.id);
             const userHours = userEntries.reduce((total, entry) => {
                 return total + entry.hours + (entry.minutes / 60);
             }, 0);
@@ -825,7 +825,7 @@ router.get('/analytics/project-distribution', auth_1.authMiddleware, requireAdmi
             }
         });
         const projectStats = {};
-        timeEntries.forEach(entry => {
+        timeEntries.forEach((entry) => {
             const project = entry.project;
             const hours = entry.hours + (entry.minutes / 60);
             if (!projectStats[project]) {

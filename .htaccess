@@ -10,8 +10,9 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^_next/(.*)$ /_next/$1 [L]
 
-# API requests to backend
-RewriteRule ^api/(.*)$ http://localhost:3002/api/$1 [P,L]
+# API requests will be handled by the Node.js backend app
+# The backend runs via app.js and handles /api/* routes
+# No proxy needed - backend serves API directly
 
 # Handle Next.js pages
 RewriteCond %{REQUEST_FILENAME} !-f

@@ -28,7 +28,7 @@ export function useHome(): UseHomeReturn {
       title: "AI Solutions",
       titleAr: "حلول الذكاء الاصطناعي",
       description: "Machine learning, natural language processing, and intelligent automation to revolutionize your business processes and drive unprecedented efficiency.",
-      descriptionAr: "تعلم الآلة، معالجة اللغة الطبيعية، والأتمتة الذكية لإحداث ثورة في عمليات عملك وتحقيق كفاءة غير مسبوقة.",
+      descriptionAr: "تعلم الآلة، معالجة اللغات الطبيعية، والأتمتة الذكية لإحداث ثورة في عمليات عملك وتحقيق كفاءة غير مسبوقة.",
       features: [
         "Machine Learning Models",
         "Natural Language Processing",
@@ -36,7 +36,7 @@ export function useHome(): UseHomeReturn {
       ],
       featuresAr: [
         "نماذج تعلم الآلة",
-        "معالجة اللغة الطبيعية",
+        "معالجة اللغات الطبيعية",
         "الأتمتة الذكية"
       ],
       icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
@@ -110,9 +110,9 @@ export function useHome(): UseHomeReturn {
     {
       id: "mvp",
       title: "MVP Development",
-      titleAr: "تطوير المنتج الأدنى القابل للحياة",
+      titleAr: "تطوير النسخة التجريبية الأولية",
       description: "Rapid development of minimum viable products to validate your business ideas quickly and cost-effectively with market-ready solutions.",
-      descriptionAr: "تطوير سريع للمنتجات الأدنى القابلة للحياة للتحقق من أفكار عملك بسرعة وفعالية من حيث التكلفة باستخدام حلول جاهزة للسوق.",
+      descriptionAr: "تطوير سريع لنسخة أولية قابلة للتسويق للتحقق من أفكار عملك بسرعة وتكلفة منخفضة عبر حلول جاهزة للسوق.",
       features: [
         "Rapid Prototyping",
         "Market Validation",

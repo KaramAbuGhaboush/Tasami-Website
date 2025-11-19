@@ -5,45 +5,127 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const client_1 = require("@prisma/client");
+const localization_1 = require("../utils/localization");
 const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
 router.get('/', async (req, res) => {
     try {
-        const { category } = req.query;
-        const where = { status: 'active' };
-        if (category)
-            where.category = category;
+        const { category, status } = req.query;
+        const locale = (0, localization_1.normalizeLocale)(req.query.locale);
+        const isAdminRequest = req.headers.authorization;
+        const where = {};
+        if (status && status !== 'all') {
+            where.status = status;
+        }
+        else if (!isAdminRequest && status !== 'all') {
+            where.status = 'active';
+        }
+        if (category) {
+            where.category = {
+                OR: [
+                    { slug: category },
+                    { name: category },
+                    { nameAr: category }
+                ]
+            };
+        }
         const projects = await prisma.project.findMany({
             where,
             orderBy: { createdAt: 'desc' },
             include: {
-                technologies: true,
-                results: true,
-                category: true,
-                clientTestimonial: true,
+                technologies: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nameAr: true,
+                        description: true,
+                        descriptionAr: true,
+                        projectId: true,
+                    }
+                },
+                results: {
+                    select: {
+                        id: true,
+                        metric: true,
+                        metricAr: true,
+                        description: true,
+                        descriptionAr: true,
+                        projectId: true,
+                    }
+                },
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nameAr: true,
+                        slug: true,
+                        description: true,
+                        descriptionAr: true,
+                        color: true,
+                        icon: true,
+                        featured: true,
+                    }
+                },
+                clientTestimonial: {
+                    select: {
+                        id: true,
+                        quote: true,
+                        quoteAr: true,
+                        author: true,
+                        authorAr: true,
+                        position: true,
+                        positionAr: true,
+                        projectId: true,
+                    }
+                },
                 contentBlocks: {
-                    orderBy: { order: 'asc' }
+                    orderBy: { order: 'asc' },
+                    select: {
+                        id: true,
+                        type: true,
+                        order: true,
+                        content: true,
+                        contentAr: true,
+                        src: true,
+                        alt: true,
+                        altAr: true,
+                        width: true,
+                        height: true,
+                        caption: true,
+                        captionAr: true,
+                        level: true,
+                        columns: true,
+                        images: true,
+                        projectId: true,
+                    }
                 }
             }
         });
-        const transformedProjects = projects.map(project => ({
-            id: project.id,
-            title: project.title,
-            description: project.description,
-            headerImage: project.headerImage,
-            challenge: project.challenge,
-            solution: project.solution,
-            timeline: project.timeline,
-            teamSize: project.teamSize,
-            status: project.status,
-            category: project.category,
-            technologies: project.technologies,
-            results: project.results,
-            clientTestimonial: project.clientTestimonial,
-            contentBlocks: project.contentBlocks || [],
-            createdAt: project.createdAt,
-            updatedAt: project.updatedAt
-        }));
+        const transformedProjects = projects.map((project) => {
+            const transformedProject = (0, localization_1.transformProjectByLocale)(project, locale);
+            const transformedCategory = (0, localization_1.transformProjectCategoryByLocale)(project.category, locale);
+            const transformedTechnologies = (project.technologies || []).map((tech) => (0, localization_1.transformProjectTechnologyByLocale)(tech, locale));
+            const transformedResults = (project.results || []).map((result) => (0, localization_1.transformProjectResultByLocale)(result, locale));
+            const transformedTestimonial = project.clientTestimonial
+                ? (0, localization_1.transformProjectTestimonialByLocale)(project.clientTestimonial, locale)
+                : null;
+            const transformedContentBlocks = (project.contentBlocks || []).map((block) => (0, localization_1.transformContentBlockByLocale)(block, locale));
+            return {
+                id: project.id,
+                ...transformedProject,
+                headerImage: project.headerImage,
+                timeline: project.timeline,
+                teamSize: project.teamSize,
+                status: project.status,
+                category: transformedCategory,
+                technologies: transformedTechnologies,
+                results: transformedResults,
+                clientTestimonial: transformedTestimonial,
+                contentBlocks: transformedContentBlocks,
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt
+            };
+        });
         return res.json({
             success: true,
             data: {
@@ -61,7 +143,7 @@ router.get('/', async (req, res) => {
 });
 router.post('/', async (req, res) => {
     try {
-        const { title, description, headerImage, challenge, solution, timeline, teamSize, status = 'planning', categoryId, technologies = [], results = [], testimonial } = req.body;
+        const { title, titleAr, description, descriptionAr, headerImage, challenge, challengeAr, solution, solutionAr, timeline, teamSize, status = 'planning', categoryId, technologies = [], results = [], testimonial, contentBlocks = [] } = req.body;
         if (!title || !description || !categoryId) {
             return res.status(400).json({
                 success: false,
@@ -80,10 +162,14 @@ router.post('/', async (req, res) => {
         const project = await prisma.project.create({
             data: {
                 title,
+                titleAr: titleAr || null,
                 description,
+                descriptionAr: descriptionAr || null,
                 headerImage: headerImage || null,
                 challenge: challenge || null,
+                challengeAr: challengeAr || null,
                 solution: solution || null,
+                solutionAr: solutionAr || null,
                 timeline: timeline || null,
                 teamSize: teamSize || null,
                 status,
@@ -91,30 +177,54 @@ router.post('/', async (req, res) => {
                 technologies: {
                     create: technologies.map((tech) => ({
                         name: tech.name,
-                        description: tech.description
+                        nameAr: tech.nameAr || null,
+                        description: tech.description,
+                        descriptionAr: tech.descriptionAr || null,
                     }))
                 },
                 results: {
                     create: results.map((result) => ({
                         metric: result.metric,
-                        description: result.description
+                        metricAr: result.metricAr || null,
+                        description: result.description,
+                        descriptionAr: result.descriptionAr || null,
                     }))
                 },
                 ...(testimonial && {
                     clientTestimonial: {
                         create: {
                             quote: testimonial.quote,
+                            quoteAr: testimonial.quoteAr || null,
                             author: testimonial.author,
-                            position: testimonial.position
+                            authorAr: testimonial.authorAr || null,
+                            position: testimonial.position,
+                            positionAr: testimonial.positionAr || null,
                         }
                     }
-                })
+                }),
+                contentBlocks: {
+                    create: Array.isArray(contentBlocks) ? contentBlocks.map((block) => ({
+                        type: block.type,
+                        order: block.order || 0,
+                        content: block.content || null,
+                        contentAr: block.contentAr || null,
+                        level: block.level || null,
+                        src: block.src || null,
+                        alt: block.alt || null,
+                        altAr: block.altAr || null,
+                        caption: block.caption || null,
+                        captionAr: block.captionAr || null,
+                        columns: block.columns || null,
+                        images: block.images || null,
+                    })) : []
+                }
             },
             include: {
                 technologies: true,
                 results: true,
                 clientTestimonial: true,
-                category: true
+                category: true,
+                contentBlocks: true
             }
         });
         return res.status(201).json({
@@ -135,7 +245,10 @@ router.put('/:id', async (req, res) => {
         const { id } = req.params;
         const updateData = req.body;
         const existingProject = await prisma.project.findUnique({
-            where: { id }
+            where: { id },
+            include: {
+                clientTestimonial: true
+            }
         });
         if (!existingProject) {
             return res.status(404).json({
@@ -154,24 +267,45 @@ router.put('/:id', async (req, res) => {
                 });
             }
         }
+        const projectUpdateData = {};
+        if (updateData.title !== undefined)
+            projectUpdateData.title = updateData.title;
+        if (updateData.titleAr !== undefined)
+            projectUpdateData.titleAr = updateData.titleAr;
+        if (updateData.description !== undefined)
+            projectUpdateData.description = updateData.description;
+        if (updateData.descriptionAr !== undefined)
+            projectUpdateData.descriptionAr = updateData.descriptionAr;
+        if (updateData.headerImage !== undefined)
+            projectUpdateData.headerImage = updateData.headerImage;
+        if (updateData.challenge !== undefined)
+            projectUpdateData.challenge = updateData.challenge;
+        if (updateData.challengeAr !== undefined)
+            projectUpdateData.challengeAr = updateData.challengeAr;
+        if (updateData.solution !== undefined)
+            projectUpdateData.solution = updateData.solution;
+        if (updateData.solutionAr !== undefined)
+            projectUpdateData.solutionAr = updateData.solutionAr;
+        if (updateData.timeline !== undefined)
+            projectUpdateData.timeline = updateData.timeline;
+        if (updateData.teamSize !== undefined)
+            projectUpdateData.teamSize = updateData.teamSize;
+        if (updateData.status !== undefined)
+            projectUpdateData.status = updateData.status;
+        if (updateData.categoryId !== undefined)
+            projectUpdateData.categoryId = updateData.categoryId;
         const project = await prisma.project.update({
             where: { id },
             data: {
-                title: updateData.title,
-                description: updateData.description,
-                headerImage: updateData.headerImage,
-                challenge: updateData.challenge,
-                solution: updateData.solution,
-                timeline: updateData.timeline,
-                teamSize: updateData.teamSize,
-                status: updateData.status,
-                categoryId: updateData.categoryId,
+                ...projectUpdateData,
                 ...(updateData.technologies && {
                     technologies: {
                         deleteMany: {},
                         create: updateData.technologies.map((tech) => ({
                             name: tech.name,
-                            description: tech.description
+                            nameAr: tech.nameAr || null,
+                            description: tech.description,
+                            descriptionAr: tech.descriptionAr || null,
                         }))
                     }
                 }),
@@ -180,7 +314,9 @@ router.put('/:id', async (req, res) => {
                         deleteMany: {},
                         create: updateData.results.map((result) => ({
                             metric: result.metric,
-                            description: result.description
+                            metricAr: result.metricAr || null,
+                            description: result.description,
+                            descriptionAr: result.descriptionAr || null,
                         }))
                     }
                 }),
@@ -189,13 +325,19 @@ router.put('/:id', async (req, res) => {
                         upsert: {
                             create: {
                                 quote: updateData.testimonial.quote,
+                                quoteAr: updateData.testimonial.quoteAr || null,
                                 author: updateData.testimonial.author,
-                                position: updateData.testimonial.position
+                                authorAr: updateData.testimonial.authorAr || null,
+                                position: updateData.testimonial.position,
+                                positionAr: updateData.testimonial.positionAr || null,
                             },
                             update: {
                                 quote: updateData.testimonial.quote,
+                                quoteAr: updateData.testimonial.quoteAr !== undefined ? updateData.testimonial.quoteAr : existingProject.clientTestimonial?.quoteAr || null,
                                 author: updateData.testimonial.author,
-                                position: updateData.testimonial.position
+                                authorAr: updateData.testimonial.authorAr !== undefined ? updateData.testimonial.authorAr : existingProject.clientTestimonial?.authorAr || null,
+                                position: updateData.testimonial.position,
+                                positionAr: updateData.testimonial.positionAr !== undefined ? updateData.testimonial.positionAr : existingProject.clientTestimonial?.positionAr || null,
                             }
                         }
                     }
@@ -227,15 +369,75 @@ router.put('/:id', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const locale = (0, localization_1.normalizeLocale)(req.query.locale);
         const project = await prisma.project.findUnique({
             where: { id },
             include: {
-                technologies: true,
-                results: true,
-                category: true,
-                clientTestimonial: true,
+                technologies: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nameAr: true,
+                        description: true,
+                        descriptionAr: true,
+                        projectId: true,
+                    }
+                },
+                results: {
+                    select: {
+                        id: true,
+                        metric: true,
+                        metricAr: true,
+                        description: true,
+                        descriptionAr: true,
+                        projectId: true,
+                    }
+                },
+                category: {
+                    select: {
+                        id: true,
+                        name: true,
+                        nameAr: true,
+                        slug: true,
+                        description: true,
+                        descriptionAr: true,
+                        color: true,
+                        icon: true,
+                        featured: true,
+                    }
+                },
+                clientTestimonial: {
+                    select: {
+                        id: true,
+                        quote: true,
+                        quoteAr: true,
+                        author: true,
+                        authorAr: true,
+                        position: true,
+                        positionAr: true,
+                        projectId: true,
+                    }
+                },
                 contentBlocks: {
-                    orderBy: { order: 'asc' }
+                    orderBy: { order: 'asc' },
+                    select: {
+                        id: true,
+                        type: true,
+                        order: true,
+                        content: true,
+                        contentAr: true,
+                        src: true,
+                        alt: true,
+                        altAr: true,
+                        width: true,
+                        height: true,
+                        caption: true,
+                        captionAr: true,
+                        level: true,
+                        columns: true,
+                        images: true,
+                        projectId: true,
+                    }
                 }
             }
         });
@@ -245,27 +447,33 @@ router.get('/:id', async (req, res) => {
                 message: 'Project not found'
             });
         }
-        const transformedProject = {
-            id: project.id,
-            title: project.title,
-            description: project.description,
-            headerImage: project.headerImage,
-            challenge: project.challenge,
-            solution: project.solution,
-            timeline: project.timeline,
-            teamSize: project.teamSize,
-            status: project.status,
-            category: project.category,
-            technologies: project.technologies,
-            results: project.results,
-            contentBlocks: project.contentBlocks,
-            clientTestimonial: project.clientTestimonial,
-            createdAt: project.createdAt,
-            updatedAt: project.updatedAt
+        const projectData = project;
+        const transformedProject = (0, localization_1.transformProjectByLocale)(projectData, locale);
+        const transformedCategory = (0, localization_1.transformProjectCategoryByLocale)(projectData.category, locale);
+        const transformedTechnologies = (projectData.technologies || []).map((tech) => (0, localization_1.transformProjectTechnologyByLocale)(tech, locale));
+        const transformedResults = (projectData.results || []).map((result) => (0, localization_1.transformProjectResultByLocale)(result, locale));
+        const transformedTestimonial = projectData.clientTestimonial
+            ? (0, localization_1.transformProjectTestimonialByLocale)(projectData.clientTestimonial, locale)
+            : null;
+        const transformedContentBlocks = (projectData.contentBlocks || []).map((block) => (0, localization_1.transformContentBlockByLocale)(block, locale));
+        const finalProject = {
+            id: projectData.id,
+            ...transformedProject,
+            headerImage: projectData.headerImage,
+            timeline: projectData.timeline,
+            teamSize: projectData.teamSize,
+            status: projectData.status,
+            category: transformedCategory,
+            technologies: transformedTechnologies,
+            results: transformedResults,
+            contentBlocks: transformedContentBlocks,
+            clientTestimonial: transformedTestimonial,
+            createdAt: projectData.createdAt,
+            updatedAt: projectData.updatedAt
         };
         return res.json({
             success: true,
-            data: { project: transformedProject }
+            data: { project: finalProject }
         });
     }
     catch (error) {
@@ -428,7 +636,7 @@ router.get('/:id/debug-content-blocks', async (req, res) => {
             data: {
                 projectId: id,
                 totalBlocks: allBlocks.length,
-                blocks: allBlocks.map(b => ({
+                blocks: allBlocks.map((b) => ({
                     id: b.id,
                     type: b.type,
                     order: b.order,
@@ -468,7 +676,7 @@ router.put('/:id/test-reorder', async (req, res) => {
             }
         });
         console.log('Found blocks:', existingBlocks.length);
-        console.log('Found block IDs:', existingBlocks.map(b => b.id));
+        console.log('Found block IDs:', existingBlocks.map((b) => b.id));
         if (existingBlocks.length === 0) {
             return res.status(404).json({
                 success: false,
@@ -487,7 +695,7 @@ router.put('/:id/test-reorder', async (req, res) => {
                 requestedIds: blockIds,
                 projectId: id,
                 foundBlocks: existingBlocks.length,
-                foundBlockIds: existingBlocks.map(b => b.id)
+                foundBlockIds: existingBlocks.map((b) => b.id)
             }
         });
     }

@@ -1,7 +1,7 @@
 'use client'
 
 import { Link } from '@/i18n/routing'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import LottieAnimation from '@/components/LottieAnimation'
 import LightweightAnimation from '@/components/LightweightAnimation'
 import PerformanceToggle from '@/components/PerformanceToggle'
@@ -16,6 +16,8 @@ export function Home({ services }: HomeProps) {
   const tCards = useTranslations('home.cards')
   const tServices = useTranslations('home.servicesSection')
   const tCta = useTranslations('home.ctaSection')
+  const locale = useLocale()
+  const isRTL = locale === 'ar'
 
   return (
     <div className="min-h-screen">
@@ -51,15 +53,10 @@ export function Home({ services }: HomeProps) {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
             {/* Left Content */}
-            <div className="space-y-6 sm:space-y-8 text-center lg:text-left rtl:text-right">
-              <div className="inline-flex items-center px-3 sm:px-4 py-2 bg-[#6812F7]/10 rounded-full text-[#6812F7] text-xs sm:text-sm font-medium mb-4 sm:mb-6">
-                <span className="w-2 h-2 bg-[#6812F7] rounded-full mr-2 rtl:mr-0 rtl:ml-2"></span>
-                {t('badgeText')}
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 leading-[0.9] rtl:text-right">
-                {t('title1')}
-                <span className="block gradient-text mt-1 sm:mt-2">
+            <div className={`space-y-6 sm:space-y-8 text-center ${isRTL ? 'lg:text-right' : 'lg:text-left'}`}>
+              <h1 className={`text-6xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-gray-900 leading-[0.9] text-center ${isRTL ? 'lg:text-right' : 'lg:text-left'}`}>
+                <span className="text-6xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">{t('title1')}</span>{' '}
+                <span className="gradient-text text-6xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold">
                   {t('title2')}
                 </span>
                 <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-gray-600 font-light mt-2 sm:mt-4">
@@ -78,22 +75,6 @@ export function Home({ services }: HomeProps) {
                 <Link href="/work" className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4">
                   {t('cta2')}
                 </Link>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 sm:gap-8 pt-6 sm:pt-8">
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold gradient-text">500+</div>
-                  <div className="text-xs sm:text-sm text-gray-500">{t('stats.projects')}</div>
-                </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold gradient-text">98%</div>
-                  <div className="text-xs sm:text-sm text-gray-500">{t('stats.successRate')}</div>
-                </div>
-                <div>
-                  <div className="text-2xl sm:text-3xl font-bold gradient-text">5+</div>
-                  <div className="text-xs sm:text-sm text-gray-500">{t('stats.years')}</div>
-                </div>
               </div>
             </div>
 

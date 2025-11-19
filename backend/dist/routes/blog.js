@@ -31,8 +31,10 @@ router.get('/articles', cache_1.cacheConfigs.blogArticles, async (req, res) => {
                         select: {
                             id: true,
                             name: true,
+                            nameAr: true,
                             avatar: true,
-                            role: true
+                            role: true,
+                            roleAr: true
                         }
                     },
                     category: {
@@ -51,7 +53,8 @@ router.get('/articles', cache_1.cacheConfigs.blogArticles, async (req, res) => {
         const transformedArticles = (0, localization_1.transformArticlesByLocale)(articles, normalizedLocale);
         const finalArticles = transformedArticles.map((article) => ({
             ...article,
-            category: article.category ? (0, localization_1.transformCategoryByLocale)(article.category, normalizedLocale) : article.category
+            category: article.category ? (0, localization_1.transformCategoryByLocale)(article.category, normalizedLocale) : article.category,
+            author: article.author ? (0, localization_1.transformAuthorByLocale)(article.author, normalizedLocale) : article.author
         }));
         return res.json({
             success: true,
@@ -86,9 +89,12 @@ router.get('/articles/:slug', async (req, res) => {
                     select: {
                         id: true,
                         name: true,
+                        nameAr: true,
                         avatar: true,
                         role: true,
-                        bio: true
+                        roleAr: true,
+                        bio: true,
+                        bioAr: true
                     }
                 },
                 category: {
@@ -162,6 +168,7 @@ router.get('/articles/:slug', async (req, res) => {
         });
         const transformedArticle = (0, localization_1.transformArticleByLocale)(article, normalizedLocale);
         const transformedCategory = article.category ? (0, localization_1.transformCategoryByLocale)(article.category, normalizedLocale) : null;
+        const transformedAuthor = article.author ? (0, localization_1.transformAuthorByLocale)(article.author, normalizedLocale) : null;
         const transformedRelatedArticles = relatedArticles.map((related) => {
             const transformedRelated = (0, localization_1.transformArticleByLocale)(related, normalizedLocale);
             const transformedRelatedCategory = related.category ? (0, localization_1.transformCategoryByLocale)(related.category, normalizedLocale) : null;
@@ -178,6 +185,7 @@ router.get('/articles/:slug', async (req, res) => {
         const articleWithRelated = {
             ...transformedArticle,
             category: transformedCategory,
+            author: transformedAuthor,
             relatedArticles: transformedRelatedArticles
         };
         return res.json({
@@ -193,7 +201,7 @@ router.get('/articles/:slug', async (req, res) => {
         });
     }
 });
-router.get('/categories', async (req, res) => {
+router.get('/categories', cache_1.cacheConfigs.blogCategories, async (req, res) => {
     try {
         const { locale } = req.query;
         const normalizedLocale = (0, localization_1.normalizeLocale)(locale);
@@ -365,10 +373,13 @@ router.post('/authors', async (req, res) => {
         const author = await prisma.blogAuthor.create({
             data: {
                 name: authorData.name,
+                nameAr: authorData.nameAr || null,
                 email: authorData.email,
                 role: authorData.role || 'Author',
+                roleAr: authorData.roleAr || null,
                 avatar: authorData.avatar || '👤',
                 bio: authorData.bio || '',
+                bioAr: authorData.bioAr || null,
                 socialLinks: authorData.socialLinks || {},
                 expertise: authorData.expertise || [],
                 joinDate: new Date().toISOString()
@@ -400,17 +411,27 @@ router.put('/authors/:id', async (req, res) => {
                 message: 'Author not found'
             });
         }
+        const updateData = {
+            ...(authorData.name !== undefined && { name: authorData.name }),
+            ...(authorData.email !== undefined && { email: authorData.email }),
+            ...(authorData.role !== undefined && { role: authorData.role }),
+            ...(authorData.avatar !== undefined && { avatar: authorData.avatar }),
+            ...(authorData.bio !== undefined && { bio: authorData.bio }),
+            ...(authorData.socialLinks !== undefined && { socialLinks: authorData.socialLinks }),
+            ...(authorData.expertise !== undefined && { expertise: authorData.expertise })
+        };
+        if (authorData.nameAr !== undefined) {
+            updateData.nameAr = authorData.nameAr || null;
+        }
+        if (authorData.roleAr !== undefined) {
+            updateData.roleAr = authorData.roleAr || null;
+        }
+        if (authorData.bioAr !== undefined) {
+            updateData.bioAr = authorData.bioAr || null;
+        }
         const updatedAuthor = await prisma.blogAuthor.update({
             where: { id },
-            data: {
-                name: authorData.name || existingAuthor.name,
-                email: authorData.email || existingAuthor.email,
-                role: authorData.role || existingAuthor.role,
-                avatar: authorData.avatar || existingAuthor.avatar,
-                bio: authorData.bio || existingAuthor.bio,
-                socialLinks: authorData.socialLinks || existingAuthor.socialLinks,
-                expertise: authorData.expertise || existingAuthor.expertise
-            }
+            data: updateData
         });
         return res.json({
             success: true,
@@ -592,6 +613,7 @@ router.put('/articles/:id', async (req, res) => {
                 }
             }
         });
+        cache_1.invalidateCache.blog();
         return res.json({
             success: true,
             data: { article: updatedArticle }
@@ -642,7 +664,8 @@ router.post('/upload-image', upload_1.default.single('image'), (req, res) => {
             });
         }
         const filename = req.file.filename;
-        const imageUrl = `http://localhost:3002/uploads/images/${filename}`;
+        const { BACKEND_URL } = require('../config/constants');
+        const imageUrl = `${BACKEND_URL}/uploads/images/${filename}`;
         return res.json({
             success: true,
             data: {

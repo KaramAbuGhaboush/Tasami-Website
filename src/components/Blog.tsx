@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
 import { BlogPost, BlogCategory } from '@/hooks/useBlog'
@@ -32,7 +32,8 @@ const getImageSrc = (image: string) => {
 
   // If it's a filename (contains extension), construct the full URL
   if (image.includes('.') && image.length > 10) {
-    return `http://localhost:3002/uploads/images/${image}`;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://www.tasami.co/api';
+    return `${apiUrl.replace('/api', '')}/uploads/images/${image}`;
   }
 
   // For anything else (like emojis), return null to show as emoji
@@ -52,6 +53,7 @@ export function Blog({
   const t = useTranslations('blog')
   const locale = useLocale()
   const isRTL = locale === 'ar'
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   // Format readTime for display based on locale
   const formatReadTime = (readTime: string) => {
@@ -96,6 +98,19 @@ export function Blog({
   const getArticleCount = useCallback((categoryId: string) => {
     return articleCountsByCategory.get(categoryId) || 0;
   }, [articleCountsByCategory]);
+
+  // Filter posts based on selected category
+  const filteredPosts = useMemo(() => {
+    if (selectedCategory === 'all') {
+      return regularPosts;
+    }
+    return regularPosts.filter(post => post.category.name === selectedCategory);
+  }, [regularPosts, selectedCategory]);
+
+  // Handle category selection
+  const handleCategoryClick = useCallback((category: string) => {
+    setSelectedCategory(category);
+  }, []);
 
   // Memoize featured categories selection for performance - ensure we show exactly 4 cards
   const displayCategories = useMemo(() => {
@@ -238,14 +253,24 @@ export function Blog({
           <div className="flex flex-wrap justify-center gap-4">
             <button
               key="all"
-              className="px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:border-[#6812F7] hover:text-[#6812F7] transition-all duration-300"
+              onClick={() => handleCategoryClick('all')}
+              className={`px-6 py-3 rounded-full border-2 transition-all duration-300 font-medium ${
+                selectedCategory === 'all'
+                  ? 'border-[#6812F7] text-[#6812F7] bg-[#6812F7]/5'
+                  : 'border-gray-300 text-gray-700 hover:border-[#6812F7] hover:text-[#6812F7]'
+              }`}
             >
               {t('allCategories')}
             </button>
             {categories.map((category, index) => (
               <button
                 key={index}
-                className="px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:border-[#6812F7] hover:text-[#6812F7] transition-all duration-300"
+                onClick={() => handleCategoryClick(category)}
+                className={`px-6 py-3 rounded-full border-2 transition-all duration-300 font-medium ${
+                  selectedCategory === category
+                    ? 'border-[#6812F7] text-[#6812F7] bg-[#6812F7]/5'
+                    : 'border-gray-300 text-gray-700 hover:border-[#6812F7] hover:text-[#6812F7]'
+                }`}
               >
                 {category}
               </button>
@@ -258,7 +283,12 @@ export function Blog({
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {regularPosts.map((post, index) => (
+            {filteredPosts.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-gray-600 text-lg">{t('noPostsFound') || 'No posts found in this category.'}</p>
+              </div>
+            ) : (
+              filteredPosts.map((post, index) => (
               <article key={post.id} className="">
                 {/* Image Section */}
                 <Link href={`/article/${post.slug}`} className="relative group block">
@@ -319,13 +349,15 @@ export function Blog({
                   </div>
                 </div>
               </article>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-20 gradient-primary">
+      {/* Commented out - hidden for now */}
+      {/* <section className="py-20 gradient-primary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             {t('stayUpdated')}
@@ -361,7 +393,7 @@ export function Blog({
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Popular Topics */}
       <section className="py-20">

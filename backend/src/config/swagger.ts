@@ -15,8 +15,8 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3002/api',
-        description: 'Development server',
+        url: process.env.API_BASE_URL ? `${process.env.API_BASE_URL}/api` : process.env.BACKEND_URL ? `${process.env.BACKEND_URL}/api` : `${process.env.API_PROTOCOL || 'http'}://${process.env.HOST || 'localhost'}:${process.env.PORT || 3002}/api`,
+        description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
       },
     ],
     components: {

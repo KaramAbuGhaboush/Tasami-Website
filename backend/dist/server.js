@@ -24,7 +24,7 @@ const timeEntries_1 = __importDefault(require("./routes/timeEntries"));
 const employees_1 = __importDefault(require("./routes/employees"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3002;
+const PORT = Number(process.env.PORT) || 3002;
 app.use(security_1.securityHeaders);
 app.use((0, cors_1.default)(security_2.securityConfig.cors));
 if (security_2.securityConfig.monitoring.performanceEnabled) {
@@ -89,11 +89,21 @@ app.use('*', (req, res) => {
         message: 'Route not found'
     });
 });
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📊 Health check: http://localhost:${PORT}/health`);
-    console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
-    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+const getBackendUrlForLog = () => {
+    if (process.env.BACKEND_URL) {
+        return process.env.BACKEND_URL;
+    }
+    const protocol = process.env.API_PROTOCOL || (process.env.NODE_ENV === 'production' ? 'https' : 'http');
+    const host = process.env.HOST || 'localhost';
+    return `${protocol}://${host}:${PORT}`;
+};
+const BACKEND_URL_LOG = getBackendUrlForLog();
+const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost');
+app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on ${HOST}:${PORT}`);
+    console.log(`📊 Health check: ${BACKEND_URL_LOG}/health`);
+    console.log(`🔗 API Base URL: ${BACKEND_URL_LOG}/api`);
+    console.log(`📚 API Documentation: ${BACKEND_URL_LOG}/api-docs`);
     console.log(`📝 Available endpoints:`);
     console.log(`   - POST /api/auth/register`);
     console.log(`   - POST /api/auth/login`);

@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
             where,
             orderBy: { createdAt: 'desc' }
         });
-        const transformedTestimonials = testimonials.map(testimonial => ({
+        const transformedTestimonials = testimonials.map((testimonial) => ({
             id: testimonial.id,
             clientName: testimonial.name,
             clientCompany: testimonial.company,

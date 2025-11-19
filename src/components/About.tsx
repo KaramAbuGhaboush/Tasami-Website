@@ -63,7 +63,7 @@ export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
               {t('description')}
               <span className="text-[#6812F7] font-semibold"> {t('descriptionHighlight1')}</span>,
               <span className="text-[#9253F0] font-semibold"> {t('descriptionHighlight2')}</span>,
-              <span className="text-[#6812F7] font-semibold"> {t('descriptionHighlight3')}</span>, and
+              <span className="text-[#6812F7] font-semibold"> {t('descriptionHighlight3')}</span>{isRTL ? ' ' : ', '}{t('and')}
               <span className="text-[#9253F0] font-semibold"> {t('descriptionHighlight4')}</span>.
             </p>
 
@@ -75,8 +75,8 @@ export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
               >
                 <span className="flex items-center justify-center">
                   {t('hero.cta1')}
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <svg className={`w-5 h-5 ${isRTL ? 'mr-3' : 'ml-2'} group-hover:translate-x-1 transition-transform duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M7 16l-4-4m0 0l4-4m-4 4h18" : "M17 8l4 4m0 0l-4 4m4-4H3"} />
                   </svg>
                 </span>
               </Link>
@@ -86,8 +86,8 @@ export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
               >
                 <span className="flex items-center justify-center">
                   {t('hero.cta2')}
-                  <svg className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  <svg className={`w-5 h-5 ${isRTL ? 'mr-3' : 'ml-2'} group-hover:translate-x-1 transition-transform duration-300`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isRTL ? "M7 16l-4-4m0 0l4-4m-4 4h18" : "M17 8l4 4m0 0l-4 4m4-4H3"} />
                   </svg>
                 </span>
               </Link>
@@ -96,7 +96,7 @@ export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
             {/* Trust Indicators */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center group">
-                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">2024</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">2025</div>
                 <div className="text-gray-600 font-medium">{t('hero.trustIndicators.founded')}</div>
               </div>
               <div className="text-center group">

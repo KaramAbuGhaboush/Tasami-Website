@@ -249,6 +249,16 @@ router.get('/articles/:slug', async (req, res) => {
               slug: true,
               color: true
             } as any
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              nameAr: true,
+              avatar: true,
+              role: true,
+              roleAr: true
+            } as any
           }
         }
       });
@@ -278,6 +288,16 @@ router.get('/articles/:slug', async (req, res) => {
               slug: true,
               color: true
             } as any
+          },
+          author: {
+            select: {
+              id: true,
+              name: true,
+              nameAr: true,
+              avatar: true,
+              role: true,
+              roleAr: true
+            } as any
           }
         }
       });
@@ -298,14 +318,22 @@ router.get('/articles/:slug', async (req, res) => {
     const transformedRelatedArticles = relatedArticles.map((related: any) => {
       const transformedRelated = transformArticleByLocale(related, normalizedLocale);
       const transformedRelatedCategory = related.category ? transformCategoryByLocale(related.category, normalizedLocale) : null;
+      const transformedRelatedAuthor = related.author ? transformAuthorByLocale(related.author, normalizedLocale) : null;
       return {
         title: transformedRelated.title,
         slug: transformedRelated.slug,
-        category: transformedRelatedCategory?.name || 'Uncategorized',
+        category: transformedRelatedCategory ? {
+          name: transformedRelatedCategory.name,
+          color: related.category.color
+        } : { name: 'Uncategorized', color: '#6812F7' },
         readTime: transformedRelated.readTime,
         excerpt: transformedRelated.excerpt,
         image: transformedRelated.image,
-        createdAt: transformedRelated.createdAt
+        createdAt: transformedRelated.createdAt,
+        author: transformedRelatedAuthor ? {
+          name: transformedRelatedAuthor.name,
+          avatar: transformedRelatedAuthor.avatar
+        } : null
       };
     });
 
@@ -1560,7 +1588,7 @@ router.delete('/articles/:id', async (req, res) => {
  *                       example: "blog-1234567890-123456789.jpg"
  *                     url:
  *                       type: string
- *                       example: "http://localhost:3002/uploads/images/blog-1234567890-123456789.jpg"
+ *                       example: "https://yourdomain.com/uploads/images/blog-1234567890-123456789.jpg"
  *       400:
  *         description: Bad request - no file uploaded
  *         content:
@@ -1584,7 +1612,8 @@ router.post('/upload-image', upload.single('image'), (req, res) => {
     }
 
     const filename = req.file.filename;
-    const imageUrl = `http://localhost:3002/uploads/images/${filename}`;
+    const { BACKEND_URL } = require('../config/constants');
+    const imageUrl = `${BACKEND_URL}/uploads/images/${filename}`;
 
     return res.json({
       success: true,

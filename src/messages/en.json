@@ -19,16 +19,11 @@
     "allRightsReserved": "All rights reserved"
   },
   "home": {
-    "badgeText": "Trusted by 500+ Companies",
+    "badgeText": "Your right place ",
     "title1": "Transform Your",
     "title2": "Business",
     "title3": "with AI & Automation",
     "description": "We help companies leverage cutting-edge technology to streamline operations, enhance user experiences, and drive growth.",
-    "stats": {
-      "projects": "Projects",
-      "successRate": "Success Rate",
-      "years": "Years"
-    },
     "cta1": "Start Your Project",
     "cta2": "View Our Work",
     "cards": {
@@ -59,6 +54,7 @@
     "descriptionHighlight2": "automation",
     "descriptionHighlight3": "design",
     "descriptionHighlight4": "marketing solutions",
+    "and": "and",
     "hero": {
       "cta1": "Work With Us",
       "cta2": "Our Services",

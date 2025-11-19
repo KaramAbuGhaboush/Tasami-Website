@@ -155,7 +155,7 @@ export function Contact({
                     return (
                       <div key={index} className="flex items-center justify-between p-3 sm:p-4 bg-white/40 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-gradient-to-r hover:from-[#6812F7]/10 hover:to-[#9253F0]/10 hover:border-[#6812F7]/20 transition-all duration-300">
                         <div className="flex items-center min-w-0 flex-1">
-                          <div className="text-xl sm:text-2xl mr-2 sm:mr-3 flex-shrink-0">{info.icon}</div>
+                          <div className="text-xl sm:text-2xl mr-2 sm:mr-3 rtl:mr-0 rtl:ml-2 rtl:sm:ml-3 flex-shrink-0">{info.icon}</div>
                           <div className="min-w-0 flex-1">
                             <div className="font-semibold text-gray-900 text-sm sm:text-base">{t(`contactInfo.${contactKey}.title`)}</div>
                             <div className="text-gray-600 text-xs sm:text-sm truncate">{info.contact}</div>
@@ -163,7 +163,7 @@ export function Contact({
                         </div>
                         <a
                           href={info.contact.includes('@') ? `mailto:${info.contact}` : info.contact.includes('+') ? `https://wa.me/${info.contact.replace(/[^\d]/g, '')}` : '#'}
-                          className="text-[#6812F7] hover:text-[#9253F0] font-medium transition-colors text-sm sm:text-base flex-shrink-0 ml-2"
+                          className="text-[#6812F7] hover:text-[#9253F0] font-medium transition-colors text-sm sm:text-base flex-shrink-0 ml-2 rtl:ml-0 rtl:mr-2"
                         >
                           {t(`contactInfo.${contactKey}.action`)}
                         </a>
