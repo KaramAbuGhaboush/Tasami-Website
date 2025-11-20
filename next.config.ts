@@ -3,20 +3,13 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
-// Get API URL from environment variable
-const API_HOST = process.env.NEXT_PUBLIC_API_HOST || (() => {
-  const host = process.env.NEXT_PUBLIC_API_HOSTNAME || 'localhost';
-  const port = process.env.NEXT_PUBLIC_API_PORT || '3002';
-  return `${host}:${port}`;
-})();
-const API_PROTOCOL = process.env.NEXT_PUBLIC_API_PROTOCOL || 'http';
 const PRODUCTION_DOMAIN = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN || 'yourdomain.com';
 
 const nextConfig: NextConfig = {
   /* config options here */
   
-  // Standalone output for cPanel deployment
-  output: 'standalone',
+  // Remove standalone for Vercel (Vercel handles this automatically)
+  // output: 'standalone',
   
   // Image optimization
   images: {
@@ -27,12 +20,6 @@ const nextConfig: NextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
-      ...(process.env.NODE_ENV === 'development' ? [{
-        protocol: (process.env.NEXT_PUBLIC_API_PROTOCOL || 'http') as const,
-        hostname: process.env.NEXT_PUBLIC_API_HOSTNAME || 'localhost',
-        port: process.env.NEXT_PUBLIC_API_PORT || '3002',
-        pathname: '/uploads/**',
-      }] : []),
       ...(PRODUCTION_DOMAIN ? [{
         protocol: 'https' as const,
         hostname: PRODUCTION_DOMAIN,
@@ -85,7 +72,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: ${process.env.NODE_ENV === 'development' ? `${API_PROTOCOL}://${API_HOST}` : ''} ${PRODUCTION_DOMAIN ? `https://${PRODUCTION_DOMAIN}` : ''}; connect-src 'self' ${process.env.NODE_ENV === 'development' ? `${API_PROTOCOL}://${API_HOST}` : ''} ${PRODUCTION_DOMAIN ? `https://${PRODUCTION_DOMAIN}` : ''}; frame-ancestors 'none'; base-uri 'self'; form-action 'self';`
+            value: `default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: ${PRODUCTION_DOMAIN ? `https://${PRODUCTION_DOMAIN}` : ''}; connect-src 'self' ${PRODUCTION_DOMAIN ? `https://${PRODUCTION_DOMAIN}` : ''}; frame-ancestors 'none'; base-uri 'self'; form-action 'self';`
           },
           {
             key: 'X-Frame-Options',

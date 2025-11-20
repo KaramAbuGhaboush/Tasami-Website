@@ -165,3 +165,265 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Tailwind CSS for the utility-first CSS framework
 # Tasami-Website
 # Tasami-Website
+
+```
+Tasami-Website
+├─ .cursor
+│  └─ commands
+│     └─ en.md
+├─ .htaccess
+├─ backend
+│  ├─ .htaccess
+│  ├─ API_DOCUMENTATION.md
+│  ├─ ecosystem.config.js
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ prisma
+│  │  ├─ schema.prisma
+│  │  ├─ seed-blog-articles.ts
+│  │  ├─ seed-blog-categories.ts
+│  │  ├─ seed-categories.ts
+│  │  ├─ seed-job-positions.ts
+│  │  ├─ seed-testimonials.ts
+│  │  └─ seed.ts
+│  ├─ src
+│  │  ├─ config
+│  │  │  ├─ constants.ts
+│  │  │  ├─ security.ts
+│  │  │  └─ swagger.ts
+│  │  ├─ middleware
+│  │  │  ├─ auth.ts
+│  │  │  ├─ cache.ts
+│  │  │  ├─ errorHandler.ts
+│  │  │  ├─ security.ts
+│  │  │  ├─ upload.ts
+│  │  │  └─ validation.ts
+│  │  ├─ routes
+│  │  │  ├─ auth.ts
+│  │  │  ├─ blog.ts
+│  │  │  ├─ career.ts
+│  │  │  ├─ categories.ts
+│  │  │  ├─ contact.ts
+│  │  │  ├─ employees.ts
+│  │  │  ├─ projects.ts
+│  │  │  ├─ testimonials.ts
+│  │  │  └─ timeEntries.ts
+│  │  ├─ server.ts
+│  │  ├─ services
+│  │  │  └─ emailService.ts
+│  │  └─ utils
+│  │     ├─ localization.ts
+│  │     └─ performance.ts
+│  ├─ tsconfig.json
+│  └─ uploads
+│     └─ images
+│        ├─ ai-business.jpg
+│        ├─ automation.jpg
+│        ├─ blog-1761169139935-987005233.jpg
+│        ├─ blog-1761175809687-585532344.png
+│        ├─ blog-1761330088014-927718302.jpg
+│        ├─ blog-1761334517026-637957566.jpg
+│        ├─ blog-1761334590365-787994890.jpg
+│        ├─ blog-1761335029322-523342903.jpg
+│        ├─ blog-1761335206725-856540857.jpg
+│        ├─ blog-1761335328805-948574623.jpg
+│        ├─ blog-1762274338145-747602469.jpeg
+│        ├─ blog-1762275150502-513036041.jpeg
+│        ├─ blog-1762275706800-645284966.jpeg
+│        ├─ data-analysis.jpg
+│        ├─ design-ui.jpg
+│        ├─ marketing.jpg
+│        └─ mvp.jpg
+├─ components.json
+├─ eslint.config.mjs
+├─ middleware.ts
+├─ next.config.production.ts
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ prisma
+│  └─ schema.prisma
+├─ public
+│  ├─ file.svg
+│  ├─ Font
+│  │  ├─ Hacen-Algeria-Bd.ttf
+│  │  ├─ Hacen-Algeria.ttf
+│  │  ├─ ROCK.TTF
+│  │  └─ Rockwell-Bold.ttf
+│  ├─ globe.svg
+│  ├─ Logo.png
+│  ├─ lotties
+│  │  ├─ animations
+│  │  │  └─ cc8e23a8-14cd-11ed-8c34-12dbed2149cd.json
+│  │  ├─ artificial_intelligence.json
+│  │  ├─ Automation_Process.json
+│  │  ├─ Data_Analysis.json
+│  │  ├─ Design_X_UI.json
+│  │  ├─ ecommerce-automation.lottie
+│  │  ├─ manifest.json
+│  │  ├─ Marketing_Solutions.json
+│  │  └─ Mvp.json
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ blog
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ career
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ contact
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ page.tsx
+│  │  │  ├─ portfolio
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ projects
+│  │  │  │  └─ [id]
+│  │  │  │     └─ edit
+│  │  │  │        └─ page.tsx
+│  │  │  └─ users
+│  │  │     └─ page.tsx
+│  │  ├─ employee
+│  │  │  └─ page.tsx
+│  │  ├─ favicon.ico
+│  │  ├─ global-error.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ [locale]
+│  │     ├─ about
+│  │     │  └─ page.tsx
+│  │     ├─ article
+│  │     │  └─ [slug]
+│  │     │     └─ page.tsx
+│  │     ├─ blog
+│  │     │  └─ page.tsx
+│  │     ├─ career
+│  │     │  └─ page.tsx
+│  │     ├─ contact
+│  │     │  └─ page.tsx
+│  │     ├─ error.tsx
+│  │     ├─ Font
+│  │     │  ├─ ROCK.TTF
+│  │     │  └─ Rockwell-Bold.ttf
+│  │     ├─ layout.tsx
+│  │     ├─ not-found.tsx
+│  │     ├─ page.tsx
+│  │     ├─ projects
+│  │     │  └─ [id]
+│  │     │     └─ page.tsx
+│  │     ├─ services
+│  │     │  └─ page.tsx
+│  │     ├─ test-404
+│  │     ├─ work
+│  │     │  └─ page.tsx
+│  │     ├─ [...not-found]
+│  │     └─ [...slug]
+│  │        └─ page.tsx
+│  ├─ components
+│  │  ├─ About.tsx
+│  │  ├─ admin
+│  │  │  ├─ BlogPage.tsx
+│  │  │  ├─ CareerPage.tsx
+│  │  │  ├─ ContactPage.tsx
+│  │  │  ├─ DashboardCharts.tsx
+│  │  │  ├─ OverviewPage.tsx
+│  │  │  ├─ PortfolioPage.tsx
+│  │  │  └─ UsersPage.tsx
+│  │  ├─ Admin.tsx
+│  │  ├─ AdminLayout.tsx
+│  │  ├─ AdminSidebar.tsx
+│  │  ├─ AIHero.tsx
+│  │  ├─ Article.tsx
+│  │  ├─ Blog.tsx
+│  │  ├─ Career.tsx
+│  │  ├─ CategoryFilter.tsx
+│  │  ├─ ConditionalNavbar.tsx
+│  │  ├─ Contact.tsx
+│  │  ├─ Employee.tsx
+│  │  ├─ Footer.tsx
+│  │  ├─ Home.tsx
+│  │  ├─ LightweightAnimation.tsx
+│  │  ├─ LoadingSpinner.tsx
+│  │  ├─ LottieAnimation.tsx
+│  │  ├─ OptimizedImage.tsx
+│  │  ├─ PerformanceToggle.tsx
+│  │  ├─ Project.tsx
+│  │  ├─ ProjectCard.tsx
+│  │  ├─ ProjectCaseStudy.tsx
+│  │  ├─ ProjectEditor.tsx
+│  │  ├─ ProtectedRoute.tsx
+│  │  ├─ ScrollNavbar.tsx
+│  │  ├─ Services.tsx
+│  │  ├─ TestimonialsSlider.tsx
+│  │  ├─ ui
+│  │  │  ├─ alert-dialog.tsx
+│  │  │  ├─ avatar.tsx
+│  │  │  ├─ badge.tsx
+│  │  │  ├─ button.tsx
+│  │  │  ├─ calendar.tsx
+│  │  │  ├─ card.tsx
+│  │  │  ├─ dialog.tsx
+│  │  │  ├─ dropdown-menu.tsx
+│  │  │  ├─ form.tsx
+│  │  │  ├─ input.tsx
+│  │  │  ├─ label.tsx
+│  │  │  ├─ pagination.tsx
+│  │  │  ├─ popover.tsx
+│  │  │  ├─ progress.tsx
+│  │  │  ├─ select.tsx
+│  │  │  ├─ separator.tsx
+│  │  │  ├─ sheet.tsx
+│  │  │  ├─ table.tsx
+│  │  │  ├─ tabs.tsx
+│  │  │  ├─ textarea.tsx
+│  │  │  └─ toast.tsx
+│  │  └─ Work.tsx
+│  ├─ contexts
+│  │  └─ AuthContext.tsx
+│  ├─ hooks
+│  │  ├─ useAbout.ts
+│  │  ├─ useAdmin.ts
+│  │  ├─ useArticle.ts
+│  │  ├─ useBlog.ts
+│  │  ├─ useBlogAdmin.ts
+│  │  ├─ useCareer.ts
+│  │  ├─ useCareerAdmin.ts
+│  │  ├─ useContact.ts
+│  │  ├─ useContactAdmin.ts
+│  │  ├─ useDashboardOverview.ts
+│  │  ├─ useEmployee.ts
+│  │  ├─ useHome.ts
+│  │  ├─ useNotification.ts
+│  │  ├─ usePortfolioAdmin.ts
+│  │  ├─ useProject.ts
+│  │  ├─ useProjects.ts
+│  │  ├─ useServices.ts
+│  │  ├─ useTestimonials.ts
+│  │  ├─ useTestimonialsSlider.ts
+│  │  ├─ useWork.ts
+│  │  └─ useWorkData.ts
+│  ├─ i18n
+│  │  ├─ request.ts
+│  │  └─ routing.ts
+│  ├─ lib
+│  │  ├─ api.ts
+│  │  ├─ config.ts
+│  │  └─ utils.ts
+│  ├─ messages
+│  │  ├─ ar.json
+│  │  └─ en.json
+│  ├─ middleware
+│  │  └─ auth.ts
+│  ├─ utils
+│  └─ __tests__
+│     ├─ portfolio-admin.test.tsx
+│     └─ usePortfolioAdmin.test.ts
+└─ tsconfig.json
+
+```

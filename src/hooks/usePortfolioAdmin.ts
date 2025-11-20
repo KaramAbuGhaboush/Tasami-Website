@@ -119,6 +119,15 @@ export interface CreateCategoryData {
 
 import { API_BASE_URL } from '../lib/config'
 
+// Helper to get auth headers
+const getAuthHeaders = () => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  }
+}
+
 export function usePortfolioAdmin() {
   const [projects, setProjects] = useState<Project[]>([])
   const [categories, setCategories] = useState<ProjectCategory[]>([])
@@ -137,12 +146,14 @@ export function usePortfolioAdmin() {
         fetch(`${API_BASE_URL}/projects?status=all&_t=${timestamp}`, {
           cache: 'no-store',
           headers: {
+            ...getAuthHeaders(),
             'Cache-Control': 'no-cache',
           }
         }),
         fetch(`${API_BASE_URL}/categories?_t=${timestamp}`, {
           cache: 'no-store',
           headers: {
+            ...getAuthHeaders(),
             'Cache-Control': 'no-cache',
           }
         })
@@ -176,9 +187,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(projectData),
       })
 
@@ -212,9 +221,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(projectData),
       })
 
@@ -242,6 +249,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       })
 
       if (!response.ok) {
@@ -264,9 +272,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/categories`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(categoryData),
       })
 
@@ -290,9 +296,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(categoryData),
       })
 
@@ -316,6 +320,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       })
 
       if (!response.ok) {
@@ -338,9 +343,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}/content-blocks`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(blockData),
       })
 
@@ -368,9 +371,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}/content-blocks/${blockId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(blockData),
       })
 
@@ -403,6 +404,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}/content-blocks/${blockId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       })
 
       if (!response.ok) {
@@ -428,9 +430,7 @@ export function usePortfolioAdmin() {
       setError(null)
       const response = await fetch(`${API_BASE_URL}/projects/${projectId}/content-blocks/reorder`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ blocks }),
       })
 
@@ -466,8 +466,15 @@ export function usePortfolioAdmin() {
       const formData = new FormData()
       formData.append('image', file)
 
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+      const headers: HeadersInit = {}
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+      }
+      
       const response = await fetch(`${API_BASE_URL}/blog/upload-image`, {
         method: 'POST',
+        headers,
         body: formData,
       })
       

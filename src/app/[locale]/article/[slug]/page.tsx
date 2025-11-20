@@ -54,7 +54,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             console.error('Error response:', errorText)
         }
     } catch (error) {
-        console.error('Error fetching article from backend:', error)
+        console.error('Error fetching article:', error)
         // If it's a network error (backend not running), show a more helpful message
         if (error instanceof TypeError && error.message.includes('fetch')) {
             console.error('Backend server might not be running. Please start it with: cd backend && npm run dev')

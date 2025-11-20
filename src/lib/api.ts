@@ -12,9 +12,9 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     // Ensure baseUrl is valid
-    if (!this.baseUrl || this.baseUrl === 'undefined' || this.baseUrl.includes('undefined')) {
+    if (!this.baseUrl) {
       console.error('Invalid API base URL:', this.baseUrl);
-      throw new Error('API base URL is not configured. Please set NEXT_PUBLIC_API_URL environment variable.');
+      throw new Error('API base URL is not configured.');
     }
     
     const url = `${this.baseUrl}${endpoint}`;
@@ -37,14 +37,34 @@ class ApiClient {
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = '';
+        let errorData = null;
+        
+        try {
+          errorText = await response.text();
+          // Try to parse as JSON
+          if (errorText) {
+            try {
+              errorData = JSON.parse(errorText);
+            } catch {
+              // Not JSON, use as text
+            }
+          }
+        } catch (e) {
+          errorText = 'Unable to read error response';
+        }
+        
+        const errorMessage = errorData?.message || errorData?.error || errorText || response.statusText;
+        
         console.error('API request failed:', { 
           status: response.status, 
           statusText: response.statusText, 
           url,
-          error: errorText.substring(0, 200) 
+          error: errorMessage,
+          fullError: errorData || errorText
         });
-        throw new Error(`HTTP error! status: ${response.status}, message: ${response.statusText}`);
+        
+        throw new Error(errorMessage || `HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();

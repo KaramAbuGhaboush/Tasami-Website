@@ -1,0 +1,80 @@
+# ============================================
+# COMPLETE .ENV FILE TEMPLATE
+# Copy this to your .env file and update with your actual values
+# ============================================
+
+# ============================================
+# DATABASE CONFIGURATION (REQUIRED)
+# ============================================
+# MySQL connection string for Prisma
+# Format: mysql://username:password@host:port/database_name
+# Example: mysql://root:mypassword@localhost:3306/tasami_db
+# For remote: mysql://user:pass@db.example.com:3306/tasami_db
+DATABASE_URL="mysql://user:password@localhost:3306/tasami_db"
+
+# ============================================
+# JWT AUTHENTICATION (REQUIRED)
+# ============================================
+# Secret key for JWT token generation and verification
+# IMPORTANT: Use a strong, random string in production!
+# Generate one with: openssl rand -base64 32
+JWT_SECRET="your-super-secure-jwt-secret-key-change-this-in-production"
+
+# ============================================
+# EMAIL CONFIGURATION - SMTP (REQUIRED for contact form)
+# ============================================
+# SMTP server hostname
+# Gmail: smtp.gmail.com
+# Outlook: smtp-mail.outlook.com
+# Custom: your-smtp-server.com
+SMTP_HOST="smtp.gmail.com"
+
+# SMTP server port
+# 587 for TLS (recommended)
+# 465 for SSL
+# 25 for unencrypted (not recommended)
+SMTP_PORT="587"
+
+# Use SSL/TLS encryption
+# true for port 465 (SSL)
+# false for port 587 (TLS)
+SMTP_SECURE="false"
+
+# SMTP username (usually your email address)
+SMTP_USER="your-email@gmail.com"
+
+# SMTP password
+# For Gmail: Use an App Password (not your regular password)
+# Generate at: https://myaccount.google.com/apppasswords
+SMTP_PASS="your-app-password"
+
+# ============================================
+# FILE UPLOAD CONFIGURATION (OPTIONAL)
+# ============================================
+# Directory for uploaded files
+# Defaults to: ./public/uploads/images
+# Make sure this directory exists and is writable
+UPLOAD_DIR="./public/uploads/images"
+
+# ============================================
+# NODE ENVIRONMENT (OPTIONAL but recommended)
+# ============================================
+# Set to "development" for local development
+# Set to "production" for production deployment
+# Next.js will use this for optimizations
+NODE_ENV="development"
+
+# ============================================
+# NEXT.JS PUBLIC VARIABLES (OPTIONAL)
+# ============================================
+# These are exposed to the browser (NEXT_PUBLIC_ prefix)
+
+# Public API URL (if you need external API calls)
+# Since we're using relative paths (/api), this may not be needed
+# Only set if you have a separate API server
+# NEXT_PUBLIC_API_URL="https://www.tasami.co/api"
+
+# Production domain for image optimization and CSP headers
+# Used in next.config.ts for image domains and security headers
+NEXT_PUBLIC_PRODUCTION_DOMAIN="www.tasami.co"
+
