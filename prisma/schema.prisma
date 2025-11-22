@@ -107,9 +107,11 @@ model BlogArticle {
   @@index([slug])
   @@index([status])
   @@index([featured])
+  @@index([status, featured])
   @@index([createdAt])
   @@index([authorId])
   @@index([categoryId])
+  @@index([status, categoryId])
   @@index([views])
   @@map("blog_articles")
 }
@@ -139,6 +141,10 @@ model Project {
   clientTestimonial ProjectTestimonial?
   contentBlocks     ContentBlock[]
 
+  @@index([status])
+  @@index([categoryId])
+  @@index([status, categoryId])
+  @@index([createdAt])
   @@map("projects")
 }
 
@@ -235,6 +241,12 @@ model Job {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  @@index([status])
+  @@index([department])
+  @@index([location])
+  @@index([status, department])
+  @@index([postedDate])
+  @@index([applicationDeadline])
   @@map("jobs")
 }
 
@@ -252,6 +264,10 @@ model ContactMessage {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([status])
+  @@index([email])
+  @@index([createdAt])
+  @@index([status, createdAt])
   @@map("contact_messages")
 }
 
@@ -327,6 +343,10 @@ model ProjectCategory {
 
   projects    Project[]
 
+  @@index([slug])
+  @@index([status])
+  @@index([featured])
+  @@index([status, featured])
   @@map("project_categories")
 }
 
@@ -344,5 +364,8 @@ model TimeEntry {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+  @@index([date])
+  @@index([userId, date])
   @@map("time_entries")
 }

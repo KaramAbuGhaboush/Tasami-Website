@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { memo } from 'react'
 import { ContactFormData, ContactInfo } from '@/hooks/useContact'
 
 interface ContactProps {
@@ -15,7 +16,7 @@ interface ContactProps {
   budgetRanges: string[];
 }
 
-export function Contact({
+export const Contact = memo(function Contact({
   formData,
   isSubmitting,
   isSubmitted,
@@ -363,4 +364,4 @@ export function Contact({
       </section>
     </div>
   )
-}
+})

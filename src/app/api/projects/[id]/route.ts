@@ -1,15 +1,7 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import {
-  normalizeLocale,
-  transformProjectByLocale,
-  transformProjectCategoryByLocale,
-  transformProjectTechnologyByLocale,
-  transformProjectResultByLocale,
-  transformProjectTestimonialByLocale,
-  transformContentBlockByLocale,
-} from '@/server/utils/localization';
+import { ProjectService } from '@/services/projectService';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 /**
  * GET /api/projects/[id] - Get project by ID
@@ -21,44 +13,23 @@ export async function GET(
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const locale = normalizeLocale(searchParams.get('locale'));
+    const locale = searchParams.get('locale') || 'en';
 
-    const project = await prisma.project.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        technologies: true,
-        results: true,
-        clientTestimonial: true,
-        contentBlocks: {
-          orderBy: { order: 'asc' }
-        }
-      }
-    });
+    const project = await ProjectService.getProjectById(id, locale);
 
     if (!project) {
       return createErrorResponse('Project not found', 404);
     }
 
-    // Transform based on locale
-    const transformedProject = transformProjectByLocale(project, locale);
-    transformedProject.category = project.category 
-      ? transformProjectCategoryByLocale(project.category, locale) 
-      : project.category;
-    transformedProject.technologies = project.technologies.map((tech: any) =>
-      transformProjectTechnologyByLocale(tech, locale)
-    );
-    transformedProject.results = project.results.map((result: any) =>
-      transformProjectResultByLocale(result, locale)
-    );
-    if (project.clientTestimonial) {
-      transformedProject.clientTestimonial = transformProjectTestimonialByLocale(project.clientTestimonial, locale);
-    }
-    transformedProject.contentBlocks = project.contentBlocks.map((block: any) =>
-      transformContentBlockByLocale(block, locale)
-    );
+    const response = createSuccessResponse({ project });
+    
+    // Reduced cache time for faster updates (30 seconds instead of 5 minutes)
+    // This allows updates to be visible much faster
+    // Also add cache tags for revalidation
+    response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
+    response.headers.set('Cache-Tag', `project-${id},projects`);
 
-    return createSuccessResponse({ project: transformedProject });
+    return response;
   } catch (error) {
     return handleError(error);
   }
@@ -83,78 +54,16 @@ export async function PUT(
     const body = await request.json();
     const { sanitizeObject } = await import('@/lib/validation');
     
-    // Extract nested relations
-    const { technologies, results, testimonial, ...projectData } = body;
-    const sanitizedProjectData = sanitizeObject(projectData);
+    const sanitizedData = sanitizeObject(body);
+    const project = await ProjectService.updateProject(id, sanitizedData);
 
-    // Build update data with proper nested relation handling
-    const updateData: any = { ...sanitizedProjectData };
-
-    // Handle technologies: delete all existing and create new ones
-    if (technologies !== undefined) {
-      updateData.technologies = {
-        deleteMany: {},
-        create: Array.isArray(technologies) ? technologies.map((tech: any) => ({
-          name: tech.name,
-          nameAr: tech.nameAr || null,
-          description: tech.description,
-          descriptionAr: tech.descriptionAr || null,
-        })) : []
-      };
-    }
-
-    // Handle results: delete all existing and create new ones
-    if (results !== undefined) {
-      updateData.results = {
-        deleteMany: {},
-        create: Array.isArray(results) ? results.map((result: any) => ({
-          metric: result.metric,
-          metricAr: result.metricAr || null,
-          description: result.description,
-          descriptionAr: result.descriptionAr || null,
-        })) : []
-      };
-    }
-
-    // Handle testimonial: upsert (update or create)
-    if (testimonial !== undefined) {
-      if (testimonial === null) {
-        // Delete testimonial if null
-        updateData.clientTestimonial = { delete: true };
-      } else {
-        updateData.clientTestimonial = {
-          upsert: {
-            create: {
-              quote: testimonial.quote,
-              quoteAr: testimonial.quoteAr || null,
-              author: testimonial.author,
-              authorAr: testimonial.authorAr || null,
-              position: testimonial.position,
-              positionAr: testimonial.positionAr || null,
-            },
-            update: {
-              quote: testimonial.quote,
-              quoteAr: testimonial.quoteAr || null,
-              author: testimonial.author,
-              authorAr: testimonial.authorAr || null,
-              position: testimonial.position,
-              positionAr: testimonial.positionAr || null,
-            }
-          }
-        };
-      }
-    }
-
-    const project = await prisma.project.update({
-      where: { id },
-      data: updateData,
-      include: {
-        category: true,
-        technologies: true,
-        results: true,
-        clientTestimonial: true
-      }
-    });
+    // Revalidate the project pages and cache tags to clear cache
+    // Revalidate all locale variants of the project page
+    revalidatePath(`/en/projects/${id}`, 'page');
+    revalidatePath(`/ar/projects/${id}`, 'page');
+    revalidatePath('/projects', 'page'); // Also revalidate projects listing
+    revalidateTag(`project-${id}`);
+    revalidateTag('projects');
 
     return createSuccessResponse({ project }, 'Project updated successfully');
   } catch (error) {
@@ -179,9 +88,15 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await prisma.project.delete({
-      where: { id }
-    });
+    await ProjectService.deleteProject(id);
+
+    // Revalidate paths after deletion
+    revalidatePath('/en/projects', 'page');
+    revalidatePath('/ar/projects', 'page');
+    revalidatePath(`/en/projects/${id}`, 'page');
+    revalidatePath(`/ar/projects/${id}`, 'page');
+    revalidateTag(`project-${id}`);
+    revalidateTag('projects');
 
     return createSuccessResponse(null, 'Project deleted successfully');
   } catch (error) {

@@ -47,9 +47,9 @@ export function transformArticleByLocale(article: BlogArticleRaw, locale: Locale
 
   return {
     ...article,
-    title: isArabic && article.titleAr ? article.titleAr : article.title,
-    excerpt: isArabic && article.excerptAr ? article.excerptAr : (article.excerpt || null),
-    content: isArabic && article.contentAr ? article.contentAr : (article.content || null),
+    title: isArabic && (article.titleAr != null && article.titleAr.trim() !== '') ? article.titleAr : article.title,
+    excerpt: isArabic && (article.excerptAr != null && article.excerptAr.trim() !== '') ? article.excerptAr : (article.excerpt || null),
+    content: isArabic && (article.contentAr != null && article.contentAr.trim() !== '') ? article.contentAr : (article.content || null),
   };
 }
 
@@ -177,12 +177,21 @@ export function transformProjectByLocale(project: ProjectRaw, locale: Locale = '
 
   const isArabic = locale === 'ar';
 
+  // Transform content blocks if they exist
+  let transformedContentBlocks = project.contentBlocks;
+  if (project.contentBlocks && Array.isArray(project.contentBlocks)) {
+    transformedContentBlocks = project.contentBlocks.map((block: any) => 
+      transformContentBlockByLocale(block, locale)
+    );
+  }
+
   return {
     ...project,
     title: isArabic && project.titleAr ? project.titleAr : project.title,
     description: isArabic && project.descriptionAr ? project.descriptionAr : project.description,
     challenge: isArabic && project.challengeAr ? project.challengeAr : (project.challenge || null),
     solution: isArabic && project.solutionAr ? project.solutionAr : (project.solution || null),
+    contentBlocks: transformedContentBlocks,
   };
 }
 
@@ -267,9 +276,9 @@ export function transformContentBlockByLocale(block: ContentBlockRaw, locale: Lo
 
   return {
     ...block,
-    content: isArabic && block.contentAr ? block.contentAr : (block.content || null),
-    alt: isArabic && block.altAr ? block.altAr : (block.alt || null),
-    caption: isArabic && block.captionAr ? block.captionAr : (block.caption || null),
+    content: isArabic && (block.contentAr != null && block.contentAr.trim() !== '') ? block.contentAr : (block.content || null),
+    alt: isArabic && (block.altAr != null && block.altAr.trim() !== '') ? block.altAr : (block.alt || null),
+    caption: isArabic && (block.captionAr != null && block.captionAr.trim() !== '') ? block.captionAr : (block.caption || null),
     images: transformedImages,
   };
 }

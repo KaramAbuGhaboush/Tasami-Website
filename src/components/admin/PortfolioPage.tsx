@@ -127,6 +127,7 @@ export function PortfolioPage() {
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([])
   const [newBlockType, setNewBlockType] = useState<'heading' | 'paragraph' | 'image' | 'imageGrid'>('paragraph')
   const [newBlockContent, setNewBlockContent] = useState('')
+  const [newBlockContentAr, setNewBlockContentAr] = useState('')
   const [newBlockLevel, setNewBlockLevel] = useState(2)
   const [newBlockImage, setNewBlockImage] = useState('')
   const [newBlockAlt, setNewBlockAlt] = useState('')
@@ -138,12 +139,31 @@ export function PortfolioPage() {
   // Image Grid state
   const [gridImages, setGridImages] = useState<Array<{ id: string; src: string; alt: string; preview: string }>>([])
   const [uploadingGridImageIndex, setUploadingGridImageIndex] = useState<number | null>(null)
+  // Delete confirmation dialog state
+  const [deleteBlockDialogOpen, setDeleteBlockDialogOpen] = useState(false)
+  const [blockToDelete, setBlockToDelete] = useState<string | null>(null)
 
   // Fetch data on mount
   useEffect(() => {
     fetchAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Sync contentBlocks when editingProject changes or when projects are updated
+  useEffect(() => {
+    if (editingProject && projectDialogOpen) {
+      const currentProject = projects.find(p => p.id === editingProject.id)
+      if (currentProject && Array.isArray(currentProject.contentBlocks)) {
+        // Only update if the content blocks actually changed
+        const currentBlockIds = contentBlocks.map(b => b.id).sort().join(',')
+        const newBlockIds = currentProject.contentBlocks.map(b => b.id).sort().join(',')
+        if (currentBlockIds !== newBlockIds) {
+          setContentBlocks(currentProject.contentBlocks)
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projects, editingProject?.id, projectDialogOpen])
 
   // Handle query parameters for quick actions
   useEffect(() => {
@@ -284,7 +304,7 @@ export function PortfolioPage() {
         setImagePreview('')
         setContentBlocks([])
         setProjectDialogOpen(false)
-        success('Project created successfully!')
+        success(`Project "${projectForm.title}" has been created successfully!`)
       } else {
         showError('Failed to create project. Please check the console for details.')
       }
@@ -322,8 +342,8 @@ export function PortfolioPage() {
       testimonial: projectForm.testimonial.quote ? projectForm.testimonial : undefined
     }
 
-    const success = await updateProject(editingProject.id, projectData)
-    if (success) {
+    const updateResult = await updateProject(editingProject.id, projectData)
+    if (updateResult) {
       // Refresh the projects data to get updated content blocks
       await fetchAll()
 
@@ -350,6 +370,7 @@ export function PortfolioPage() {
       setImagePreview('')
       setContentBlocks([])
       setProjectDialogOpen(false)
+      success(`Project "${projectForm.title}" has been updated successfully!`)
     }
   }
 
@@ -368,8 +389,8 @@ export function PortfolioPage() {
       descriptionAr: categoryForm.descriptionAr || undefined
     }
 
-    const success = await createCategory(categoryData)
-    if (success) {
+    const createResult = await createCategory(categoryData)
+    if (createResult) {
       // Reset form
       setCategoryForm({
         name: '',
@@ -384,6 +405,7 @@ export function PortfolioPage() {
         status: 'active'
       })
       setCategoryDialogOpen(false)
+      success(`Category "${categoryForm.name}" has been created successfully!`)
     }
   }
 
@@ -414,8 +436,8 @@ export function PortfolioPage() {
 
     const categoryData: Partial<CreateCategoryData> = { ...categoryForm }
 
-    const success = await updateCategory(editingCategory.id, categoryData)
-    if (success) {
+    const updateResult = await updateCategory(editingCategory.id, categoryData)
+    if (updateResult) {
       // Reset form
       setEditingCategory(null)
       setCategoryForm({
@@ -431,30 +453,43 @@ export function PortfolioPage() {
         status: 'active'
       })
       setCategoryDialogOpen(false)
+      success(`Category "${categoryForm.name}" has been updated successfully!`)
     }
   }
 
   const handleDeleteProject = async (projectId: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this project?', {
+    const project = projects.find(p => p.id === projectId)
+    const projectTitle = project?.title || 'this project'
+    
+    const confirmed = await confirm(`Are you sure you want to delete "${projectTitle}"? This action cannot be undone.`, {
       title: 'Delete Project',
       type: 'warning',
       confirmText: 'Delete',
       cancelText: 'Cancel'
     })
     if (confirmed) {
-      await deleteProject(projectId)
+      const result = await deleteProject(projectId)
+      if (result) {
+        success(`Project "${projectTitle}" has been deleted successfully.`)
+      }
     }
   }
 
   const handleDeleteCategory = async (categoryId: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this category?', {
+    const category = categories.find(c => c.id === categoryId)
+    const categoryName = category?.name || 'this category'
+    
+    const confirmed = await confirm(`Are you sure you want to delete category "${categoryName}"? This action cannot be undone.`, {
       title: 'Delete Category',
       type: 'warning',
       confirmText: 'Delete',
       cancelText: 'Cancel'
     })
     if (confirmed) {
-      await deleteCategory(categoryId)
+      const result = await deleteCategory(categoryId)
+      if (result) {
+        success(`Category "${categoryName}" has been deleted successfully.`)
+      }
     }
   }
 
@@ -510,6 +545,14 @@ export function PortfolioPage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Validate file type before processing
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        showError(`Invalid file type. Allowed types: JPEG, PNG, GIF, or WebP.`)
+        event.target.value = ''
+        return
+      }
+
       const reader = new FileReader()
       reader.onload = (e) => {
         const result = e.target?.result as string
@@ -524,6 +567,14 @@ export function PortfolioPage() {
   const handleContentBlockImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Validate file type before processing
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        showError(`Invalid file type. Allowed types: JPEG, PNG, GIF, or WebP.`)
+        event.target.value = ''
+        return
+      }
+
       setNewBlockImageFile(file)
       setIsUploadingImage(true)
 
@@ -542,12 +593,14 @@ export function PortfolioPage() {
           setNewBlockImage(uploadedUrl)
           setNewBlockImagePreview(uploadedUrl)
         } else {
-          // If upload fails, use base64 as fallback
+          // If upload fails, show error and use base64 as fallback
+          showError('Failed to upload image. Using local preview instead.')
           const base64Result = reader.result as string
           setNewBlockImage(base64Result)
         }
       } catch (error) {
-        console.error('Image upload failed:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Failed to upload image'
+        showError(errorMessage)
         // Use base64 as fallback
         const base64Result = reader.result as string
         setNewBlockImage(base64Result)
@@ -563,6 +616,14 @@ export function PortfolioPage() {
   const handleGridImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index?: number) => {
     const file = event.target.files?.[0]
     if (file) {
+      // Validate file type before processing
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+      if (!allowedTypes.includes(file.type)) {
+        showError(`Invalid file type. Allowed types: JPEG, PNG, GIF, or WebP.`)
+        event.target.value = ''
+        return
+      }
+
       const uploadIndex = index !== undefined ? index : gridImages.length
       setUploadingGridImageIndex(uploadIndex)
 
@@ -591,7 +652,8 @@ export function PortfolioPage() {
             setGridImages(prev => [...prev, newImage])
           }
         } catch (error) {
-          console.error('Image upload failed:', error)
+          const errorMessage = error instanceof Error ? error.message : 'Failed to upload image'
+          showError(errorMessage)
           // Use base64 as fallback
           const newImage = {
             id: `grid-img-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -642,7 +704,7 @@ export function PortfolioPage() {
         type: newBlockType,
         order: maxOrder + 1,
         content: newBlockContent.trim() || undefined,
-        contentAr: undefined, // Can be added later if needed
+        contentAr: newBlockContentAr.trim() || undefined,
         level: newBlockType === 'heading' ? newBlockLevel : undefined,
         src: newBlockType === 'image' ? newBlockImage.trim() || undefined : undefined,
         alt: newBlockType === 'image' ? newBlockAlt.trim() || undefined : undefined,
@@ -663,6 +725,7 @@ export function PortfolioPage() {
 
       // Reset form
       setNewBlockContent('')
+      setNewBlockContentAr('')
       setNewBlockImage('')
       setNewBlockAlt('')
       setNewBlockCaption('')
@@ -671,6 +734,15 @@ export function PortfolioPage() {
       setIsUploadingImage(false)
       setGridImages([])
       setUploadingGridImageIndex(null)
+      
+      // Show success feedback
+      const blockTypeNames: Record<string, string> = {
+        heading: 'Heading',
+        paragraph: 'Paragraph',
+        image: 'Image',
+        imageGrid: 'Image Grid'
+      }
+      success(`${blockTypeNames[newBlockType] || 'Content block'} has been added successfully!`)
       return
     }
 
@@ -678,44 +750,97 @@ export function PortfolioPage() {
     const blockData = {
       type: newBlockType,
       order: contentBlocks.length,
-      content: newBlockContent,
+      content: newBlockContent.trim() || undefined,
+      contentAr: newBlockContentAr.trim() || undefined,
       level: newBlockType === 'heading' ? newBlockLevel : undefined,
-      src: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockImage : undefined,
-      alt: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockAlt : undefined,
-      caption: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockCaption : undefined,
+      src: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockImage.trim() || undefined : undefined,
+      alt: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockAlt.trim() || undefined : undefined,
+      caption: newBlockType === 'image' || newBlockType === 'imageGrid' ? newBlockCaption.trim() || undefined : undefined,
       columns: newBlockType === 'imageGrid' ? newBlockColumns : undefined,
-      images: newBlockType === 'imageGrid' ? [] : undefined
+      images: newBlockType === 'imageGrid' && gridImages.length > 0 ? gridImages.map(img => ({
+        src: img.src,
+        alt: img.alt
+      })) : undefined
     }
 
-    const success = await createContentBlock(editingProject.id, blockData)
-    if (success) {
+    const createResult = await createContentBlock(editingProject.id, blockData)
+    if (createResult) {
+      // Refresh content blocks from API
+      await fetchAll()
+      
+      // Update local state with fresh data
+      const updatedProject = projects.find(p => p.id === editingProject.id)
+      if (updatedProject) {
+        setContentBlocks(Array.isArray(updatedProject.contentBlocks) ? updatedProject.contentBlocks : [])
+      }
+      
       // Reset form
       setNewBlockContent('')
+      setNewBlockContentAr('')
       setNewBlockImage('')
       setNewBlockAlt('')
       setNewBlockCaption('')
       setNewBlockImageFile(null)
       setNewBlockImagePreview('')
       setIsUploadingImage(false)
+      setGridImages([])
+      setUploadingGridImageIndex(null)
+      
+      // Show success feedback
+      const blockTypeNames: Record<string, string> = {
+        heading: 'Heading',
+        paragraph: 'Paragraph',
+        image: 'Image',
+        imageGrid: 'Image Grid'
+      }
+      success(`${blockTypeNames[newBlockType] || 'Content block'} has been added successfully!`)
+    } else {
+      showError('Failed to add content block. Please try again.')
     }
   }
 
-  const handleRemoveContentBlock = async (blockId: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this content block?', {
-      title: 'Delete Content Block',
-      type: 'warning',
-      confirmText: 'Delete',
-      cancelText: 'Cancel'
-    })
-    if (confirmed) {
-      // For new projects (not yet saved), remove from local state
-      if (!editingProject) {
-        setContentBlocks(contentBlocks.filter(block => block.id !== blockId))
-        return
-      }
+  const handleRemoveContentBlock = (blockId: string) => {
+    setBlockToDelete(blockId)
+    setDeleteBlockDialogOpen(true)
+  }
 
-      // For existing projects, delete via API
-      await deleteContentBlock(editingProject.id, blockId)
+  const confirmDeleteBlock = async () => {
+    if (!blockToDelete) return
+
+    const block = contentBlocks.find(b => b.id === blockToDelete)
+    const blockTypeNames: Record<string, string> = {
+      heading: 'Heading',
+      paragraph: 'Paragraph',
+      image: 'Image',
+      imageGrid: 'Image Grid'
+    }
+    const blockTypeName = blockTypeNames[block?.type || ''] || 'Content block'
+
+    // For new projects (not yet saved), remove from local state
+    if (!editingProject) {
+      setContentBlocks(contentBlocks.filter(block => block.id !== blockToDelete))
+      setDeleteBlockDialogOpen(false)
+      setBlockToDelete(null)
+      success(`${blockTypeName} has been removed successfully.`)
+      return
+    }
+
+    // For existing projects, delete via API
+    // Optimistically update local state first for immediate UI feedback
+    const blockIdToDelete = blockToDelete
+    setContentBlocks(prev => prev.filter(block => block.id !== blockIdToDelete))
+    setDeleteBlockDialogOpen(false)
+    setBlockToDelete(null)
+
+    const deleteResult = await deleteContentBlock(editingProject.id, blockIdToDelete)
+    if (deleteResult) {
+      // The hook already updated the projects state optimistically
+      // The useEffect will sync our local state automatically
+      success(`${blockTypeName} has been deleted successfully.`)
+    } else {
+      // If deletion failed, restore from the hook's state
+      // The useEffect will sync our local state automatically
+      showError('Failed to delete content block. Please try again.')
     }
   }
 
@@ -743,6 +868,7 @@ export function PortfolioPage() {
       order: index
     }))
 
+    // Optimistically update local state
     setContentBlocks(reorderedBlocks)
 
     // For existing projects, update via API
@@ -752,7 +878,15 @@ export function PortfolioPage() {
         order: block.order
       }))
 
-      await reorderContentBlocks(editingProject.id, blocksToUpdate)
+      const reorderResult = await reorderContentBlocks(editingProject.id, blocksToUpdate)
+      if (reorderResult) {
+        // The useEffect will sync our local state automatically
+        success('Content blocks reordered successfully!')
+      } else {
+        // If reorder failed, restore from the hook's state
+        // The useEffect will sync our local state automatically
+        showError('Failed to reorder content blocks. Please try again.')
+      }
     }
   }
 
@@ -1028,7 +1162,7 @@ export function PortfolioPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Title (Arabic)</label>
                             <Input
                               placeholder="أدخل عنوان المشروع..."
-                              value={projectForm.titleAr}
+                              value={projectForm.titleAr || ''}
                               onChange={(e) => setProjectForm({ ...projectForm, titleAr: e.target.value })}
                               className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                               dir="rtl"
@@ -1057,7 +1191,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="Enter project description..."
                             rows={4}
-                            value={projectForm.description}
+                            value={projectForm.description || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                           />
@@ -1068,7 +1202,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="أدخل وصف المشروع..."
                             rows={4}
-                            value={projectForm.descriptionAr}
+                            value={projectForm.descriptionAr || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, descriptionAr: e.target.value })}
                             className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             dir="rtl"
@@ -1080,7 +1214,7 @@ export function PortfolioPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
                             <Input
                               placeholder="e.g., 6 months"
-                              value={projectForm.timeline}
+                              value={projectForm.timeline || ''}
                               onChange={(e) => setProjectForm({ ...projectForm, timeline: e.target.value })}
                             />
                           </div>
@@ -1088,7 +1222,7 @@ export function PortfolioPage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Team Size</label>
                             <Input
                               placeholder="e.g., 8 developers"
-                              value={projectForm.teamSize}
+                              value={projectForm.teamSize || ''}
                               onChange={(e) => setProjectForm({ ...projectForm, teamSize: e.target.value })}
                             />
                           </div>
@@ -1122,7 +1256,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="What problem did this project solve?"
                             rows={3}
-                            value={projectForm.challenge}
+                            value={projectForm.challenge || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, challenge: e.target.value })}
                           />
                         </div>
@@ -1132,7 +1266,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="ما هي المشكلة التي حل هذا المشروع؟"
                             rows={3}
-                            value={projectForm.challengeAr}
+                            value={projectForm.challengeAr || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, challengeAr: e.target.value })}
                             dir="rtl"
                           />
@@ -1143,7 +1277,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="How did you solve the problem?"
                             rows={3}
-                            value={projectForm.solution}
+                            value={projectForm.solution || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, solution: e.target.value })}
                           />
                         </div>
@@ -1153,7 +1287,7 @@ export function PortfolioPage() {
                           <Textarea
                             placeholder="كيف قمت بحل المشكلة؟"
                             rows={3}
-                            value={projectForm.solutionAr}
+                            value={projectForm.solutionAr || ''}
                             onChange={(e) => setProjectForm({ ...projectForm, solutionAr: e.target.value })}
                             dir="rtl"
                           />
@@ -1196,7 +1330,7 @@ export function PortfolioPage() {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
                                 <Input
                                   placeholder="Or enter image URL (https://...)"
-                                  value={projectForm.headerImage}
+                                  value={projectForm.headerImage || ''}
                                   onChange={(e) => {
                                     setProjectForm({ ...projectForm, headerImage: e.target.value })
                                     setImagePreview(e.target.value)
@@ -1430,6 +1564,8 @@ export function PortfolioPage() {
                                   const newType = e.target.value as any
                                   setNewBlockType(newType)
                                   // Reset relevant state when switching types
+                                  setNewBlockContent('')
+                                  setNewBlockContentAr('')
                                   if (newType !== 'image') {
                                     setNewBlockImage('')
                                     setNewBlockImagePreview('')
@@ -1455,21 +1591,46 @@ export function PortfolioPage() {
                             <div className="flex-1">
                               <label className="block text-sm font-medium text-gray-700 mb-2">Content</label>
                               {newBlockType === 'heading' ? (
-                                <div className="flex space-x-2">
-                                  <select
-                                    className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                                    value={newBlockLevel}
-                                    onChange={(e) => setNewBlockLevel(parseInt(e.target.value))}
-                                  >
-                                    <option value={2}>H2</option>
-                                    <option value={3}>H3</option>
-                                    <option value={4}>H4</option>
-                                  </select>
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                  <div className="flex space-x-2">
+                                    <select
+                                      className="px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                                      value={newBlockLevel}
+                                      onChange={(e) => setNewBlockLevel(parseInt(e.target.value))}
+                                    >
+                                      <option value={2}>H2</option>
+                                      <option value={3}>H3</option>
+                                      <option value={4}>H4</option>
+                                    </select>
+                                    <Input
+                                      placeholder="Heading text..."
+                                      value={newBlockContent}
+                                      onChange={(e) => setNewBlockContent(e.target.value)}
+                                      className="flex-1"
+                                    />
+                                  </div>
                                   <Input
-                                    placeholder="Heading text..."
+                                    placeholder="عنوان بالعربية..."
+                                    value={newBlockContentAr}
+                                    onChange={(e) => setNewBlockContentAr(e.target.value)}
+                                    className="flex-1"
+                                    dir="rtl"
+                                  />
+                                </div>
+                              ) : newBlockType === 'paragraph' ? (
+                                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                                  <Textarea
+                                    placeholder="Paragraph content..."
+                                    rows={3}
                                     value={newBlockContent}
                                     onChange={(e) => setNewBlockContent(e.target.value)}
-                                    className="flex-1"
+                                  />
+                                  <Textarea
+                                    placeholder="محتوى الفقرة بالعربية..."
+                                    rows={3}
+                                    value={newBlockContentAr}
+                                    onChange={(e) => setNewBlockContentAr(e.target.value)}
+                                    dir="rtl"
                                   />
                                 </div>
                               ) : newBlockType === 'image' ? (
@@ -1757,7 +1918,14 @@ export function PortfolioPage() {
                                           ? `Image: ${block.src || 'No URL'}`
                                           : block.type === 'imageGrid'
                                             ? `Grid (${block.columns || 2} cols): ${Array.isArray(block.images) ? block.images.length : 0} images`
-                                            : block.content || 'No content'
+                                            : (
+                                              <span>
+                                                {block.content || 'No content'}
+                                                {(block as any).contentAr && (
+                                                  <span className="ml-2 text-xs text-gray-400">| AR: ✓</span>
+                                                )}
+                                              </span>
+                                            )
                                         }
                                       </p>
                                     </div>
@@ -1820,17 +1988,21 @@ export function PortfolioPage() {
                           setEditingProject(null)
                           setProjectForm({
                             title: '',
+                            titleAr: '',
                             description: '',
+                            descriptionAr: '',
                             headerImage: '',
                             challenge: '',
+                            challengeAr: '',
                             solution: '',
+                            solutionAr: '',
                             timeline: '',
                             teamSize: '',
                             status: 'planning',
                             categoryId: '',
                             technologies: [],
                             results: [],
-                            testimonial: { quote: '', author: '', position: '' }
+                            testimonial: { quote: '', quoteAr: '', author: '', authorAr: '', position: '', positionAr: '' }
                           })
                           setImagePreview('')
                           setContentBlocks([])
@@ -2141,8 +2313,10 @@ export function PortfolioPage() {
                     setEditingCategory(null)
                     setCategoryForm({
                       name: '',
+                      nameAr: '',
                       slug: '',
                       description: '',
+                      descriptionAr: '',
                       color: '#6812F7',
                       icon: '📁',
                       featured: false,
@@ -2537,6 +2711,52 @@ export function PortfolioPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Delete Content Block Confirmation Dialog */}
+      <Dialog open={deleteBlockDialogOpen} onOpenChange={setDeleteBlockDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-red-600" />
+              </div>
+              <DialogTitle className="text-xl font-bold text-gray-900">Delete Content Block</DialogTitle>
+            </div>
+            <DialogDescription className="text-gray-600 mt-4">
+              {blockToDelete && (() => {
+                const block = contentBlocks.find(b => b.id === blockToDelete)
+                const blockTypeNames: Record<string, string> = {
+                  heading: 'heading',
+                  paragraph: 'paragraph',
+                  image: 'image',
+                  imageGrid: 'image grid'
+                }
+                const blockTypeName = blockTypeNames[block?.type || ''] || 'content block'
+                return `Are you sure you want to delete this ${blockTypeName}? This action cannot be undone.`
+              })()}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteBlockDialogOpen(false)
+                setBlockToDelete(null)
+              }}
+              className="px-6"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmDeleteBlock}
+              className="bg-red-600 hover:bg-red-700 text-white px-6"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

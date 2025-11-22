@@ -1,81 +1,50 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import { paginationSchema } from '@/lib/validation';
-import {
-  transformArticlesByLocale,
-  transformCategoryByLocale,
-  transformAuthorByLocale,
-  normalizeLocale
-} from '@/server/utils/localization';
+import { BlogService } from '@/services/blogService';
+import { createRateLimit } from '@/lib/rate-limit';
+
+// Rate limiter: 100 requests per 15 minutes
+const rateLimit = createRateLimit({
+  limit: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+});
 
 /**
  * GET /api/blog/articles - Get all blog articles
  */
 export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await rateLimit(request);
+    if (!rateLimitResult.allowed) {
+      return createErrorResponse(
+        'Too many requests. Please try again later.',
+        429
+      );
+    }
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
     const status = searchParams.get('status') || 'published';
-    const locale = normalizeLocale(searchParams.get('locale'));
+    const locale = searchParams.get('locale') || 'en';
 
-    const skip = (page - 1) * limit;
-
-    const where: any = { status };
-    if (category) where.category = { slug: category };
-    if (featured !== undefined) where.featured = featured === 'true';
-
-    const [articles, total] = await Promise.all([
-      prisma.blogArticle.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          author: {
-            select: {
-              id: true,
-              name: true,
-              nameAr: true,
-              avatar: true,
-              role: true,
-              roleAr: true
-            }
-          },
-          category: {
-            select: {
-              id: true,
-              name: true,
-              nameAr: true,
-              slug: true,
-              color: true
-            }
-          }
-        }
-      }),
-      prisma.blogArticle.count({ where })
-    ]);
-
-    // Transform articles based on locale
-    const transformedArticles = transformArticlesByLocale(articles, locale);
-    const finalArticles = transformedArticles.map((article: any) => ({
-      ...article,
-      category: article.category ? transformCategoryByLocale(article.category, locale) : article.category,
-      author: article.author ? transformAuthorByLocale(article.author, locale) : article.author
-    }));
-
-    return createSuccessResponse({
-      articles: finalArticles,
-      pagination: {
+    const result = await BlogService.getArticles({
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      category: category || undefined,
+      featured: featured !== undefined ? featured === 'true' : undefined,
+      status,
+      locale,
     });
+
+    const response = createSuccessResponse(result);
+
+    // Add caching headers
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+
+    return response;
   } catch (error) {
     return handleError(error);
   }
@@ -94,18 +63,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { blogArticleSchema, sanitizeObject } = await import('@/lib/validation');
+    const { sanitizeObject } = await import('@/lib/validation');
     
-    const validatedData = blogArticleSchema.parse(body);
-    const sanitizedData = sanitizeObject(validatedData);
-
-    const article = await prisma.blogArticle.create({
-      data: sanitizedData,
-      include: {
-        author: true,
-        category: true
-      }
-    });
+    const sanitizedData = sanitizeObject(body);
+    const article = await BlogService.createArticle(sanitizedData);
 
     return createSuccessResponse({ article }, 'Article created successfully', 201);
   } catch (error) {

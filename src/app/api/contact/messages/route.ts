@@ -1,10 +1,17 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import { contactFormSchema, paginationSchema } from '@/lib/validation';
+import { contactFormSchema } from '@/lib/validation';
 import EmailService from '@/server/services/emailService';
+import { ContactService } from '@/services/contactService';
+import { createRateLimit } from '@/lib/rate-limit';
 
 const emailService = new EmailService();
+
+// Rate limiter: 5 requests per 15 minutes for contact form
+const rateLimit = createRateLimit({
+  limit: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+});
 
 /**
  * GET /api/contact/messages - Get all messages (admin only)
@@ -21,43 +28,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
-    const status = searchParams.get('status');
-    const service = searchParams.get('service');
-    const search = searchParams.get('search');
+    const status = searchParams.get('status') || undefined;
 
-    const skip = (page - 1) * limit;
-
-    const where: any = {};
-    if (status) where.status = status;
-    if (service) where.service = service;
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
-        { company: { contains: search, mode: 'insensitive' } },
-        { message: { contains: search, mode: 'insensitive' } }
-      ];
-    }
-
-    const [messages, total] = await Promise.all([
-      prisma.contactMessage.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.contactMessage.count({ where })
-    ]);
-
-    return createSuccessResponse({
-      messages,
-      pagination: {
+    const result = await ContactService.getMessages({
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      status,
     });
+
+    return createSuccessResponse(result);
   } catch (error) {
     return handleError(error);
   }
@@ -68,16 +47,23 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await rateLimit(request);
+    if (!rateLimitResult.allowed) {
+      return createErrorResponse(
+        'Too many requests. Please try again later.',
+        429
+      );
+    }
+
     const body = await request.json();
     const validatedData = contactFormSchema.parse(body);
 
-    const message = await prisma.contactMessage.create({
-      data: {
+    const message = await ContactService.createMessage({
         ...validatedData,
         status: 'new',
-        source: 'website'
-      }
-    });
+      source: 'website',
+    } as any);
 
     // Send email notification
     try {

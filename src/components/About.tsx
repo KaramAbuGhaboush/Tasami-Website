@@ -2,6 +2,7 @@
 
 import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
+import { memo } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Value, FAQ } from '@/hooks/useAbout'
 
@@ -12,7 +13,7 @@ interface AboutProps {
   setOpenFAQ: (index: number | null) => void;
 }
 
-export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
+export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
   const t = useTranslations('about')
   const locale = useLocale()
   const isRTL = locale === 'ar'
@@ -391,4 +392,4 @@ export function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
       </section>
     </div>
   )
-}
+})

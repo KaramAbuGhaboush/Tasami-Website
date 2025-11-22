@@ -1,5 +1,7 @@
 import { Link } from '@/i18n/routing'
+import { memo } from 'react'
 import { Project } from '@/hooks/useProject'
+import OptimizedImage from '@/components/OptimizedImage'
 
 interface ProjectProps {
   project: Project;
@@ -29,7 +31,7 @@ const getImageSrc = (image: string | null | undefined) => {
   return null;
 };
 
-export function ProjectComponent({ project }: ProjectProps) {
+export const ProjectComponent = memo(function ProjectComponent({ project }: ProjectProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F2F3FF] via-white to-[#DFC7FE]/20">
       {/* Enhanced Hero Section */}
@@ -95,12 +97,14 @@ export function ProjectComponent({ project }: ProjectProps) {
           <div className="relative">
             {getImageSrc(project.headerImage) ? (
               /* Project Image Display */
-              <div className="rounded-3xl overflow-hidden shadow-2xl hover-lift">
-                <img
+              <div className="rounded-3xl overflow-hidden shadow-2xl hover-lift relative aspect-video">
+                <OptimizedImage
                   src={getImageSrc(project.headerImage)!}
                   alt={project.title}
-                  className="w-full h-auto object-cover"
-                  style={{ maxHeight: '600px' }}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                  priority
                 />
               </div>
             ) : (
@@ -607,4 +611,4 @@ export function ProjectComponent({ project }: ProjectProps) {
       </section>
     </div>
   )
-}
+})

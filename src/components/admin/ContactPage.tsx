@@ -99,18 +99,35 @@ export function ContactPage() {
   }, [searchTerm])
 
   const handleStatusUpdate = async (messageId: string, newStatus: string) => {
-    await updateMessage(messageId, { status: newStatus as any })
+    const message = messages.find(m => m.id === messageId)
+    const result = await updateMessage(messageId, { status: newStatus as any })
+    if (result.success) {
+      const statusLabels: Record<string, string> = {
+        new: 'new',
+        read: 'read',
+        replied: 'replied',
+        closed: 'closed'
+      }
+      const statusLabel = statusLabels[newStatus] || newStatus
+      success(`Message status has been updated to "${statusLabel}".`)
+    }
   }
 
   const handleDeleteMessage = async (messageId: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this message?', {
+    const message = messages.find(m => m.id === messageId)
+    const messageSubject = message?.subject || 'this message'
+    
+    const confirmed = await confirm(`Are you sure you want to delete message "${messageSubject}"? This action cannot be undone.`, {
       title: 'Delete Message',
       type: 'warning',
       confirmText: 'Delete',
       cancelText: 'Cancel'
     })
     if (confirmed) {
-      await deleteMessage(messageId)
+      const result = await deleteMessage(messageId)
+      if (result.success) {
+        success(`Message "${messageSubject}" has been deleted successfully.`)
+      }
     }
   }
 

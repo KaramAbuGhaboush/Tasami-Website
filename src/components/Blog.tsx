@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
 import { BlogPost, BlogCategory } from '@/hooks/useBlog'
+import OptimizedImage from '@/components/OptimizedImage'
 
 interface BlogProps {
   blogPosts: BlogPost[];
@@ -40,7 +41,7 @@ const getImageSrc = (image: string) => {
   return null;
 };
 
-export function Blog({
+export const Blog = memo(function Blog({
   blogPosts,
   categories,
   categoryObjects,
@@ -202,10 +203,13 @@ export function Blog({
                 <div className="luxury-card rounded-3xl overflow-hidden group-hover:shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2">
                   {getImageSrc(featuredPost.image) ? (
                     <div className="aspect-video relative">
-                      <img
+                      <OptimizedImage
                         src={getImageSrc(featuredPost.image)!}
                         alt={featuredPost.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw"
+                        priority
                       />
                       <div className="absolute bottom-4 left-4">
                         <div className="bg-white/90 backdrop-blur-sm text-[#6812F7] px-4 py-2 rounded-full text-sm font-semibold">
@@ -294,10 +298,12 @@ export function Blog({
                 <Link href={`/article/${post.slug}`} className="relative group block">
                   {getImageSrc(post.image) ? (
                     <div className="aspect-video relative rounded-2xl overflow-hidden">
-                      <img
+                      <OptimizedImage
                         src={getImageSrc(post.image)!}
                         alt={post.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                       {/* Category Badge */}
                       <div className="absolute top-4 left-4">
@@ -435,4 +441,4 @@ export function Blog({
       </section>
     </div>
   )
-}
+})

@@ -466,7 +466,8 @@
     "readTime": "وقت القراءة",
     "relatedArticles": "مقالات ذات صلة",
     "relatedArticlesDescription": "استمر في استكشاف المحتوى المشابه",
-    "shareArticle": "مشاركة المقال"
+    "shareArticle": "مشاركة المقال",
+    "noPostsFound": "لم يتم العثور على مقالات في هذه الفئة."
   },
   "career": {
     "title": "الوظائف",

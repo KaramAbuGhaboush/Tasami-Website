@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useCareerAdmin, type Job, type CreateJobData } from '@/hooks/useCareerAdmin'
+import { CareerPageForm } from './CareerPageForm'
+import { useNotification } from '@/hooks/useNotification'
 import { 
   Plus,
   Edit,
@@ -31,31 +32,7 @@ export function CareerPage() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingJob, setEditingJob] = useState<Job | null>(null)
   const [previewJob, setPreviewJob] = useState<Job | null>(null)
-  const [formData, setFormData] = useState<CreateJobData>({
-    title: '',
-    titleAr: '',
-    department: '',
-    departmentAr: '',
-    location: '',
-    locationAr: '',
-    type: '',
-    typeAr: '',
-    experience: '',
-    experienceAr: '',
-    description: '',
-    descriptionAr: '',
-    requirements: [],
-    requirementsAr: [],
-    benefits: [],
-    benefitsAr: [],
-    salary: '',
-    salaryAr: '',
-    applicationDeadline: '',
-    status: 'draft',
-    team: '',
-    teamAr: ''
-  })
-
+  const { success: showSuccess } = useNotification()
   const {
     jobs: jobPositions,
     loading,
@@ -80,101 +57,21 @@ export function CareerPage() {
     return matchesSearch && matchesStatus && matchesType
   })
 
-  const handleInputChange = (field: keyof CreateJobData, value: string | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-  }
-
-  const handleArrayInputChange = (field: 'requirements' | 'benefits', value: string) => {
-    // Don't filter out empty items while user is typing - let them type freely
-    const array = value.split('\n')
-    setFormData(prev => ({ ...prev, [field]: array }))
-  }
-
-  const handleCreateJob = async () => {
-    console.log('Creating job with data:', formData)
-    
-    // Basic validation
-    if (!formData.title || !formData.department || !formData.location || !formData.type || !formData.description) {
-      console.warn('Please fill in all required fields')
-      return
-    }
-
-    // Clean up array fields by filtering out empty items
-    const cleanedData = {
-      ...formData,
-      requirements: formData.requirements.filter(item => item.trim() !== ''),
-      requirementsAr: (formData.requirementsAr || []).filter(item => item.trim() !== ''),
-      benefits: formData.benefits.filter(item => item.trim() !== ''),
-      benefitsAr: (formData.benefitsAr || []).filter(item => item.trim() !== ''),
-    }
-
-    const result = await createJob(cleanedData)
-    console.log('Create job result:', result)
-    if (result.success) {
-      closeDialog()
-    }
-  }
-
-  const handleUpdateJob = async () => {
-    if (!editingJob) return
-    
-    console.log('Updating job with data:', formData)
-    
-    // Basic validation
-    if (!formData.title || !formData.department || !formData.location || !formData.type || !formData.description) {
-      console.warn('Please fill in all required fields')
-      return
-    }
-    
-    // Clean up array fields by filtering out empty items
-    const cleanedData = {
-      ...formData,
-      requirements: formData.requirements.filter(item => item.trim() !== ''),
-      requirementsAr: (formData.requirementsAr || []).filter(item => item.trim() !== ''),
-      benefits: formData.benefits.filter(item => item.trim() !== ''),
-      benefitsAr: (formData.benefitsAr || []).filter(item => item.trim() !== ''),
-    }
-    
-    const result = await updateJob(editingJob.id, cleanedData)
-    console.log('Update job result:', result)
-    if (result.success) {
-      closeDialog()
-    }
-  }
 
   const handleDeleteJob = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this job position?')) {
-      await deleteJob(id)
+    const job = jobPositions.find(j => j.id === id)
+    const jobTitle = job?.title || 'this job position'
+    
+    if (window.confirm(`Are you sure you want to delete "${jobTitle}"? This action cannot be undone.`)) {
+      const result = await deleteJob(id)
+      if (result.success) {
+        showSuccess(`Job position "${jobTitle}" has been deleted successfully.`)
+      }
     }
   }
 
   const handleEditJob = (job: Job) => {
     setEditingJob(job)
-    const jobAny = job as any
-    setFormData({
-      title: job.title,
-      titleAr: jobAny.titleAr || '',
-      department: job.department,
-      departmentAr: jobAny.departmentAr || '',
-      location: job.location,
-      locationAr: jobAny.locationAr || '',
-      type: job.type,
-      typeAr: jobAny.typeAr || '',
-      experience: job.experience,
-      experienceAr: jobAny.experienceAr || '',
-      description: job.description,
-      descriptionAr: jobAny.descriptionAr || '',
-      requirements: job.requirements,
-      requirementsAr: jobAny.requirementsAr || [],
-      benefits: job.benefits,
-      benefitsAr: jobAny.benefitsAr || [],
-      salary: job.salary || '',
-      salaryAr: jobAny.salaryAr || '',
-      applicationDeadline: job.applicationDeadline || '',
-      status: job.status,
-      team: job.team || '',
-      teamAr: jobAny.teamAr || ''
-    })
     setIsCreateDialogOpen(true)
   }
 
@@ -182,29 +79,9 @@ export function CareerPage() {
     setPreviewJob(job)
   }
 
-  const resetForm = () => {
-    setFormData({
-      title: '',
-      department: '',
-      location: '',
-      type: '',
-      experience: '',
-      description: '',
-      requirements: [],
-      benefits: [],
-      salary: '',
-      applicationDeadline: '',
-      status: 'draft',
-      team: ''
-    })
-    setEditingJob(null)
-  }
-
   const closeDialog = () => {
-    console.log('Closing dialog')
     setIsCreateDialogOpen(false)
     setEditingJob(null)
-    resetForm()
     clearError()
   }
 
@@ -305,7 +182,6 @@ export function CareerPage() {
           <p className="text-gray-600">Manage job positions and career opportunities</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
-          console.log('Dialog onOpenChange:', open)
           if (open) {
             setIsCreateDialogOpen(true)
           } else {
@@ -325,285 +201,53 @@ export function CareerPage() {
                 {editingJob ? 'Update the job position details' : 'Add a new job opening to your career page'}
               </DialogDescription>
             </DialogHeader>
-            <div className="flex-1 overflow-y-auto pr-2 space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                  <p className="text-red-600 text-sm">{error}</p>
-                </div>
-              )}
-              
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
-                <Input 
-                  placeholder="e.g., Senior Frontend Developer" 
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Title (Arabic)</label>
-                <Input
-                  placeholder="مثال: مطور Frontend كبير"
-                  value={formData.titleAr || ''}
-                  onChange={(e) => handleInputChange('titleAr', e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
-                <select 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                  value={formData.department}
-                  onChange={(e) => handleInputChange('department', e.target.value)}
-                >
-                  <option value="">Select Department</option>
-                  {departments.map(dept => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Department (Arabic)</label>
-                <Input
-                  placeholder="مثال: الهندسة"
-                  value={formData.departmentAr || ''}
-                  onChange={(e) => handleInputChange('departmentAr', e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Type *</label>
-                <select 
-                  className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                  value={formData.type}
-                  onChange={(e) => handleInputChange('type', e.target.value)}
-                >
-                  <option value="">Select Type</option>
-                  {jobTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Type (Arabic)</label>
-                <Input
-                  placeholder="مثال: دوام كامل"
-                  value={formData.typeAr || ''}
-                  onChange={(e) => handleInputChange('typeAr', e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Location *</label>
-                  <Input 
-                    placeholder="e.g., Remote, San Francisco, CA" 
-                    value={formData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience Required</label>
-                  <Input 
-                    placeholder="e.g., 3+ years, 5+ years" 
-                    value={formData.experience}
-                    onChange={(e) => handleInputChange('experience', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range</label>
-                  <Input 
-                    placeholder="e.g., $80,000 - $120,000" 
-                    value={formData.salary}
-                    onChange={(e) => handleInputChange('salary', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Salary Range (Arabic)</label>
-                  <Input
-                    placeholder="مثال: 80,000 - 120,000 دولار"
-                    value={formData.salaryAr || ''}
-                    onChange={(e) => handleInputChange('salaryAr', e.target.value)}
-                    dir="rtl"
-                  />
-                </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Team</label>
-                <Input
-                  placeholder="e.g., Engineering Team, Design Team" 
-                  value={formData.team}
-                  onChange={(e) => handleInputChange('team', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Team (Arabic)</label>
-                <Input
-                  placeholder="مثال: فريق الهندسة، فريق التصميم" 
-                  value={formData.teamAr || ''}
-                  onChange={(e) => handleInputChange('teamAr', e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description *</label>
-                <Textarea 
-                  placeholder="Describe the role, responsibilities, and what the candidate will be working on..." 
-                  rows={4}
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Job Description (Arabic) *</label>
-                <Textarea 
-                  placeholder="اوصف الدور والمسؤوليات وما سيعمل عليه المرشح..." 
-                  rows={4}
-                  value={formData.descriptionAr || ''}
-                  onChange={(e) => handleInputChange('descriptionAr', e.target.value)}
-                  dir="rtl"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                <Textarea 
-                  placeholder="List key requirements, one per line..." 
-                  rows={3}
-                  value={formData.requirements.join('\n')}
-                  onChange={(e) => handleArrayInputChange('requirements', e.target.value)}
-                  className="resize-y min-h-[80px]"
-                />
-                <p className="text-sm text-gray-500 mt-1">Enter each requirement on a new line</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements (Arabic)</label>
-                <Textarea 
-                  placeholder="اذكر المتطلبات الرئيسية، سطر واحد لكل متطلب..." 
-                  rows={3}
-                  value={(formData.requirementsAr || []).join('\n')}
-                  onChange={(e) => {
-                    const array = e.target.value.split('\n')
-                    setFormData(prev => ({ ...prev, requirementsAr: array }))
-                  }}
-                  className="resize-y min-h-[80px]"
-                  dir="rtl"
-                />
-                <p className="text-sm text-gray-500 mt-1">Enter each requirement on a new line</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
-                <Textarea 
-                  placeholder="List company benefits, one per line..." 
-                  rows={3}
-                  value={formData.benefits.join('\n')}
-                  onChange={(e) => handleArrayInputChange('benefits', e.target.value)}
-                  className="resize-y min-h-[80px]"
-                />
-                <p className="text-sm text-gray-500 mt-1">Enter each benefit on a new line</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Benefits (Arabic)</label>
-                <Textarea 
-                  placeholder="اذكر مزايا الشركة، سطر واحد لكل ميزة..." 
-                  rows={3}
-                  value={(formData.benefitsAr || []).join('\n')}
-                  onChange={(e) => {
-                    const array = e.target.value.split('\n')
-                    setFormData(prev => ({ ...prev, benefitsAr: array }))
-                  }}
-                  className="resize-y min-h-[80px]"
-                  dir="rtl"
-                />
-                <p className="text-sm text-gray-500 mt-1">Enter each benefit on a new line</p>
-              </div>
-
-
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
-                  <Input 
-                    type="datetime-local" 
-                    value={formData.applicationDeadline ? new Date(formData.applicationDeadline).toISOString().slice(0, 16) : ''}
-                    onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select 
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                    value={formData.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="active">Active</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                </div>
-              </div>
-
-            </div>
-            <div className="flex-shrink-0 flex justify-end space-x-2 pt-4 border-t bg-white">
-              <Button variant="outline" onClick={closeDialog} disabled={creating || updating}>
-                Cancel
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={async () => {
-                  handleInputChange('status', 'draft')
-                  // For draft, we can be more lenient with validation
-                  const cleanedData = {
-                    ...formData,
-                    status: 'draft',
-                    requirements: formData.requirements.filter(item => item.trim() !== ''),
-                    benefits: formData.benefits.filter(item => item.trim() !== ''),
-                  }
-                  
+            <div className="flex-1 overflow-y-auto pr-2">
+              <CareerPageForm
+                initialData={editingJob ? {
+                  title: editingJob.title,
+                  titleAr: (editingJob as any).titleAr || '',
+                  department: editingJob.department,
+                  departmentAr: (editingJob as any).departmentAr || '',
+                  location: editingJob.location,
+                  locationAr: (editingJob as any).locationAr || '',
+                  type: editingJob.type,
+                  typeAr: (editingJob as any).typeAr || '',
+                  experience: editingJob.experience,
+                  experienceAr: (editingJob as any).experienceAr || '',
+                  description: editingJob.description,
+                  descriptionAr: (editingJob as any).descriptionAr || '',
+                  requirements: editingJob.requirements,
+                  requirementsAr: (editingJob as any).requirementsAr || [],
+                  benefits: editingJob.benefits,
+                  benefitsAr: (editingJob as any).benefitsAr || [],
+                  salary: editingJob.salary || '',
+                  salaryAr: (editingJob as any).salaryAr || '',
+                  applicationDeadline: editingJob.applicationDeadline || '',
+                  status: editingJob.status as 'draft' | 'active' | 'inactive' | 'closed',
+                  team: editingJob.team || '',
+                  teamAr: (editingJob as any).teamAr || '',
+                } : undefined}
+                onSubmit={async (data) => {
                   if (editingJob) {
-                    const result = await updateJob(editingJob.id, cleanedData)
+                    const result = await updateJob(editingJob.id, data)
                     if (result.success) {
+                      showSuccess(`Job position "${data.title}" has been updated successfully!`)
                       closeDialog()
                     }
+                    return result
                   } else {
-                    const result = await createJob(cleanedData)
+                    const result = await createJob(data)
                     if (result.success) {
+                      showSuccess(`New job position "${data.title}" has been created successfully!`)
                       closeDialog()
                     }
+                    return result
                   }
                 }}
-                disabled={creating || updating}
-              >
-                {updating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Saving Draft...
-                  </>
-                ) : (
-                  'Save Draft'
-                )}
-              </Button>
-              <Button 
-                className="bg-[#6812F7] hover:bg-[#5a0fd4]" 
-                onClick={editingJob ? handleUpdateJob : handleCreateJob}
-                disabled={creating || updating}
-              >
-                {creating || updating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {editingJob ? 'Updating...' : 'Creating...'}
-                  </>
-                ) : (
-                  editingJob ? 'Update Job' : 'Publish Job'
-                )}
-              </Button>
+                onCancel={closeDialog}
+                isSubmitting={creating || updating}
+                error={error}
+              />
             </div>
           </DialogContent>
         </Dialog>

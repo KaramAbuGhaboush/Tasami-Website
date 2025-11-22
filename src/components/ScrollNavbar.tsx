@@ -119,6 +119,7 @@ export default function ScrollNavbar() {
               width={240}
               height={80}
               className="h-20 w-auto"
+              style={{ height: 'auto' }}
               priority
             />
           </Link>

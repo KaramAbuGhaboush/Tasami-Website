@@ -1,11 +1,25 @@
 import { z } from 'zod';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtmlLib from 'sanitize-html';
 
 /**
  * Sanitize HTML content
+ * Removes dangerous HTML while preserving safe formatting
  */
 export function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html);
+  return sanitizeHtmlLib(html, {
+    allowedTags: [
+      'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img'
+    ],
+    allowedAttributes: {
+      'a': ['href', 'title'],
+      'img': ['src', 'alt', 'title', 'width', 'height']
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesByTag: {
+      img: ['http', 'https', 'data']
+    }
+  });
 }
 
 /**
@@ -106,12 +120,97 @@ export const jobSchema = z.object({
   requirementsAr: z.array(z.string()).optional(),
   benefits: z.array(z.string()).default([]),
   benefitsAr: z.array(z.string()).optional(),
-  status: z.enum(['active', 'inactive', 'closed']).default('active'),
-  applicationDeadline: z.string().datetime().optional(),
+  status: z.enum(['active', 'inactive', 'closed', 'draft']).default('draft'),
+  applicationDeadline: z.union([z.string(), z.null(), z.literal('')]).optional(),
   salary: z.string().trim().optional(),
   salaryAr: z.string().trim().optional(),
   team: z.string().trim().optional(),
   teamAr: z.string().trim().optional(),
+});
+
+// Project validation
+export const projectSchema = z.object({
+  title: z.string().trim().min(1, 'Title is required'),
+  titleAr: z.string().trim().optional(),
+  description: z.string().trim().min(1, 'Description is required'),
+  descriptionAr: z.string().trim().optional(),
+  headerImage: z.string().optional(),
+  challenge: z.string().trim().optional(),
+  challengeAr: z.string().trim().optional(),
+  solution: z.string().trim().optional(),
+  solutionAr: z.string().trim().optional(),
+  timeline: z.string().trim().optional(),
+  teamSize: z.string().trim().optional(),
+  status: z.enum(['planning', 'active', 'completed', 'on-hold']).default('planning'),
+  categoryId: z.string().min(1, 'Category is required'),
+  technologies: z.array(z.object({
+    name: z.string().trim().min(1),
+    nameAr: z.string().trim().optional(),
+    description: z.string().trim().min(1),
+    descriptionAr: z.string().trim().optional(),
+  })).default([]),
+  results: z.array(z.object({
+    metric: z.string().trim().min(1),
+    metricAr: z.string().trim().optional(),
+    description: z.string().trim().min(1),
+    descriptionAr: z.string().trim().optional(),
+  })).default([]),
+  testimonial: z.object({
+    quote: z.string().trim().optional(),
+    quoteAr: z.string().trim().optional(),
+    author: z.string().trim().optional(),
+    authorAr: z.string().trim().optional(),
+    position: z.string().trim().optional(),
+    positionAr: z.string().trim().optional(),
+  }).optional(),
+});
+
+// Project Category validation
+export const projectCategorySchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  nameAr: z.string().trim().optional(),
+  slug: z.string().trim().min(1, 'Slug is required'),
+  description: z.string().trim().optional(),
+  descriptionAr: z.string().trim().optional(),
+  color: z.string().trim().optional(),
+  icon: z.string().trim().optional(),
+  featured: z.boolean().default(false),
+  sortOrder: z.number().int().default(0),
+  status: z.enum(['active', 'inactive']).default('active'),
+});
+
+// Blog Category validation
+export const blogCategorySchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  nameAr: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+  descriptionAr: z.string().trim().optional(),
+  color: z.string().trim().optional(),
+  icon: z.string().trim().optional(),
+  featured: z.boolean().default(false),
+  seoTitle: z.string().trim().optional(),
+  seoTitleAr: z.string().trim().optional(),
+  seoDescription: z.string().trim().optional(),
+  seoDescriptionAr: z.string().trim().optional(),
+});
+
+// Blog Author validation
+export const blogAuthorSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  nameAr: z.string().trim().optional(),
+  email: emailSchema,
+  role: z.string().trim().min(1, 'Role is required'),
+  roleAr: z.string().trim().optional(),
+  avatar: z.string().trim().optional(),
+  bio: z.string().trim().optional(),
+  bioAr: z.string().trim().optional(),
+  expertise: z.array(z.string()).default([]),
+  socialLinks: z.object({
+    twitter: z.string().trim().optional(),
+    linkedin: z.string().trim().optional(),
+    github: z.string().trim().optional(),
+    website: z.string().trim().optional(),
+  }).optional(),
 });
 
 // Testimonial validation

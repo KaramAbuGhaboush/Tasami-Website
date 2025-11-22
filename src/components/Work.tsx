@@ -2,6 +2,7 @@ import { Link } from '@/i18n/routing'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
+import { memo } from 'react'
 import { TransformedTestimonial } from '@/hooks/useWork'
 
 interface WorkProps {
@@ -29,7 +30,7 @@ interface WorkProps {
   handleTouchEnd: () => void;
 }
 
-export function Work({
+export const Work = memo(function Work({
   projects,
   loading,
   error,
@@ -573,4 +574,4 @@ export function Work({
       </section>
     </div>
   )
-}
+})

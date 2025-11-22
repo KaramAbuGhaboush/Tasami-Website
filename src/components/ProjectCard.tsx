@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/routing';
 import Image from 'next/image';
+import { memo } from 'react';
 import { Project } from '@/hooks/useWorkData';
 
 interface ProjectCardProps {
@@ -7,7 +8,7 @@ interface ProjectCardProps {
   index: number;
 }
 
-export const ProjectCard = ({ project, index }: ProjectCardProps) => {
+export const ProjectCard = memo(({ project, index }: ProjectCardProps) => {
   return (
     <Link key={index} href={`/projects/${project.id}`}>
       <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
@@ -82,4 +83,6 @@ export const ProjectCard = ({ project, index }: ProjectCardProps) => {
       </div>
     </Link>
   );
-};
+});
+
+ProjectCard.displayName = 'ProjectCard';

@@ -53,6 +53,11 @@ export async function PUT(
     const validatedData = jobSchema.partial().parse(body);
     const sanitizedData = sanitizeObject(validatedData);
 
+    // Convert empty applicationDeadline string to null for Prisma
+    if (sanitizedData.applicationDeadline === '' || sanitizedData.applicationDeadline === undefined) {
+      sanitizedData.applicationDeadline = null;
+    }
+
     const job = await prisma.job.update({
       where: { id },
       data: sanitizedData

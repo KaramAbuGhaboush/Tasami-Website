@@ -2,16 +2,19 @@
 
 import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
-import LottieAnimation from '@/components/LottieAnimation'
+import { Suspense, lazy, memo } from 'react'
 import LightweightAnimation from '@/components/LightweightAnimation'
 import PerformanceToggle from '@/components/PerformanceToggle'
 import { ServiceInfo } from '@/hooks/useHome'
+
+// Lazy load heavy Lottie animation component
+const LottieAnimation = lazy(() => import('@/components/LottieAnimation').then(module => ({ default: module.default })))
 
 interface HomeProps {
   services: ServiceInfo[];
 }
 
-export function Home({ services }: HomeProps) {
+export const Home = memo(function Home({ services }: HomeProps) {
   const t = useTranslations('home')
   const tCards = useTranslations('home.cards')
   const tServices = useTranslations('home.servicesSection')
@@ -306,6 +309,11 @@ export function Home({ services }: HomeProps) {
                   <div className="relative">
                     <div className="w-full h-96 flex items-center justify-center">
                       <div className="w-full h-full relative">
+                        <Suspense fallback={
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="w-12 h-12 border-2 border-[#6812F7] border-t-transparent rounded-full animate-spin"></div>
+                          </div>
+                        }>
                         <LottieAnimation
                           animationPath={service.animationPath}
                           className="w-full h-full"
@@ -313,6 +321,7 @@ export function Home({ services }: HomeProps) {
                           speed={0.8}
                           reducedMotion={false}
                         />
+                        </Suspense>
                         <LightweightAnimation
                           type="ecommerce"
                           className="absolute inset-0 w-full h-full opacity-0 data-[use-lightweight=true]:opacity-100 transition-opacity duration-300"
@@ -361,4 +370,4 @@ export function Home({ services }: HomeProps) {
       <PerformanceToggle />
     </div>
   )
-}
+})

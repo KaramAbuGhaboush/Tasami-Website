@@ -1,12 +1,6 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import {
-  transformArticleByLocale,
-  transformCategoryByLocale,
-  transformAuthorByLocale,
-  normalizeLocale
-} from '@/server/utils/localization';
+import { BlogService } from '@/services/blogService';
 
 /**
  * GET /api/blog/articles/[slug] - Get article by slug
@@ -18,36 +12,20 @@ export async function GET(
   try {
     const { slug } = await params;
     const { searchParams } = new URL(request.url);
-    const locale = normalizeLocale(searchParams.get('locale'));
+    const locale = searchParams.get('locale') || 'en';
 
-    const article = await prisma.blogArticle.findUnique({
-      where: { slug },
-      include: {
-        author: true,
-        category: true
-      }
-    });
+    const article = await BlogService.getArticleBySlug(slug, locale);
 
     if (!article) {
       return createErrorResponse('Article not found', 404);
     }
 
-    // Increment views
-    await prisma.blogArticle.update({
-      where: { id: article.id },
-      data: { views: { increment: 1 } }
-    });
+    const response = createSuccessResponse({ article });
 
-    // Transform based on locale
-    const transformedArticle = transformArticleByLocale(article, locale);
-    transformedArticle.category = article.category 
-      ? transformCategoryByLocale(article.category, locale) 
-      : article.category;
-    transformedArticle.author = article.author 
-      ? transformAuthorByLocale(article.author, locale) 
-      : article.author;
+    // Add caching headers - articles change less frequently
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
-    return createSuccessResponse({ article: transformedArticle });
+    return response;
   } catch (error) {
     return handleError(error);
   }
@@ -71,35 +49,10 @@ export async function PUT(
 
     const { slug } = await params;
     const body = await request.json();
-    const { blogArticleSchema, sanitizeObject } = await import('@/lib/validation');
+    const { sanitizeObject } = await import('@/lib/validation');
     
-    const validatedData = blogArticleSchema.partial().parse(body);
-    const sanitizedData = sanitizeObject(validatedData);
-
-    // Try to find article by slug first, then by ID if not found
-    let article = await prisma.blogArticle.findUnique({
-      where: { slug }
-    });
-
-    // If not found by slug, try by ID (in case frontend passes ID)
-    if (!article) {
-      article = await prisma.blogArticle.findUnique({
-        where: { id: slug }
-      });
-    }
-
-    if (!article) {
-      return createErrorResponse('Article not found', 404);
-    }
-
-    const updatedArticle = await prisma.blogArticle.update({
-      where: { id: article.id },
-      data: sanitizedData,
-      include: {
-        author: true,
-        category: true
-      }
-    });
+    const sanitizedData = sanitizeObject(body);
+    const updatedArticle = await BlogService.updateArticle(slug, sanitizedData);
 
     return createSuccessResponse({ article: updatedArticle }, 'Article updated successfully');
   } catch (error) {
@@ -125,25 +78,7 @@ export async function DELETE(
 
     const { slug } = await params;
 
-    // Try to find article by slug first, then by ID if not found
-    let article = await prisma.blogArticle.findUnique({
-      where: { slug }
-    });
-
-    // If not found by slug, try by ID (in case frontend passes ID)
-    if (!article) {
-      article = await prisma.blogArticle.findUnique({
-        where: { id: slug }
-      });
-    }
-
-    if (!article) {
-      return createErrorResponse('Article not found', 404);
-    }
-
-    await prisma.blogArticle.delete({
-      where: { id: article.id }
-    });
+    await BlogService.deleteArticle(slug);
 
     return createSuccessResponse(null, 'Article deleted successfully');
   } catch (error) {

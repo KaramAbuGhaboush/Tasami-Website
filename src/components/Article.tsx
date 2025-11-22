@@ -7,7 +7,9 @@ import { Article } from '@/hooks/useArticle'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
+import OptimizedImage from '@/components/OptimizedImage'
+import { generateArticleStructuredData, generateBreadcrumbStructuredData } from '@/lib/structured-data'
 
 // Helper function to get the correct image source
 const getImageSrc = (image: string) => {
@@ -40,7 +42,7 @@ interface ArticleProps {
   handleRetry?: () => void;
 }
 
-export function ArticleComponent({ article, loading, error, handleRetry }: ArticleProps) {
+export const ArticleComponent = memo(function ArticleComponent({ article, loading, error, handleRetry }: ArticleProps) {
   const t = useTranslations('blog')
   const tCommon = useTranslations('common')
   const locale = useLocale()
@@ -142,8 +144,51 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
     )
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN 
+    ? `https://${process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN}`
+    : 'https://www.tasami.co'
+
+  // Generate structured data
+  const articleStructuredData = generateArticleStructuredData(
+    {
+      title: article.title,
+      excerpt: article.excerpt,
+      image: article.image,
+      createdAt: article.createdAt,
+      updatedAt: article.updatedAt,
+      author: article.author,
+      slug: article.slug || '',
+    },
+    baseUrl,
+    locale
+  )
+
+  const breadcrumbStructuredData = generateBreadcrumbStructuredData(
+    [
+      { name: tCommon('home'), url: '/' },
+      { name: tCommon('blog'), url: '/blog' },
+      { name: article.category.name, url: `/blog?category=${article.category.slug || ''}` },
+      { name: article.title, url: `/article/${article.slug}` },
+    ],
+    baseUrl
+  )
+
   return (
     <div className="min-h-screen">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(articleStructuredData),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbStructuredData),
+        }}
+      />
+
       {/* Article Header */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -196,10 +241,13 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
           {/* Article Image */}
           {getImageSrc(article.image) ? (
             <div className="aspect-video relative rounded-3xl overflow-hidden">
-              <img
+              <OptimizedImage
                 src={getImageSrc(article.image)!}
                 alt={article.title}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                priority
               />
               <div className="absolute bottom-4 left-4">
                 <div className="bg-white/90 backdrop-blur-sm text-[#6812F7] px-6 py-3 rounded-full text-lg font-semibold">
@@ -221,24 +269,28 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
       {/* Article Content */}
       <section className="pb-6">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="prose prose-lg max-w-none">
+          <div className={`prose prose-lg max-w-none ${isRTL ? 'prose-rtl' : ''}`}>
             {article.content && article.content.includes('<') ? (
               // If content contains HTML tags, render as HTML (for backward compatibility)
-              <div dangerouslySetInnerHTML={{ __html: article.content }} />
+              <div 
+                className={isRTL ? 'text-right' : ''}
+                dir={isRTL ? 'rtl' : 'ltr'}
+                dangerouslySetInnerHTML={{ __html: article.content }} 
+              />
             ) : (
               // Otherwise, render as markdown
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
                 components={{
-                  p: ({ children }) => <p className="mb-4">{children}</p>,
-                  h1: ({ children }) => <h1 className="text-3xl font-bold mb-6 mt-8">{children}</h1>,
-                  h2: ({ children }) => <h2 className="text-2xl font-bold mb-4 mt-6">{children}</h2>,
-                  h3: ({ children }) => <h3 className="text-xl font-bold mb-3 mt-5">{children}</h3>,
-                  ul: ({ children }) => <ul className="mb-4 pl-6 list-disc">{children}</ul>,
-                  ol: ({ children }) => <ol className="mb-4 pl-6 list-decimal">{children}</ol>,
+                  p: ({ children }) => <p className={`mb-4 ${isRTL ? 'text-right' : ''}`}>{children}</p>,
+                  h1: ({ children }) => <h1 className={`text-3xl font-bold mb-6 mt-8 ${isRTL ? 'text-right' : ''}`}>{children}</h1>,
+                  h2: ({ children }) => <h2 className={`text-2xl font-bold mb-4 mt-6 ${isRTL ? 'text-right' : ''}`}>{children}</h2>,
+                  h3: ({ children }) => <h3 className={`text-xl font-bold mb-3 mt-5 ${isRTL ? 'text-right' : ''}`}>{children}</h3>,
+                  ul: ({ children }) => <ul className={`mb-4 ${isRTL ? 'pr-6 list-disc text-right' : 'pl-6 list-disc'}`}>{children}</ul>,
+                  ol: ({ children }) => <ol className={`mb-4 ${isRTL ? 'pr-6 list-decimal text-right' : 'pl-6 list-decimal'}`}>{children}</ol>,
                   li: ({ children }) => <li className="mb-1">{children}</li>,
-                  blockquote: ({ children }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic mb-4">{children}</blockquote>,
+                  blockquote: ({ children }) => <blockquote className={`${isRTL ? 'border-r-4 pr-4 text-right' : 'border-l-4 pl-4'} border-gray-300 italic mb-4`}>{children}</blockquote>,
                   code: ({ children, className }) => {
                     const match = /language-(\w+)/.exec(className || '');
                     return match ? (
@@ -290,10 +342,12 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
                   <Link href={`/article/${relatedArticle.slug}`} className="relative group block">
                     {getImageSrc(relatedArticle.image) ? (
                       <div className="aspect-video relative rounded-2xl overflow-hidden">
-                        <img
+                        <OptimizedImage
                           src={getImageSrc(relatedArticle.image)!}
                           alt={relatedArticle.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                         {/* Category Badge */}
                         <div className="absolute top-4 left-4">
@@ -411,4 +465,4 @@ export function ArticleComponent({ article, loading, error, handleRetry }: Artic
       </section> */}
     </div>
   )
-}
+})

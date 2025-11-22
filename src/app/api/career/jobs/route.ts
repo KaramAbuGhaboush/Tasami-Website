@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import { paginationSchema } from '@/lib/validation';
-import { normalizeLocale, transformJobsByLocale } from '@/server/utils/localization';
+import { CareerService } from '@/services/careerService';
 
 /**
  * GET /api/career/jobs - Get all jobs
@@ -15,36 +13,23 @@ export async function GET(request: NextRequest) {
     const department = searchParams.get('department');
     const location = searchParams.get('location');
     const type = searchParams.get('type');
-    const locale = normalizeLocale(searchParams.get('locale'));
+    const locale = searchParams.get('locale') || 'en';
 
-    const skip = (page - 1) * limit;
-
-    const where: any = { status: 'active' };
-    if (department) where.department = department;
-    if (location) where.location = location;
-    if (type) where.type = type;
-
-    const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { postedDate: 'desc' }
-      }),
-      prisma.job.count({ where })
-    ]);
-
-    const transformedJobs = transformJobsByLocale(jobs, locale);
-
-    return createSuccessResponse({
-      jobs: transformedJobs,
-      pagination: {
+    const result = await CareerService.getJobs({
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit)
-      }
+      department: department || undefined,
+      location: location || undefined,
+      type: type || undefined,
+      locale,
     });
+
+    const response = createSuccessResponse(result);
+
+    // Add caching headers
+    response.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300');
+
+    return response;
   } catch (error) {
     return handleError(error);
   }
@@ -63,14 +48,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { jobSchema, sanitizeObject } = await import('@/lib/validation');
+    const { sanitizeObject, jobSchema } = await import('@/lib/validation');
     
     const validatedData = jobSchema.parse(body);
     const sanitizedData = sanitizeObject(validatedData);
 
-    const job = await prisma.job.create({
-      data: sanitizedData
-    });
+    // Convert empty applicationDeadline string to null for Prisma
+    if (sanitizedData.applicationDeadline === '' || sanitizedData.applicationDeadline === undefined) {
+      sanitizedData.applicationDeadline = null;
+    }
+    
+    const job = await CareerService.createJob(sanitizedData);
 
     return createSuccessResponse({ job }, 'Job created successfully', 201);
   } catch (error) {

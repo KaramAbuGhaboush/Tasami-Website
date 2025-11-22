@@ -141,12 +141,20 @@ export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
               project.contentBlocks.map((block, index) => (
                 <div key={block.id || index} className={`mb-8 ${isRTL ? 'text-right' : ''}`}>
                   {block.type === 'heading' && (
-                    <h2 className={`text-${block.level === 1 ? '5xl' : block.level === 2 ? '4xl' : '3xl'} font-bold text-gray-900 mb-6 ${isRTL ? 'text-right' : ''}`}>
+                    <h2 
+                      className={`text-${block.level === 1 ? '5xl' : block.level === 2 ? '4xl' : '3xl'} font-bold text-gray-900 mb-6 ${isRTL ? 'text-right' : ''}`}
+                      dir={isRTL ? 'rtl' : 'ltr'}
+                    >
                       {block.content}
                     </h2>
                   )}
                   {block.type === 'paragraph' && (
-                    <p className={`text-lg text-gray-700 leading-relaxed mb-6 ${isRTL ? 'text-right' : ''}`}>{block.content}</p>
+                    <p 
+                      className={`text-lg text-gray-700 leading-relaxed mb-6 ${isRTL ? 'text-right' : ''}`}
+                      dir={isRTL ? 'rtl' : 'ltr'}
+                    >
+                      {block.content}
+                    </p>
                   )}
                   {block.type === 'image' && (
                     <div className="mb-8">

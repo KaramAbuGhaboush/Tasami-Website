@@ -193,7 +193,7 @@ export function BlogPage() {
       setRelatedArticleSearch('')
       setShowRelatedDropdown(false)
       setArticleDialogOpen(false)
-      success('Article created successfully!')
+      success(`Article "${articleForm.title}" has been created successfully!`)
     } else {
       showError('Failed to create article')
     }
@@ -264,7 +264,7 @@ export function BlogPage() {
         setRelatedArticleSearch('')
         setShowRelatedDropdown(false)
         setArticleDialogOpen(false)
-        success('Article updated successfully!')
+        success(`Article "${articleForm.title}" has been updated successfully!`)
       } else {
         showError('Failed to update article')
       }
@@ -296,7 +296,7 @@ export function BlogPage() {
         seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
-      success('Category created successfully!')
+      success(`Category "${categoryForm.name}" has been created successfully!`)
     } else {
       showError('Failed to create category')
     }
@@ -345,7 +345,7 @@ export function BlogPage() {
         seoDescriptionAr: ''
       })
       setCategoryDialogOpen(false)
-      success('Category updated successfully!')
+      success(`Category "${categoryForm.name}" has been updated successfully!`)
     } else {
       showError('Failed to update category')
     }
@@ -378,7 +378,7 @@ export function BlogPage() {
       })
       setExpertiseInput('')
       setAuthorDialogOpen(false)
-      success('Author created successfully!')
+      success(`Author "${authorForm.name}" has been created successfully!`)
     } else {
       showError('Failed to create author')
     }
@@ -435,14 +435,17 @@ export function BlogPage() {
       })
       setExpertiseInput('')
       setAuthorDialogOpen(false)
-      success('Author updated successfully!')
+      success(`Author "${authorForm.name}" has been updated successfully!`)
     } else {
       showError('Failed to update author')
     }
   }
 
   const handleDeleteArticle = async (id: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this article?', {
+    const article = articles.find(a => a.id === id)
+    const articleTitle = article?.title || 'this article'
+    
+    const confirmed = await confirm(`Are you sure you want to delete "${articleTitle}"? This action cannot be undone.`, {
       title: 'Delete Article',
       type: 'warning',
       confirmText: 'Delete',
@@ -451,7 +454,7 @@ export function BlogPage() {
     if (confirmed) {
       const deleted = await deleteArticle(id)
       if (deleted) {
-        success('Article deleted successfully!')
+        success(`Article "${articleTitle}" has been deleted successfully.`)
       } else {
         showError('Failed to delete article')
       }
@@ -459,7 +462,10 @@ export function BlogPage() {
   }
 
   const handleDeleteCategory = async (id: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this category?', {
+    const category = categories.find(c => c.id === id)
+    const categoryName = category?.name || 'this category'
+    
+    const confirmed = await confirm(`Are you sure you want to delete category "${categoryName}"? This action cannot be undone.`, {
       title: 'Delete Category',
       type: 'warning',
       confirmText: 'Delete',
@@ -468,7 +474,7 @@ export function BlogPage() {
     if (confirmed) {
       const deleted = await deleteCategory(id)
       if (deleted) {
-        success('Category deleted successfully!')
+        success(`Category "${categoryName}" has been deleted successfully.`)
       } else {
         showError('Failed to delete category')
       }
@@ -476,7 +482,10 @@ export function BlogPage() {
   }
 
   const handleDeleteAuthor = async (id: string) => {
-    const confirmed = await confirm('Are you sure you want to delete this author?', {
+    const author = authors.find(a => a.id === id)
+    const authorName = author?.name || 'this author'
+    
+    const confirmed = await confirm(`Are you sure you want to delete author "${authorName}"? This action cannot be undone.`, {
       title: 'Delete Author',
       type: 'warning',
       confirmText: 'Delete',
@@ -485,7 +494,7 @@ export function BlogPage() {
     if (confirmed) {
       const result = await deleteAuthor(id)
       if (result.success) {
-        success('Author deleted successfully!')
+        success(`Author "${authorName}" has been deleted successfully.`)
       } else {
         showError(result.message || 'Failed to delete author')
       }

@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface OptimizedImageProps {
   src: string
@@ -33,7 +33,14 @@ export default function OptimizedImage({
   style,
   ...props
 }: OptimizedImageProps) {
-  const [isLoading, setIsLoading] = useState(true)
+  // Check if the image is a base64 data URL
+  const isBase64 = src.startsWith('data:image/')
+  
+  // Check if it's a blob URL
+  const isBlob = src.startsWith('blob:')
+
+  // For base64 images, they're already loaded, so start with loading false
+  const [isLoading, setIsLoading] = useState(!isBase64)
   const [hasError, setHasError] = useState(false)
 
   // Generate a simple blur placeholder if none provided
@@ -59,6 +66,65 @@ export default function OptimizedImage({
     )
   }
 
+  // For base64 or blob URLs, use regular img tag (Next.js Image doesn't support these)
+  if (isBase64 || isBlob) {
+    // When using fill, render with absolute positioning within parent container
+    if (fill) {
+      return (
+        <>
+          {isLoading && (
+            <div 
+              className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center z-10"
+            >
+              <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+            </div>
+          )}
+          <img
+            src={src}
+            alt={alt}
+            className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'} absolute inset-0 w-full h-full object-cover ${className}`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              objectFit: 'cover',
+              width: '100%',
+              height: '100%',
+            }}
+            onLoad={handleLoad}
+            onError={handleError}
+            {...(props as any)}
+          />
+        </>
+      )
+    }
+    
+    // For non-fill base64 images
+    return (
+      <div className={`relative ${className}`} style={style}>
+        {isLoading && (
+          <div 
+            className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center z-10"
+            style={{ width: width || '100%', height: height || '200px' }}
+          >
+            <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
+          </div>
+        )}
+        <img
+          src={src}
+          alt={alt}
+          width={width}
+          height={height}
+          className={`transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          style={style}
+          onLoad={handleLoad}
+          onError={handleError}
+          {...(props as any)}
+        />
+      </div>
+    )
+  }
+
+  // For regular URLs, use Next.js Image component
   return (
     <div className={`relative ${className}`} style={style}>
       {isLoading && (

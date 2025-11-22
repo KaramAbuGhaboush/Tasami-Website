@@ -86,6 +86,7 @@ export interface UseProjectReturn {
   project: Project | null;
   loading: boolean;
   error: string | null;
+  refresh: () => Promise<void>;
 }
 
 export function useProject(projectId: string): UseProjectReturn {
@@ -139,6 +140,7 @@ export function useProject(projectId: string): UseProjectReturn {
   return {
     project,
     loading,
-    error
+    error,
+    refresh: fetchProject
   };
 }

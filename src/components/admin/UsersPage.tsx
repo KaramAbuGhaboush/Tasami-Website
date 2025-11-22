@@ -418,7 +418,7 @@ export function UsersPage() {
         })
         
         if (response.success) {
-          success('User updated successfully!')
+          success(`User "${userForm.name}" has been updated successfully!`)
           await loadData() // Refresh data
         } else {
           showError('Failed to update user')
@@ -437,7 +437,7 @@ export function UsersPage() {
         })
         
         if (response.success) {
-          success('User created successfully!')
+          success(`New user "${userForm.name}" has been created successfully!`)
           await loadData() // Refresh data
         } else {
           showError('Failed to create user')
@@ -493,7 +493,7 @@ export function UsersPage() {
       const response = await apiClient.toggleEmployeeStatus(user.id)
       
       if (response.success) {
-        success(`${user.isActive ? 'Deactivated' : 'Activated'} user ${user.name}`)
+        success(`User "${user.name}" has been ${user.isActive ? 'deactivated' : 'activated'} successfully.`)
         await loadData() // Refresh data
       } else {
         showError('Failed to toggle user status')
@@ -519,7 +519,7 @@ export function UsersPage() {
         const response = await apiClient.deleteEmployee(user.id)
         
         if (response.success) {
-          success(`User ${user.name} deleted successfully`)
+          success(`User "${user.name}" has been deleted successfully.`)
           await loadData() // Refresh data
         } else {
           showError('Failed to delete user')
@@ -564,7 +564,7 @@ export function UsersPage() {
       const response = await apiClient.updateEmployeeGoal(actionUser.id, newGoal)
       
       if (response.success) {
-        success(`Weekly goal changed to ${newGoal} hours`)
+        success(`Weekly goal for "${actionUser.name}" has been updated to ${newGoal} hours.`)
         await loadData() // Refresh data
       } else {
         showError('Failed to update weekly goal')

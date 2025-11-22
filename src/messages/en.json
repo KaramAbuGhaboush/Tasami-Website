@@ -467,7 +467,8 @@
     "readTime": "Read Time",
     "relatedArticles": "Related Articles",
     "relatedArticlesDescription": "Continue exploring similar content",
-    "shareArticle": "Share Article"
+    "shareArticle": "Share Article",
+    "noPostsFound": "No posts found in this category."
   },
   "career": {
     "title": "Career",

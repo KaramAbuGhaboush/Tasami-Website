@@ -1,11 +1,6 @@
 import { NextRequest } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { createErrorResponse, createSuccessResponse, handleError } from '@/lib/errors';
-import {
-  normalizeLocale,
-  transformProjectsByLocale,
-  transformProjectCategoryByLocale,
-} from '@/server/utils/localization';
+import { ProjectService } from '@/services/projectService';
 
 /**
  * GET /api/projects - Get all projects
@@ -14,35 +9,19 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
-    const locale = normalizeLocale(searchParams.get('locale'));
+    const locale = searchParams.get('locale') || 'en';
 
-    const where: any = {};
-    if (category) {
-      where.category = { slug: category };
-    }
-
-    const projects = await prisma.project.findMany({
-      where,
-      include: {
-        category: true,
-        technologies: true,
-        results: true,
-        clientTestimonial: true,
-        contentBlocks: {
-          orderBy: { order: 'asc' }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
+    const result = await ProjectService.getProjects({
+      category: category || undefined,
+      locale,
     });
 
-    // Transform projects based on locale
-    const transformedProjects = transformProjectsByLocale(projects, locale);
-    const finalProjects = transformedProjects.map((project: any) => ({
-      ...project,
-      category: project.category ? transformProjectCategoryByLocale(project.category, locale) : project.category
-    }));
+    const response = createSuccessResponse(result);
+    
+    // Add caching headers
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
-    return createSuccessResponse({ projects: finalProjects });
+    return response;
   } catch (error) {
     return handleError(error);
   }
@@ -64,26 +43,7 @@ export async function POST(request: NextRequest) {
     const { sanitizeObject } = await import('@/lib/validation');
     const sanitizedData = sanitizeObject(body);
 
-    const project = await prisma.project.create({
-      data: {
-        ...sanitizedData,
-        technologies: sanitizedData.technologies ? {
-          create: sanitizedData.technologies
-        } : undefined,
-        results: sanitizedData.results ? {
-          create: sanitizedData.results
-        } : undefined,
-        clientTestimonial: sanitizedData.clientTestimonial ? {
-          create: sanitizedData.clientTestimonial
-        } : undefined
-      },
-      include: {
-        category: true,
-        technologies: true,
-        results: true,
-        clientTestimonial: true
-      }
-    });
+    const project = await ProjectService.createProject(sanitizedData);
 
     return createSuccessResponse({ project }, 'Project created successfully', 201);
   } catch (error) {

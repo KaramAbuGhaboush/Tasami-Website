@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Testimonial } from '@/hooks/useWorkData';
 import { useTestimonialsSlider } from '@/hooks/useTestimonialsSlider';
 
@@ -5,7 +6,7 @@ interface TestimonialsSliderProps {
   testimonials: Testimonial[];
 }
 
-export const TestimonialsSlider = ({ testimonials }: TestimonialsSliderProps) => {
+export const TestimonialsSlider = memo(({ testimonials }: TestimonialsSliderProps) => {
   const {
     currentSlide,
     isAutoPlaying,
@@ -108,4 +109,6 @@ export const TestimonialsSlider = ({ testimonials }: TestimonialsSliderProps) =>
       </div>
     </div>
   );
-};
+});
+
+TestimonialsSlider.displayName = 'TestimonialsSlider';

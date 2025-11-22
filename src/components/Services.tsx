@@ -2,6 +2,7 @@
 
 import { Link } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
+import { memo } from 'react'
 import { Service, ProcessStep } from '@/hooks/useServices'
 
 interface ServicesProps {
@@ -10,7 +11,7 @@ interface ServicesProps {
   getColorClasses: (color: string) => string;
 }
 
-export function Services({ services, processSteps, getColorClasses }: ServicesProps) {
+export const Services = memo(function Services({ services, processSteps, getColorClasses }: ServicesProps) {
   const t = useTranslations('services')
   return (
     <div className="min-h-screen">
@@ -221,4 +222,4 @@ export function Services({ services, processSteps, getColorClasses }: ServicesPr
       </section>
     </div>
   )
-}
+})
