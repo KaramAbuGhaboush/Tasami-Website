@@ -27,15 +27,16 @@ export async function GET(request: NextRequest) {
     const limit = Number(searchParams.get('limit')) || 10;
     const category = searchParams.get('category');
     const featured = searchParams.get('featured');
-    const status = searchParams.get('status') || 'published';
+    const statusParam = searchParams.get('status');
+    const status = statusParam || 'published';
     const locale = searchParams.get('locale') || 'en';
 
     const result = await BlogService.getArticles({
         page,
         limit,
       category: category || undefined,
-      featured: featured !== undefined ? featured === 'true' : undefined,
-      status,
+      featured: featured ? featured === 'true' : undefined,
+      status: status === 'all' ? 'all' : status,
       locale,
     });
 

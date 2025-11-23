@@ -4,7 +4,7 @@ import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
 import { memo } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { Value, FAQ } from '@/hooks/useAbout'
+import { Value, FAQ } from '@/lib/about-data'
 
 interface AboutProps {
   values: Value[];
@@ -20,7 +20,7 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-40">
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>

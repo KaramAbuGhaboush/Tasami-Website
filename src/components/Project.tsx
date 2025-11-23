@@ -35,7 +35,7 @@ export const ProjectComponent = memo(function ProjectComponent({ project }: Proj
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F2F3FF] via-white to-[#DFC7FE]/20">
       {/* Enhanced Hero Section */}
-      <section className="pt-32 pb-20 relative overflow-hidden">
+      <section className="-mt-20 pt-48 pb-20 relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/5 via-transparent to-[#9253F0]/5"></div>
         <div className="absolute top-20 right-10 w-72 h-72 bg-gradient-to-br from-[#6812F7]/10 to-[#9253F0]/10 rounded-full blur-3xl"></div>

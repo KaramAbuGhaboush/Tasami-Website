@@ -58,7 +58,7 @@ export const Contact = memo(function Contact({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
+      <section className="relative -mt-20 pt-40 pb-20 bg-gradient-to-br from-blue-50 via-white to-purple-50 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-20 w-32 h-32 bg-blue-200/30 rounded-full blur-xl animate-pulse"></div>

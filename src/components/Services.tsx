@@ -8,15 +8,14 @@ import { Service, ProcessStep } from '@/hooks/useServices'
 interface ServicesProps {
   services: Service[];
   processSteps: ProcessStep[];
-  getColorClasses: (color: string) => string;
 }
 
-export const Services = memo(function Services({ services, processSteps, getColorClasses }: ServicesProps) {
+export const Services = memo(function Services({ services, processSteps }: ServicesProps) {
   const t = useTranslations('services')
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="py-20">
+      <section className="-mt-20 pt-40 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">

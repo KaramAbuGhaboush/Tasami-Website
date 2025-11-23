@@ -10,6 +10,7 @@ import rehypeHighlight from 'rehype-highlight'
 import { useState, useEffect, memo } from 'react'
 import OptimizedImage from '@/components/OptimizedImage'
 import { generateArticleStructuredData, generateBreadcrumbStructuredData } from '@/lib/structured-data'
+import { SkeletonArticleContent, SkeletonShimmer } from '@/components/ui/skeleton'
 
 // Helper function to get the correct image source
 const getImageSrc = (image: string) => {
@@ -92,11 +93,65 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('loadingArticle')}</p>
-        </div>
+      <div className="min-h-screen">
+        {/* Article Header Skeleton */}
+        <section className="py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Breadcrumb Skeleton */}
+            <nav className="mb-8">
+              <div className="flex items-center space-x-2">
+                <SkeletonShimmer className="h-4 w-16 rounded" />
+                <SkeletonShimmer className="h-4 w-4 rounded" />
+                <SkeletonShimmer className="h-4 w-16 rounded" />
+                <SkeletonShimmer className="h-4 w-4 rounded" />
+                <SkeletonShimmer className="h-4 w-24 rounded" />
+              </div>
+            </nav>
+
+            {/* Article Meta Skeleton */}
+            <div className="flex items-center space-x-4 mb-6">
+              <SkeletonShimmer className="h-4 w-20 rounded" />
+              <SkeletonShimmer className="h-4 w-4 rounded-full" />
+              <SkeletonShimmer className="h-4 w-24 rounded" />
+              <SkeletonShimmer className="h-4 w-4 rounded-full" />
+              <SkeletonShimmer className="h-6 w-24 rounded-full" />
+            </div>
+
+            {/* Article Title Skeleton */}
+            <SkeletonShimmer className="h-12 w-full rounded mb-6" />
+            <SkeletonShimmer className="h-8 w-5/6 rounded mb-8" />
+
+            {/* Author Info Skeleton */}
+            <div className="flex items-center space-x-4 mb-12">
+              <SkeletonShimmer className="h-16 w-16 rounded-full" />
+              <div className="space-y-2">
+                <SkeletonShimmer className="h-5 w-32 rounded" />
+                <SkeletonShimmer className="h-4 w-24 rounded" />
+              </div>
+            </div>
+
+            {/* Article Image Skeleton */}
+            <SkeletonShimmer className="aspect-video w-full rounded-3xl" />
+          </div>
+        </section>
+
+        {/* Article Content Skeleton */}
+        <section className="pb-6">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SkeletonArticleContent />
+          </div>
+        </section>
+
+        {/* Tags Skeleton */}
+        <section className="py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap gap-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonShimmer key={i} className="h-8 w-20 rounded-full" />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     )
   }

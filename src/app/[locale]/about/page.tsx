@@ -1,23 +1,16 @@
-'use client'
+import { AboutClient } from '@/components/AboutClient'
+import { getAboutData } from '@/lib/about-data'
 
-import { useAbout } from '@/hooks/useAbout'
-import { About } from '@/components/About'
+export default async function AboutPage() {
+    const { values, faqs } = getAboutData()
 
-export default function AboutPage() {
-    const {
-        values,
-        faqs,
-        openFAQ,
-        setOpenFAQ
-    } = useAbout()
+    return <AboutClient values={values} faqs={faqs} />
+}
 
-    return (
-        <About
-            values={values}
-            faqs={faqs}
-            openFAQ={openFAQ}
-            setOpenFAQ={setOpenFAQ}
-        />
-    )
+export async function generateStaticParams() {
+    return [
+        { locale: 'en' },
+        { locale: 'ar' }
+    ]
 }
 

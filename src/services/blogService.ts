@@ -44,9 +44,16 @@ export class BlogService {
     const skip = (page - 1) * limit
     const normalizedLocale = normalizeLocale(locale)
 
-    const where: any = { status }
+    const where: any = {}
+    // Only filter by status if it's not 'all'
+    if (status !== 'all') {
+      where.status = status
+    }
     if (category) where.category = { slug: category }
     if (featured !== undefined) where.featured = featured === true
+
+    console.log('[BlogService.getArticles] Query params:', { status, page, limit, category, featured })
+    console.log('[BlogService.getArticles] Where clause:', JSON.stringify(where, null, 2))
 
     const [articles, total] = await Promise.all([
       prisma.blogArticle.findMany({
@@ -95,6 +102,8 @@ export class BlogService {
       }),
       prisma.blogArticle.count({ where }),
     ])
+
+    console.log('[BlogService.getArticles] Found articles:', articles.length, 'Total:', total)
 
     // Transform articles based on locale
     const transformedArticles = transformArticlesByLocale(articles, normalizedLocale)
@@ -198,6 +207,18 @@ export class BlogService {
   }
 
   /**
+   * Generate a URL-friendly slug from a string
+   */
+  private static generateSlug(text: string): string {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/[\s_-]+/g, '-') // Replace spaces, underscores, and multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
+  }
+
+  /**
    * Create article
    */
   static async createArticle(data: CreateArticleData) {
@@ -205,6 +226,21 @@ export class BlogService {
 
     const { authorId, categoryId, seoTitle, seoDescription, ...createData } = validatedData
     const createPayload: any = { ...createData }
+
+    // Generate slug from title if not provided
+    if (!createPayload.slug && createPayload.title) {
+      let baseSlug = this.generateSlug(createPayload.title)
+      let slug = baseSlug
+      let counter = 1
+
+      // Ensure slug is unique
+      while (await prisma.blogArticle.findUnique({ where: { slug } })) {
+        slug = `${baseSlug}-${counter}`
+        counter++
+      }
+
+      createPayload.slug = slug
+    }
 
     if (authorId) {
       createPayload.author = {

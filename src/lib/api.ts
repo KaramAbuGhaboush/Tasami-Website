@@ -33,8 +33,11 @@ class ApiClient {
       cache: 'no-store' as RequestCache,
     };
 
+    console.log('[API] Making request to:', url, 'with config:', { method: config.method || 'GET', headers: config.headers });
+    
     try {
       const response = await fetch(url, config);
+      console.log('[API] Response received:', { status: response.status, statusText: response.statusText, url });
       
       if (!response.ok) {
         let errorText = '';
@@ -68,6 +71,7 @@ class ApiClient {
       }
       
       const data = await response.json();
+      console.log('[API] Response data:', { success: data.success, hasData: !!data.data, message: data.message });
       return data;
     } catch (error) {
       const errorMessage = error instanceof Error 
@@ -96,6 +100,7 @@ class ApiClient {
     limit?: number;
     category?: string;
     featured?: boolean;
+    status?: string;
     locale?: 'en' | 'ar';
   }) {
     const searchParams = new URLSearchParams();
@@ -103,6 +108,7 @@ class ApiClient {
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.category) searchParams.append('category', params.category);
     if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
+    if (params?.status) searchParams.append('status', params.status);
     if (params?.locale) {
       searchParams.append('locale', params.locale);
     }

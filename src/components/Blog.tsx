@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing'
 import { useTranslations, useLocale } from 'next-intl'
 import { BlogPost, BlogCategory } from '@/hooks/useBlog'
 import OptimizedImage from '@/components/OptimizedImage'
+import { SkeletonBlogPost, SkeletonFeaturedPost, SkeletonShimmer } from '@/components/ui/skeleton'
 
 interface BlogProps {
   blogPosts: BlogPost[];
@@ -138,11 +139,61 @@ export const Blog = memo(function Blog({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('loadingPosts')}</p>
-        </div>
+      <div className="min-h-screen">
+        {/* Blog Hero Section Skeleton */}
+        <section className="-mt-20 pt-40 pb-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-16">
+              <SkeletonShimmer className="h-12 w-64 rounded mb-8 lg:mb-0" />
+              <SkeletonShimmer className="h-14 w-full lg:w-96 rounded-2xl" />
+            </div>
+
+            {/* Featured Post Skeleton */}
+            <SkeletonFeaturedPost />
+          </div>
+        </section>
+
+        {/* Filter Tabs Skeleton */}
+        <section className="py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-wrap justify-center gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonShimmer key={i} className="h-12 w-32 rounded-full" />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Blog Posts Grid Skeleton */}
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonBlogPost key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Popular Topics Skeleton */}
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <SkeletonShimmer className="h-10 w-64 mx-auto mb-4 rounded" />
+              <SkeletonShimmer className="h-6 w-96 mx-auto rounded" />
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="luxury-card p-6 rounded-2xl text-center">
+                  <SkeletonShimmer className="h-16 w-16 mx-auto mb-4 rounded-full" />
+                  <SkeletonShimmer className="h-6 w-3/4 mx-auto mb-2 rounded" />
+                  <SkeletonShimmer className="h-4 w-full mx-auto mb-4 rounded" />
+                  <SkeletonShimmer className="h-8 w-1/2 mx-auto rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
@@ -168,7 +219,7 @@ export const Blog = memo(function Blog({
   return (
     <div className="min-h-screen">
       {/* Blog Hero Section */}
-      <section className="py-20">
+      <section className="-mt-20 pt-40 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-16">
             {/* Blog Title */}

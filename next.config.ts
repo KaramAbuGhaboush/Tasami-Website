@@ -58,11 +58,43 @@ const nextConfig: NextConfig = {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
         cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
+          default: false,
+          vendors: false,
+          // Framework chunks (React, Next.js)
+          framework: {
+            name: 'framework',
             chunks: 'all',
+            test: /[\\/]node_modules[\\/](react|react-dom|scheduler|next)[\\/]/,
+            priority: 40,
+            enforce: true,
+          },
+          // UI library chunks
+          ui: {
+            name: 'ui',
+            chunks: 'all',
+            test: /[\\/]node_modules[\\/](@radix-ui|lucide-react|@radix-ui\/react-icons)[\\/]/,
+            priority: 30,
+            enforce: true,
+          },
+          // Other vendor chunks
+          vendor: {
+            name: 'vendor',
+            chunks: 'all',
+            test: /[\\/]node_modules[\\/]/,
+            priority: 20,
+            minChunks: 1,
+            reuseExistingChunk: true,
+          },
+          // Common chunks shared across pages
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'async',
+            priority: 10,
+            reuseExistingChunk: true,
           },
         },
       };
@@ -72,6 +104,82 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      // Security headers for protected routes (admin, employee, login)
+      {
+        source: '/admin/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, private'
+          }
+        ]
+      },
+      {
+        source: '/employee/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, private'
+          }
+        ]
+      },
+      {
+        source: '/login/:path*',
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow, noarchive, nosnippet'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, private'
+          }
+        ]
+      },
       {
         source: '/(.*)',
         headers: [

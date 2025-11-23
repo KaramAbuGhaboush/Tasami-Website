@@ -89,7 +89,9 @@ export function PortfolioPage() {
     solution: '',
     solutionAr: '',
     timeline: '',
+    timelineAr: '',
     teamSize: '',
+    teamSizeAr: '',
     status: 'planning' as 'planning' | 'active' | 'completed' | 'on-hold',
     categoryId: '',
     technologies: [] as { name: string; nameAr?: string; description: string; descriptionAr?: string }[],
@@ -182,7 +184,9 @@ export function PortfolioPage() {
         solution: '',
         solutionAr: '',
         timeline: '',
+        timelineAr: '',
         teamSize: '',
+        teamSizeAr: '',
         status: 'planning',
         categoryId: '',
         technologies: [],
@@ -250,7 +254,9 @@ export function PortfolioPage() {
         solution: projectForm.solution || undefined,
         solutionAr: projectForm.solutionAr || undefined,
         timeline: projectForm.timeline,
+        timelineAr: projectForm.timelineAr || undefined,
         teamSize: projectForm.teamSize,
+        teamSizeAr: projectForm.teamSizeAr || undefined,
         status: projectForm.status,
         categoryId: projectForm.categoryId,
         technologies: projectForm.technologies,
@@ -294,7 +300,9 @@ export function PortfolioPage() {
           solution: '',
           solutionAr: '',
           timeline: '',
+          timelineAr: '',
           teamSize: '',
+          teamSizeAr: '',
           status: 'planning',
           categoryId: '',
           technologies: [],
@@ -334,7 +342,9 @@ export function PortfolioPage() {
       solution: projectForm.solution || undefined,
       solutionAr: projectForm.solutionAr || undefined,
       timeline: projectForm.timeline,
+      timelineAr: projectForm.timelineAr || undefined,
       teamSize: projectForm.teamSize,
+      teamSizeAr: projectForm.teamSizeAr || undefined,
       status: projectForm.status,
       categoryId: projectForm.categoryId,
       technologies: projectForm.technologies,
@@ -360,7 +370,9 @@ export function PortfolioPage() {
         solution: '',
         solutionAr: '',
         timeline: '',
+        timelineAr: '',
         teamSize: '',
+        teamSizeAr: '',
         status: 'planning',
         categoryId: '',
         technologies: [],
@@ -903,7 +915,9 @@ export function PortfolioPage() {
       solution: project.solution || '',
       solutionAr: (project as any).solutionAr || '',
       timeline: project.timeline || '',
+      timelineAr: (project as any).timelineAr || '',
       teamSize: project.teamSize || '',
+      teamSizeAr: (project as any).teamSizeAr || '',
       status: project.status,
       categoryId: project.category.id,
       technologies: project.technologies.map(t => ({
@@ -1098,7 +1112,9 @@ export function PortfolioPage() {
                         solution: '',
                         solutionAr: '',
                         timeline: '',
+                        timelineAr: '',
                         teamSize: '',
+                        teamSizeAr: '',
                         status: 'planning',
                         categoryId: '',
                         technologies: [],
@@ -1209,36 +1225,62 @@ export function PortfolioPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Timeline (English)</label>
                             <Input
                               placeholder="e.g., 6 months"
                               value={projectForm.timeline || ''}
                               onChange={(e) => setProjectForm({ ...projectForm, timeline: e.target.value })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Team Size</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Timeline (Arabic)</label>
+                            <Input
+                              placeholder="مثال: 6 أشهر"
+                              value={projectForm.timelineAr || ''}
+                              onChange={(e) => setProjectForm({ ...projectForm, timelineAr: e.target.value })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                              dir="rtl"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Team Size (English)</label>
                             <Input
                               placeholder="e.g., 8 developers"
                               value={projectForm.teamSize || ''}
                               onChange={(e) => setProjectForm({ ...projectForm, teamSize: e.target.value })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                            <select
-                              className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
-                              value={projectForm.status}
-                              onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as any })}
-                            >
-                              <option value="planning">Planning</option>
-                              <option value="active">Active</option>
-                              <option value="completed">Completed</option>
-                              <option value="on-hold">On Hold</option>
-                            </select>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Team Size (Arabic)</label>
+                            <Input
+                              placeholder="مثال: 8 مطورين"
+                              value={projectForm.teamSizeAr || ''}
+                              onChange={(e) => setProjectForm({ ...projectForm, teamSizeAr: e.target.value })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                              dir="rtl"
+                            />
                           </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                          <select
+                            className="w-full px-3 py-2 border border-gray-200 rounded-md focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                            value={projectForm.status}
+                            onChange={(e) => setProjectForm({ ...projectForm, status: e.target.value as any })}
+                          >
+                            <option value="planning">Planning</option>
+                            <option value="active">Active</option>
+                            <option value="completed">Completed</option>
+                            <option value="on-hold">On Hold</option>
+                          </select>
                         </div>
                       </div>
 
@@ -1505,7 +1547,7 @@ export function PortfolioPage() {
 
                         <div className="space-y-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Quote</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Quote (English)</label>
                             <Textarea
                               placeholder="Client testimonial quote..."
                               rows={3}
@@ -1514,11 +1556,26 @@ export function PortfolioPage() {
                                 ...projectForm,
                                 testimonial: { ...projectForm.testimonial, quote: e.target.value }
                               })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                             />
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Quote (Arabic)</label>
+                            <Textarea
+                              placeholder="اقتباس شهادة العميل..."
+                              rows={3}
+                              value={projectForm.testimonial.quoteAr || ''}
+                              onChange={(e) => setProjectForm({
+                                ...projectForm,
+                                testimonial: { ...projectForm.testimonial, quoteAr: e.target.value }
+                              })}
+                              className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                              dir="rtl"
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Author</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Author (English)</label>
                               <Input
                                 placeholder="Client name"
                                 value={projectForm.testimonial.author}
@@ -1526,10 +1583,26 @@ export function PortfolioPage() {
                                   ...projectForm,
                                   testimonial: { ...projectForm.testimonial, author: e.target.value }
                                 })}
+                                className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Author (Arabic)</label>
+                              <Input
+                                placeholder="اسم العميل"
+                                value={projectForm.testimonial.authorAr || ''}
+                                onChange={(e) => setProjectForm({
+                                  ...projectForm,
+                                  testimonial: { ...projectForm.testimonial, authorAr: e.target.value }
+                                })}
+                                className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                                dir="rtl"
+                              />
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Position (English)</label>
                               <Input
                                 placeholder="Client position/company"
                                 value={projectForm.testimonial.position}
@@ -1537,6 +1610,20 @@ export function PortfolioPage() {
                                   ...projectForm,
                                   testimonial: { ...projectForm.testimonial, position: e.target.value }
                                 })}
+                                className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Position (Arabic)</label>
+                              <Input
+                                placeholder="منصب العميل/الشركة"
+                                value={projectForm.testimonial.positionAr || ''}
+                                onChange={(e) => setProjectForm({
+                                  ...projectForm,
+                                  testimonial: { ...projectForm.testimonial, positionAr: e.target.value }
+                                })}
+                                className="focus:ring-2 focus:ring-[#6812F7] focus:border-transparent"
+                                dir="rtl"
                               />
                             </div>
                           </div>
@@ -1997,7 +2084,9 @@ export function PortfolioPage() {
                             solution: '',
                             solutionAr: '',
                             timeline: '',
+                            timelineAr: '',
                             teamSize: '',
+                            teamSizeAr: '',
                             status: 'planning',
                             categoryId: '',
                             technologies: [],
@@ -2760,3 +2849,5 @@ export function PortfolioPage() {
     </div>
   )
 }
+
+

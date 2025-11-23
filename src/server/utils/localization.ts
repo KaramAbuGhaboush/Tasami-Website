@@ -122,6 +122,10 @@ interface ProjectRaw {
   challengeAr?: string | null;
   solution?: string | null;
   solutionAr?: string | null;
+  timeline?: string | null;
+  timelineAr?: string | null;
+  teamSize?: string | null;
+  teamSizeAr?: string | null;
   [key: string]: any;
 }
 
@@ -185,12 +189,21 @@ export function transformProjectByLocale(project: ProjectRaw, locale: Locale = '
     );
   }
 
+  // Transform testimonial if it exists
+  let transformedTestimonial = project.clientTestimonial;
+  if (project.clientTestimonial) {
+    transformedTestimonial = transformProjectTestimonialByLocale(project.clientTestimonial, locale);
+  }
+
   return {
     ...project,
     title: isArabic && project.titleAr ? project.titleAr : project.title,
     description: isArabic && project.descriptionAr ? project.descriptionAr : project.description,
     challenge: isArabic && project.challengeAr ? project.challengeAr : (project.challenge || null),
     solution: isArabic && project.solutionAr ? project.solutionAr : (project.solution || null),
+    timeline: isArabic && project.timelineAr ? project.timelineAr : (project.timeline || null),
+    teamSize: isArabic && project.teamSizeAr ? project.teamSizeAr : (project.teamSize || null),
+    clientTestimonial: transformedTestimonial,
     contentBlocks: transformedContentBlocks,
   };
 }

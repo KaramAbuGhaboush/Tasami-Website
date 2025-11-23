@@ -211,8 +211,8 @@ export function useBlogAdmin(): UseBlogAdminReturn {
     try {
       setArticlesLoading(true);
       setArticlesError(null);
-      // Add timestamp to prevent caching
-      const response = await apiClient.getBlogArticles({ page: 1, limit: 1000 });
+      // Fetch all articles regardless of status for admin panel
+      const response = await apiClient.getBlogArticles({ page: 1, limit: 1000, status: 'all' });
       
       if (response.success) {
         setArticles(response.data.articles);

@@ -62,13 +62,34 @@ export function useBlog(): UseBlogReturn {
       setLoading(true);
       setError(null);
       
-      const [articlesResponse, categoriesResponse] = await Promise.all([
-        apiClient.getBlogArticles({ locale }),
+      // Fetch featured article, regular articles, and categories in parallel
+      const [featuredResponse, articlesResponse, categoriesResponse] = await Promise.all([
+        apiClient.getBlogArticles({ locale, featured: true, limit: 1 }),
+        apiClient.getBlogArticles({ locale, limit: 10 }),
         apiClient.getBlogCategories(locale)
       ]);
 
+      // Get featured article from the featured response
+      const featuredArticle = featuredResponse.success && featuredResponse.data.articles.length > 0
+        ? featuredResponse.data.articles[0]
+        : null;
+
+      // Get all articles and filter out the featured one to avoid duplicates
+      let allArticles: BlogPost[] = [];
       if (articlesResponse.success) {
-        setBlogPosts(articlesResponse.data.articles);
+        allArticles = articlesResponse.data.articles;
+        
+        // If we have a featured article, remove it from the regular articles list to avoid duplicates
+        if (featuredArticle) {
+          allArticles = allArticles.filter(post => post.id !== featuredArticle.id);
+        }
+        
+        // Add the featured article at the beginning if it exists
+        if (featuredArticle) {
+          allArticles = [featuredArticle, ...allArticles];
+        }
+        
+        setBlogPosts(allArticles);
       } else {
         setError('Failed to load blog posts.');
       }

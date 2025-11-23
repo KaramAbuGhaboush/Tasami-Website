@@ -77,10 +77,11 @@ export const blogArticleSchema = z.object({
   excerptAr: z.string().trim().optional(),
   content: z.string().trim().min(100, 'Content must be at least 100 characters'),
   contentAr: z.string().trim().optional(),
+  slug: z.string().trim().optional(), // Slug is optional - will be auto-generated from title if not provided
   image: z.string().optional(),
   readTime: z.string().optional(),
   featured: z.boolean().default(false),
-  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  status: z.enum(['draft', 'published', 'review']).default('draft'),
   tags: z.array(z.string()).default([]),
   relatedArticles: z.array(z.any()).default([]),
   authorId: z.string().min(1, 'Author ID is required'),
@@ -140,7 +141,9 @@ export const projectSchema = z.object({
   solution: z.string().trim().optional(),
   solutionAr: z.string().trim().optional(),
   timeline: z.string().trim().optional(),
+  timelineAr: z.string().trim().optional(),
   teamSize: z.string().trim().optional(),
+  teamSizeAr: z.string().trim().optional(),
   status: z.enum(['planning', 'active', 'completed', 'on-hold']).default('planning'),
   categoryId: z.string().min(1, 'Category is required'),
   technologies: z.array(z.object({
@@ -183,6 +186,7 @@ export const projectCategorySchema = z.object({
 export const blogCategorySchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   nameAr: z.string().trim().optional(),
+  slug: z.string().trim().optional(), // Slug is optional - will be auto-generated from name if not provided
   description: z.string().trim().optional(),
   descriptionAr: z.string().trim().optional(),
   color: z.string().trim().optional(),

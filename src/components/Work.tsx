@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { memo } from 'react'
 import { TransformedTestimonial } from '@/hooks/useWork'
+import { SkeletonProjectCard, SkeletonTestimonial, SkeletonShimmer } from '@/components/ui/skeleton'
 
 interface WorkProps {
   projects: any[];
@@ -61,7 +62,7 @@ export const Work = memo(function Work({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-40">
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
@@ -162,9 +163,10 @@ export const Work = memo(function Work({
 
           {/* Loading State */}
           {loading && (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
-              <span className={`${isRTL ? 'mr-4' : 'ml-4'} text-gray-600`}>{t('loadingProjects')}</span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonProjectCard key={i} />
+              ))}
             </div>
           )}
 
@@ -346,9 +348,21 @@ export const Work = memo(function Work({
 
           {/* Testimonials Loading State */}
           {testimonialsLoading && (
-            <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#667eea]"></div>
-              <span className={`${isRTL ? 'mr-4' : 'ml-4'} text-gray-600`}>{t('loadingTestimonials')}</span>
+            <div className="relative pb-16">
+              <div className="overflow-hidden min-h-[500px]">
+                <div className="flex">
+                  <div className="w-full flex-shrink-0 px-4">
+                    <div className="max-w-4xl mx-auto">
+                      <SkeletonTestimonial />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-12 space-x-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <SkeletonShimmer key={i} className="h-3 w-3 rounded-full" />
+                ))}
+              </div>
             </div>
           )}
 

@@ -82,6 +82,13 @@ class RateLimiter {
   }
 
   /**
+   * Clear rate limit for a specific identifier
+   */
+  clearIdentifier(identifier: string): void {
+    this.store.delete(identifier)
+  }
+
+  /**
    * Clear all entries
    */
   clear(): void {

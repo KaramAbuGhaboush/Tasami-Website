@@ -31,13 +31,21 @@ export default function LoginPage() {
     setError(null)
     setIsSubmitting(true)
 
+    console.log('[LOGIN PAGE] Attempting login with email:', formData.email)
+    
     try {
       const success = await login(formData.email, formData.password)
+      console.log('[LOGIN PAGE] Login result:', success)
       if (!success) {
         setError('Invalid email or password. Please check your credentials and try again.')
       }
     } catch (err) {
-      console.error('Login error:', err)
+      console.error('[LOGIN PAGE] Login error:', err)
+      console.error('[LOGIN PAGE] Error details:', {
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        error: err
+      })
       setError('Unable to connect to server. Please check your internet connection and try again.')
     } finally {
       setIsSubmitting(false)

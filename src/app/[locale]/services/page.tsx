@@ -1,21 +1,24 @@
-'use client'
-
-import { useServices } from '@/hooks/useServices'
 import { Services } from '@/components/Services'
+import { getServicesData } from '@/lib/services-data'
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
     const {
         services,
-        processSteps,
-        getColorClasses
-    } = useServices()
+        processSteps
+    } = getServicesData()
 
     return (
         <Services
             services={services}
             processSteps={processSteps}
-            getColorClasses={getColorClasses}
         />
     )
+}
+
+export async function generateStaticParams() {
+    return [
+        { locale: 'en' },
+        { locale: 'ar' }
+    ]
 }
 

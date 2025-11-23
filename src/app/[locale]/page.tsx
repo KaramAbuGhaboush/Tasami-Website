@@ -1,11 +1,17 @@
-'use client'
-
-import { useHome } from '@/hooks/useHome'
 import { Home } from '@/components/Home'
+import { getHomeServices } from '@/lib/home-data'
 
-export default function HomePage() {
-    const { services } = useHome()
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+    const { locale } = await params
+    const services = getHomeServices(locale)
 
     return <Home services={services} />
+}
+
+export async function generateStaticParams() {
+    return [
+        { locale: 'en' },
+        { locale: 'ar' }
+    ]
 }
 

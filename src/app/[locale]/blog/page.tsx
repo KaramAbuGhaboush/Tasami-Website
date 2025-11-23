@@ -3,6 +3,9 @@
 import { useBlog } from '@/hooks/useBlog'
 import { Blog } from '@/components/Blog'
 
+// Note: ISR (revalidate) only works with Server Components.
+// This page uses client-side hooks, so caching should be handled at the API level.
+
 export default function BlogPage() {
     const {
         blogPosts,

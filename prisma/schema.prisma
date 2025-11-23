@@ -129,7 +129,9 @@ model Project {
   solution          String?
   solutionAr        String?
   timeline          String?
+  timelineAr        String?
   teamSize          String?
+  teamSizeAr        String?
   status            String   @default("planning")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

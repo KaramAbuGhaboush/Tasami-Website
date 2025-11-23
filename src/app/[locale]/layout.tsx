@@ -114,8 +114,60 @@ export default async function LocaleLayout({
     // Generate organization structured data
     const organizationStructuredData = generateOrganizationStructuredData(baseUrl);
 
+    // Get API domain for resource hints
+    const apiDomain = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN 
+        ? `https://${process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN}`
+        : null;
+
     return (
         <>
+            {/* Resource Hints for Performance */}
+            {apiDomain && (
+                <>
+                    <link rel="preconnect" href={apiDomain} />
+                    <link rel="dns-prefetch" href={apiDomain} />
+                </>
+            )}
+            {/* Preconnect to same-origin API */}
+            <link rel="preconnect" href="/" />
+            {/* DNS prefetch for external resources */}
+            <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+            <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+            
+            {/* Preload critical fonts */}
+            <link
+                rel="preload"
+                href="/Font/ROCK.TTF"
+                as="font"
+                type="font/ttf"
+                crossOrigin="anonymous"
+            />
+            <link
+                rel="preload"
+                href="/Font/Rockwell-Bold.ttf"
+                as="font"
+                type="font/ttf"
+                crossOrigin="anonymous"
+            />
+            {locale === 'ar' && (
+                <>
+                    <link
+                        rel="preload"
+                        href="/Font/Hacen-Algeria.ttf"
+                        as="font"
+                        type="font/ttf"
+                        crossOrigin="anonymous"
+                    />
+                    <link
+                        rel="preload"
+                        href="/Font/Hacen-Algeria-Bd.ttf"
+                        as="font"
+                        type="font/ttf"
+                        crossOrigin="anonymous"
+                    />
+                </>
+            )}
+            
             <script
                 dangerouslySetInnerHTML={{
                     __html: `

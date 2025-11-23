@@ -4,6 +4,7 @@ import { Link } from '@/i18n/routing'
 import { Job } from '@/hooks/useCareer'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
+import { SkeletonJobListing, SkeletonShimmer, SkeletonText } from '@/components/ui/skeleton'
 
 interface CareerProps {
   jobs: Job[];
@@ -23,11 +24,67 @@ export function Career({
   const isRTL = locale === 'ar'
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#6812F7] mx-auto mb-4"></div>
-          <p className="text-gray-600">{t('loadingJobs')}</p>
-        </div>
+      <div className="min-h-screen">
+        {/* Hero Section Skeleton */}
+        <section className="relative -mt-20 pt-40 flex items-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 w-full">
+            <div className="text-center space-y-8">
+              <SkeletonShimmer className="h-8 w-48 mx-auto rounded-full" />
+              <SkeletonShimmer className="h-16 w-3/4 mx-auto rounded" />
+              <SkeletonShimmer className="h-8 w-2/3 mx-auto rounded" />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="text-center space-y-2">
+                    <SkeletonShimmer className="h-10 w-20 mx-auto rounded" />
+                    <SkeletonShimmer className="h-4 w-24 mx-auto rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Company Culture Skeleton */}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row gap-12 items-center">
+              <div className="flex-1 space-y-6">
+                <SkeletonShimmer className="h-10 w-64 rounded" />
+                <SkeletonText lines={3} />
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-4">
+                      <SkeletonShimmer className="h-6 w-6 rounded-full" />
+                      <div className="flex-1 space-y-2">
+                        <SkeletonShimmer className="h-5 w-48 rounded" />
+                        <SkeletonShimmer className="h-4 w-full rounded" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-1">
+                <SkeletonShimmer className="h-96 w-full rounded-2xl" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Job Openings Skeleton */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16 space-y-4">
+              <SkeletonShimmer className="h-10 w-64 mx-auto rounded" />
+              <SkeletonShimmer className="h-6 w-96 mx-auto rounded" />
+            </div>
+            <div className="space-y-8">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <SkeletonJobListing key={i} />
+              ))}
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
@@ -55,7 +112,7 @@ export function Career({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 flex items-center overflow-hidden">
+      <section className="relative -mt-20 pt-40 flex items-center overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
           {/* Gradient Background */}
