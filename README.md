@@ -1,6 +1,6 @@
-# NextJS Fullstack App
+# Tasami Website
 
-A modern full-stack web application built with Next.js 14, TypeScript, Prisma, and SQLite. Features user authentication, post management, and a beautiful responsive UI.
+A modern full-stack web application built with Next.js 15, TypeScript, Prisma, and PostgreSQL (Supabase). Features user authentication, post management, and a beautiful responsive UI.
 
 ## 🚀 Features
 
@@ -13,11 +13,12 @@ A modern full-stack web application built with Next.js 14, TypeScript, Prisma, a
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes, Prisma ORM
-- **Database**: SQLite
+- **Database**: PostgreSQL (Supabase)
 - **Authentication**: JWT tokens with bcrypt password hashing
 - **Styling**: Tailwind CSS with responsive design
+- **Deployment**: Vercel
 
 ## 📋 Prerequisites
 
@@ -39,12 +40,16 @@ npm install
 ```
 
 ### 3. Set up the database
+
+1. Create a `.env.local` file with your environment variables (see [DEPLOYMENT.md](./DEPLOYMENT.md) for details)
+2. Add your Supabase `DATABASE_URL` to `.env.local`
+3. Generate Prisma client and push schema:
 ```bash
 # Generate Prisma client
-npx prisma generate
+npm run db:generate
 
 # Create and migrate the database
-npx prisma db push
+npm run db:push
 ```
 
 ### 4. Start the development server
@@ -128,23 +133,29 @@ Authorization: Bearer <your-jwt-token>
 
 ## 🚀 Deployment
 
-### Deploy to Vercel
+This application is configured for deployment on **Vercel** with **Supabase** PostgreSQL database.
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Set environment variables in Vercel dashboard:
-   - `DATABASE_URL`: Your production database URL
-   - `JWT_SECRET`: A secure secret key for JWT signing
-4. Deploy!
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
-### Environment Variables
+### Quick Start
 
-Create a `.env.local` file for production:
+1. **Set up Supabase**
+   - Create a Supabase project
+   - Get your database connection strings from Supabase dashboard
 
-```env
-DATABASE_URL="your-production-database-url"
-JWT_SECRET="your-super-secure-jwt-secret"
-```
+2. **Deploy to Vercel**
+   - Connect your GitHub repository to Vercel
+   - Add environment variables in Vercel dashboard (see [DEPLOYMENT.md](./DEPLOYMENT.md))
+   - Deploy!
+
+### Required Environment Variables
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for a complete list of environment variables, including:
+- `DATABASE_URL` - Supabase PostgreSQL connection string
+- `JWT_SECRET` - Secret key for JWT signing
+- `NEXT_PUBLIC_PRODUCTION_DOMAIN` - Your production domain
+- SMTP configuration (for contact form)
+- And more...
 
 ## 🤝 Contributing
 
