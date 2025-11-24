@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const payload = JSON.parse(atob(token.split('.')[1]))
           const currentTime = Date.now() / 1000
-          
+
           if (payload.exp && payload.exp < currentTime) {
             // Token is expired
             localStorage.removeItem('token')
@@ -56,15 +56,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return
         }
 
-        const response = await apiClient.getCurrentUser()
-        if (response.success) {
-          setUser(response.data.user)
-        } else {
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
+        try {
+          const response = await apiClient.getCurrentUser()
+          if (response.success && response.data.user) {
+            setUser(response.data.user)
+          } else {
+            // Invalid token or user not found
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+          }
+        } catch (error: any) {
+          // Silently handle authentication errors (401) - user is just not logged in
+          if (error?.message?.includes('401') || error?.message?.includes('Access denied') || error?.message?.includes('No token')) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+          } else {
+            // Only log unexpected errors
+            console.error('Auth check failed:', error)
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+          }
         }
       }
     } catch (error) {
+      // Only log unexpected errors
       console.error('Auth check failed:', error)
       localStorage.removeItem('token')
       localStorage.removeItem('user')
@@ -77,13 +92,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setLoading(true)
       const response = await apiClient.login({ email, password })
-      
+
       if (response.success) {
         const { user, token } = response.data
         localStorage.setItem('token', token)
         localStorage.setItem('user', JSON.stringify(user))
         setUser(user)
-        
+
         // Redirect based on role
         if (user.role === 'admin') {
           router.push('/admin')
@@ -93,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Default redirect if role is unknown
           router.push('/admin')
         }
-        
+
         return true
       }
       return false
