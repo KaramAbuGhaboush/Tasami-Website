@@ -16,12 +16,12 @@ class ApiClient {
       console.error('Invalid API base URL:', this.baseUrl);
       throw new Error('API base URL is not configured.');
     }
-    
+
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     // Get token from localStorage (only in browser)
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    
+
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -34,15 +34,15 @@ class ApiClient {
     };
 
     console.log('[API] Making request to:', url, 'with config:', { method: config.method || 'GET', headers: config.headers });
-    
+
     try {
       const response = await fetch(url, config);
       console.log('[API] Response received:', { status: response.status, statusText: response.statusText, url });
-      
+
       if (!response.ok) {
         let errorText = '';
         let errorData = null;
-        
+
         try {
           errorText = await response.text();
           // Try to parse as JSON
@@ -56,40 +56,46 @@ class ApiClient {
         } catch (e) {
           errorText = 'Unable to read error response';
         }
-        
+
         const errorMessage = errorData?.message || errorData?.error || errorText || response.statusText;
-        
-        console.error('API request failed:', { 
-          status: response.status, 
-          statusText: response.statusText, 
-          url,
-          error: errorMessage,
-          fullError: errorData || errorText
-        });
-        
+
+        // Don't log 401 errors as they're expected for unauthenticated users
+        if (response.status !== 401) {
+          console.error('API request failed:', {
+            status: response.status,
+            statusText: response.statusText,
+            url,
+            error: errorMessage,
+            fullError: errorData || errorText
+          });
+        }
+
         throw new Error(errorMessage || `HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('[API] Response data:', { success: data.success, hasData: !!data.data, message: data.message });
       return data;
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : error instanceof TypeError
+      const errorMessage = error instanceof Error
         ? error.message
-        : typeof error === 'string'
-        ? error
-        : error?.toString() || 'Unknown error';
-      
-      console.error('API request error:', {
-        message: errorMessage,
-        url,
-        baseUrl: this.baseUrl,
-        endpoint,
-        errorType: error?.constructor?.name || typeof error,
-        error: error
-      });
+        : error instanceof TypeError
+          ? error.message
+          : typeof error === 'string'
+            ? error
+            : error?.toString() || 'Unknown error';
+
+      // Don't log 401 errors as they're expected for unauthenticated users
+      if (!errorMessage.includes('401') && !errorMessage.includes('Access denied') && !errorMessage.includes('No token')) {
+        console.error('API request error:', {
+          message: errorMessage,
+          url,
+          baseUrl: this.baseUrl,
+          endpoint,
+          errorType: error?.constructor?.name || typeof error,
+          error: error
+        });
+      }
       throw error instanceof Error ? error : new Error(errorMessage);
     }
   }
@@ -114,10 +120,10 @@ class ApiClient {
     }
     // Add cache-busting timestamp to prevent stale data
     searchParams.append('_t', Date.now().toString());
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/blog/articles${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -137,7 +143,7 @@ class ApiClient {
     if (locale) searchParams.append('locale', locale);
     const queryString = searchParams.toString();
     const endpoint = `/blog/articles/${slug}${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { article: any };
@@ -154,7 +160,7 @@ class ApiClient {
   async uploadBlogImage(file: File) {
     const formData = new FormData();
     formData.append('image', file);
-    
+
     return this.request<{ success: boolean; data: { filename: string; url: string } }>('/blog/upload-image', {
       method: 'POST',
       body: formData,
@@ -196,10 +202,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.category) searchParams.append('category', params.category);
     if (params?.locale) searchParams.append('locale', params.locale);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/projects${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -211,10 +217,10 @@ class ApiClient {
   async getProject(id: string, locale?: 'en' | 'ar') {
     const searchParams = new URLSearchParams();
     if (locale) searchParams.append('locale', locale);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/projects/${id}${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { project: any };
@@ -237,10 +243,10 @@ class ApiClient {
     if (params?.location) searchParams.append('location', params.location);
     if (params?.type) searchParams.append('type', params.type);
     if (params?.locale) searchParams.append('locale', params.locale);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/career/jobs${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -260,7 +266,7 @@ class ApiClient {
     if (locale) searchParams.append('locale', locale);
     const queryString = searchParams.toString();
     const endpoint = `/career/jobs/${id}${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { job: any };
@@ -435,7 +441,7 @@ class ApiClient {
     if (locale) searchParams.append('locale', locale);
     const queryString = searchParams.toString();
     const endpoint = `/blog/categories${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { categories: any[] };
@@ -502,10 +508,10 @@ class ApiClient {
     if (params?.status) searchParams.append('status', params.status);
     if (params?.service) searchParams.append('service', params.service);
     if (params?.search) searchParams.append('search', params.search);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/contact/messages${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -592,10 +598,10 @@ class ApiClient {
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.type) searchParams.append('type', params.type);
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/financial/transactions${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -619,10 +625,10 @@ class ApiClient {
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/financial/invoices${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -646,10 +652,10 @@ class ApiClient {
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/financial/clients${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -675,10 +681,10 @@ class ApiClient {
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.department) searchParams.append('department', params.department);
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/financial/employees${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -702,10 +708,10 @@ class ApiClient {
     if (params?.page) searchParams.append('page', params.page.toString());
     if (params?.limit) searchParams.append('limit', params.limit.toString());
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/financial/salaries${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -728,10 +734,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.featured !== undefined) searchParams.append('featured', params.featured.toString());
     if (params?.status) searchParams.append('status', params.status);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/testimonials${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { testimonials: any[] };
@@ -799,13 +805,13 @@ class ApiClient {
   }) {
     const searchParams = new URLSearchParams();
     if (params?.filter) searchParams.append('filter', params.filter);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/time-entries${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
-      data: { 
+      data: {
         items: any[];
         pagination: {
           page: number;
@@ -917,18 +923,26 @@ class ApiClient {
   }
 
   async getCurrentUser() {
-    return this.request<{
-      success: boolean;
-      data: {
-        user: {
-          id: string;
-          email: string;
-          name: string;
-          role: string;
-          weeklyGoal: number;
+    try {
+      return await this.request<{
+        success: boolean;
+        data: {
+          user: {
+            id: string;
+            email: string;
+            name: string;
+            role: string;
+            weeklyGoal: number;
+          };
         };
-      };
-    }>('/auth/me');
+      }>('/auth/me');
+    } catch (error: any) {
+      // Silently handle 401 errors (user not authenticated) - this is expected
+      if (error?.message?.includes('401') || error?.message?.includes('Access denied') || error?.message?.includes('No token')) {
+        return { success: false, data: { user: null } };
+      }
+      throw error;
+    }
   }
 
   async logout() {
@@ -993,10 +1007,10 @@ class ApiClient {
     if (params?.department) searchParams.append('department', params.department);
     if (params?.status) searchParams.append('status', params.status);
     if (params?.search) searchParams.append('search', params.search);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/employees${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -1071,13 +1085,13 @@ class ApiClient {
   }) {
     const searchParams = new URLSearchParams();
     if (params?.filter) searchParams.append('filter', params.filter);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/employees/${id}/time-entries${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
-      data: { 
+      data: {
         items: any[];
         pagination: {
           page: number;
@@ -1138,10 +1152,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.startDate) searchParams.append('startDate', params.startDate);
     if (params?.endDate) searchParams.append('endDate', params.endDate);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/employees/${id}/time-entries${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: { timeEntries: any[] };
@@ -1155,10 +1169,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.startDate) searchParams.append('startDate', params.startDate);
     if (params?.endDate) searchParams.append('endDate', params.endDate);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/employees/${id}/weekly-summary${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
@@ -1193,10 +1207,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params?.startDate) searchParams.append('startDate', params.startDate);
     if (params?.endDate) searchParams.append('endDate', params.endDate);
-    
+
     const queryString = searchParams.toString();
     const endpoint = `/employees/analytics/team-summary${queryString ? `?${queryString}` : ''}`;
-    
+
     return this.request<{
       success: boolean;
       data: {
