@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
 import "./globals.css";
-import ConditionalNavbar, { ConditionalFooter } from "@/components/ConditionalNavbar";
-
-export const metadata: Metadata = {
-  title: "Tasami - AI, Automation, Design & Marketing Solutions",
-  description: "Leading tech company specializing in AI, automation, design, UX/UI, and marketing solutions. Transform your business with cutting-edge technology.",
-};
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ToastProvider } from '@/components/ui/toast';
+import { AlertProvider } from '@/components/ui/alert-dialog';
 
 export default function RootLayout({
   children,
@@ -13,13 +9,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className="antialiased"
-      >
-        <ConditionalNavbar />
-        {children}
-        <ConditionalFooter />
+    <html suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <AuthProvider>
+          <ToastProvider>
+            <AlertProvider>
+              {children}
+            </AlertProvider>
+          </ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,25 +1,55 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
+  const { login, loading, isAuthenticated, user } = useAuth()
+  const router = useRouter()
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!loading && isAuthenticated) {
+      if (user?.role === 'admin') {
+        router.push('/admin')
+      } else if (user?.role === 'employee') {
+        router.push('/employee')
+      }
+    }
+  }, [loading, isAuthenticated, user, router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setError(null)
+    setIsSubmitting(true)
+
+    console.log('[LOGIN PAGE] Attempting login with email:', formData.email)
     
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false)
-      // Redirect to admin dashboard
-      window.location.href = '/admin'
-    }, 1500)
+    try {
+      const success = await login(formData.email, formData.password)
+      console.log('[LOGIN PAGE] Login result:', success)
+      if (!success) {
+        setError('Invalid email or password. Please check your credentials and try again.')
+      }
+    } catch (err) {
+      console.error('[LOGIN PAGE] Login error:', err)
+      console.error('[LOGIN PAGE] Error details:', {
+        message: err instanceof Error ? err.message : String(err),
+        stack: err instanceof Error ? err.stack : undefined,
+        error: err
+      })
+      setError('Unable to connect to server. Please check your internet connection and try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +65,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/5 via-transparent to-[#9253F0]/5"></div>
       <div className="absolute top-20 right-20 w-72 h-72 bg-gradient-to-br from-[#6812F7]/10 to-[#9253F0]/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-tr from-[#DFC7FE]/20 to-transparent rounded-full blur-3xl"></div>
-      
+
       <div className="relative z-10 w-full max-w-md">
         {/* Login Card */}
         <div className="luxury-card rounded-3xl p-8 md:p-10 shadow-2xl">
@@ -53,6 +83,11 @@ export default function LoginPage() {
           </div>
 
           {/* Login Form */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -65,7 +100,8 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200"
+                disabled={loading || isSubmitting}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter your email"
               />
             </div>
@@ -81,17 +117,18 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200"
+                disabled={loading || isSubmitting}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[#6812F7] focus:border-transparent transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Enter your password"
               />
             </div>
 
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading || isSubmitting}
               className="w-full bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white py-3 px-6 rounded-xl font-semibold hover:from-[#5a0fd4] hover:to-[#7d42e6] transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {isLoading ? (
+              {(loading || isSubmitting) ? (
                 <div className="flex items-center justify-center">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                   Signing In...
@@ -104,8 +141,8 @@ export default function LoginPage() {
 
           {/* Footer */}
           <div className="mt-8 text-center">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className="text-sm text-gray-500 hover:text-[#6812F7] transition-colors duration-200"
             >
               ← Back to Website

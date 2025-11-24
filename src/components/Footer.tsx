@@ -1,30 +1,35 @@
-import Link from 'next/link'
+'use client'
+
+import { Link } from '@/i18n/routing'
+import { useTranslations } from 'next-intl'
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const t = useTranslations('common')
+  const tFooter = useTranslations('footer')
 
   const footerLinks = {
     services: [
-      { name: 'AI Solutions', href: '/services#ai' },
-      { name: 'Automation', href: '/services#automation' },
-      { name: 'Design & UX/UI', href: '/services#design' },
-      { name: 'Marketing Solutions', href: '/services#marketing' },
-      { name: 'Quality Assurance', href: '/services#qa' },
-      { name: '24/7 Support', href: '/services#support' }
+      { name: tFooter('services.aiSolutions'), href: '/services#ai' },
+      { name: tFooter('services.automation'), href: '/services#automation' },
+      { name: tFooter('services.designUXUI'), href: '/services#design' },
+      { name: tFooter('services.marketingSolutions'), href: '/services#marketing' },
+      { name: tFooter('services.qualityAssurance'), href: '/services#qa' },
+      { name: tFooter('services.support247'), href: '/services#support' }
     ],
     company: [
-      { name: 'About Us', href: '/about' },
-      { name: 'Our Work', href: '/work' },
-      { name: 'Blog', href: '/blog' },
-      { name: 'Careers', href: '/career' },
-      { name: 'Contact', href: '/contact' }
+      { name: tFooter('company.aboutUs'), href: '/about' },
+      { name: tFooter('company.ourWork'), href: '/work' },
+      { name: tFooter('company.blog'), href: '/blog' },
+      { name: tFooter('company.careers'), href: '/career' },
+      { name: tFooter('company.contact'), href: '/contact' }
     ],
     resources: [
-      { name: 'Case Studies', href: '/work' },
-      { name: 'White Papers', href: '/blog' },
-      { name: 'Webinars', href: '/blog' },
-      { name: 'Documentation', href: '/contact' },
-      { name: 'Support Center', href: '/contact' }
+      { name: tFooter('resources.caseStudies'), href: '/work' },
+      { name: tFooter('resources.whitePapers'), href: '/blog' },
+      { name: tFooter('resources.webinars'), href: '/blog' },
+      { name: tFooter('resources.documentation'), href: '/contact' },
+      { name: tFooter('resources.supportCenter'), href: '/contact' }
     ]
   }
 
@@ -50,17 +55,16 @@ export default function Footer() {
                 <span className="text-2xl font-bold text-gray-900">Tasami</span>
               </Link>
               <p className="text-gray-600 mb-6 max-w-md">
-                Transforming businesses through innovative AI, automation, design, and marketing solutions. 
-                We help companies leverage cutting-edge technology to drive growth and efficiency.
+                {tFooter('companyDescription')}
               </p>
-              
+
               {/* Company Deck Download */}
               <div className="mb-6">
                 <button className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
-                  Download Company Deck
+                  {t('downloadCompanyDeck')}
                 </button>
               </div>
 
@@ -81,7 +85,7 @@ export default function Footer() {
 
             {/* Services */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Services</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{tFooter('services.title')}</h3>
               <ul className="space-y-3">
                 {footerLinks.services.map((link, index) => (
                   <li key={index}>
@@ -98,7 +102,7 @@ export default function Footer() {
 
             {/* Company */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Company</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{tFooter('company.title')}</h3>
               <ul className="space-y-3">
                 {footerLinks.company.map((link, index) => (
                   <li key={index}>
@@ -115,7 +119,7 @@ export default function Footer() {
 
             {/* Resources */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Resources</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">{tFooter('resources.title')}</h3>
               <ul className="space-y-3">
                 {footerLinks.resources.map((link, index) => (
                   <li key={index}>
@@ -137,17 +141,17 @@ export default function Footer() {
         <div className="py-6 border-t border-[#DFC7FE]">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-600 text-sm">
-              © {currentYear} Tasami. All rights reserved.
+              © {currentYear} Tasami. {t('allRightsReserved')}.
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/privacy" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Privacy Policy
+                {t('privacyPolicy')}
               </Link>
               <Link href="/terms" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Terms of Service
+                {t('termsOfService')}
               </Link>
               <Link href="/cookies" className="text-gray-600 hover:text-[#6812F7] text-sm transition-colors">
-                Cookie Policy
+                {t('cookiePolicy')}
               </Link>
             </div>
           </div>
