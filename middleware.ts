@@ -1,7 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './src/i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from './src/lib/auth';
 
 // Create the next-intl middleware
 const intlMiddleware = createMiddleware(routing);
@@ -10,6 +9,8 @@ export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
   // Check for protected routes (admin and employee)
+  // Note: Full authentication verification happens in page components/API routes
+  // This middleware only checks for the presence of auth cookie
   if (pathname.startsWith('/admin') || pathname.startsWith('/employee')) {
     // Check for auth cookie
     const authToken = request.cookies.get('auth-token')?.value;
@@ -19,24 +20,8 @@ export default async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/404', request.url));
     }
     
-    // Verify token
-    const user = await verifyToken(authToken);
-    if (!user) {
-      // Invalid token, redirect to 404
-      return NextResponse.redirect(new URL('/404', request.url));
-    }
-    
-    // Check role for employee routes
-    if (pathname.startsWith('/employee') && user.role !== 'employee') {
-      return NextResponse.redirect(new URL('/404', request.url));
-    }
-    
-    // Check role for admin routes
-    if (pathname.startsWith('/admin') && user.role !== 'admin') {
-      return NextResponse.redirect(new URL('/404', request.url));
-    }
-    
-    // Valid authentication, allow through
+    // Allow through - actual token verification happens in page components
+    // which run in Node.js runtime and can use Prisma/JWT
     return NextResponse.next();
   }
   
