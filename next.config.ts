@@ -54,6 +54,15 @@ const nextConfig: NextConfig = {
 
   // Webpack optimizations
   webpack: (config, { dev, isServer }) => {
+    // Fix __dirname for Edge Runtime compatibility
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        __dirname: false,
+        __filename: false,
+      };
+    }
+    
     // Optimize bundle size
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
