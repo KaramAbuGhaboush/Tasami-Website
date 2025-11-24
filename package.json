@@ -13,14 +13,8 @@
     "lint": "eslint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed/seed.ts",
-    "db:seed:testimonials": "tsx prisma/seed/seed-testimonials.ts",
-    "db:seed:categories": "tsx prisma/seed/seed-categories.ts",
-    "db:seed:blog-categories": "tsx prisma/seed/seed-blog-categories.ts",
-    "db:seed:blog-articles": "tsx prisma/seed/seed-blog-articles.ts",
-    "db:seed:jobs": "tsx prisma/seed/seed-job-positions.ts",
-    "db:studio": "prisma studio",
-    "analyze": "ANALYZE=true next build"
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
