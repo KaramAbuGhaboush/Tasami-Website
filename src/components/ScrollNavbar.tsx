@@ -108,20 +108,24 @@ export default function ScrollNavbar() {
   }
 
   return (
-    <nav className={`glass-nav sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-20">
+    <nav className={`glass-nav sticky top-0 z-50 transition-all duration-500 ${isScrolled ? 'scrolled' : ''}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/Logo.png"
-              alt="Tasami Logo"
-              width={240}
-              height={80}
-              className="h-20 w-auto"
-              style={{ height: 'auto' }}
-              priority
-            />
+          <Link href="/" className="flex items-center group">
+            <div className="relative">
+              <Image
+                src="/Logo.png"
+                alt="Tasami Logo"
+                width={160}
+                height={45}
+                className="h-8 lg:h-10 w-auto transition-all duration-300 group-hover:scale-105"
+                style={{ height: 'auto' }}
+                priority
+              />
+              {/* Subtle glow effect on hover */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#6812F7]/20 to-[#9253F0]/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl -z-10"></div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -145,7 +149,7 @@ export default function ScrollNavbar() {
             {/* Language Switcher */}
             <button
               onClick={handleLanguageSwitch}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 hover:text-[#667eea] hover:bg-gray-100 transition-colors duration-200 border border-gray-200"
+              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-white/50 hover:bg-white/80 hover:text-[#667eea] transition-all duration-200 border border-gray-200/50 hover:border-[#667eea]/30 shadow-sm"
               aria-label="Switch language"
             >
               {languageButtonText}
@@ -199,7 +203,7 @@ export default function ScrollNavbar() {
               <div className="pt-4 space-y-2">
                 <button
                   onClick={handleLanguageSwitch}
-                  className="block w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-[#667eea] hover:bg-gray-50 text-center border border-gray-200"
+                  className="block w-full px-3 py-2 rounded-md text-base font-medium text-gray-700 bg-white/50 hover:bg-white/80 hover:text-[#667eea] text-center border border-gray-200/50 hover:border-[#667eea]/30 shadow-sm transition-all duration-200"
                 >
                   {languageButtonText}
                 </button>

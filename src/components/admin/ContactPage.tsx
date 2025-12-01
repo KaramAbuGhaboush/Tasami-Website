@@ -344,10 +344,18 @@ export function ContactPage() {
                     <TableCell>
                       <div>
                         <p className="font-medium text-gray-900">{message.name}</p>
-                        <div className="flex items-center text-sm text-gray-500 mt-1">
-                          <Mail className="w-3 h-3 mr-1" />
-                          {message.email}
-                        </div>
+                        {message.email && (
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Mail className="w-3 h-3 mr-1" />
+                            {message.email}
+                          </div>
+                        )}
+                        {message.phone && (
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Phone className="w-3 h-3 mr-1" />
+                            {message.phone}
+                          </div>
+                        )}
                         {message.company && (
                           <div className="flex items-center text-sm text-gray-500 mt-1">
                             <Building className="w-3 h-3 mr-1" />
@@ -507,11 +515,20 @@ export function ContactPage() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center">
-                    <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                    <span className="font-medium">Email:</span>
-                    <span className="ml-2">{selectedMessage.email}</span>
-                  </div>
+                  {selectedMessage.email && (
+                    <div className="flex items-center">
+                      <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="font-medium">Email:</span>
+                      <span className="ml-2">{selectedMessage.email}</span>
+                    </div>
+                  )}
+                  {selectedMessage.phone && (
+                    <div className="flex items-center">
+                      <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                      <span className="font-medium">Phone:</span>
+                      <span className="ml-2">{selectedMessage.phone}</span>
+                    </div>
+                  )}
                   {selectedMessage.company && (
                     <div className="flex items-center">
                       <Building className="w-4 h-4 mr-2 text-gray-400" />

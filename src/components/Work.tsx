@@ -62,7 +62,7 @@ export const Work = memo(function Work({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-40">
+      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-20 pb-16">
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
@@ -110,8 +110,8 @@ export const Work = memo(function Work({
               {t('heroDescription2')}
             </p>
 
-            {/* Trust Indicators */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+{/* Trust Indicators - Hidden
+            <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto">
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">50+</div>
                 <div className="text-gray-600 font-medium">{t('projects')}</div>
@@ -121,14 +121,11 @@ export const Work = memo(function Work({
                 <div className="text-gray-600 font-medium">{t('successRate')}</div>
               </div>
               <div className="text-center group">
-                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">100%</div>
-                <div className="text-gray-600 font-medium">{t('clientSatisfaction')}</div>
-              </div>
-              <div className="text-center group">
-                <div className="text-3xl md:text-4xl font-bold text-[#9253F0] mb-2 group-hover:scale-110 transition-transform duration-300">∞</div>
+                <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">∞</div>
                 <div className="text-gray-600 font-medium">{t('innovation')}</div>
               </div>
             </div>
+            */}
           </div>
         </div>
       </section>
@@ -263,7 +260,7 @@ export const Work = memo(function Work({
       </section>
 
       {/* Project Success Metrics */}
-      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+      {/* <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -332,7 +329,7 @@ export const Work = memo(function Work({
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* What Our Clients Say */}
       <section className="py-24 bg-white overflow-visible">

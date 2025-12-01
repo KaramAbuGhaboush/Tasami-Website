@@ -4,7 +4,8 @@ import { apiClient } from '../lib/api'
 export interface ContactMessage {
   id: string
   name: string
-  email: string
+  email: string | null
+  phone: string | null
   company: string | null
   message: string
   service: string

@@ -25,7 +25,7 @@ export const Home = memo(function Home({ services }: HomeProps) {
   return (
     <div className="min-h-screen">
       {/* Unique Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-40">
+      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-20 pb-16">
         {/* Grid and Gradient Background */}
         <div className="absolute inset-0">
           {/* Gradient Background */}

@@ -20,7 +20,7 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-40">
+      <section className="relative min-h-screen flex items-center overflow-hidden -mt-20 pt-20 pb-16">
         {/* Enhanced Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
@@ -66,6 +66,7 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
               <span className="text-[#9253F0] font-semibold"> {t('descriptionHighlight2')}</span>,
               <span className="text-[#6812F7] font-semibold"> {t('descriptionHighlight3')}</span>{isRTL ? ' ' : ', '}{t('and')}
               <span className="text-[#9253F0] font-semibold"> {t('descriptionHighlight4')}</span>.
+              {' '}{t('descriptionSuffix')}
             </p>
 
             {/* Enhanced CTA Buttons */}
@@ -94,7 +95,7 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
               </Link>
             </div>
 
-            {/* Trust Indicators */}
+{/* Trust Indicators - Hidden
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center group">
                 <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2 group-hover:scale-110 transition-transform duration-300">2025</div>
@@ -113,6 +114,7 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
                 <div className="text-gray-600 font-medium">{t('hero.trustIndicators.satisfaction')}</div>
               </div>
             </div>
+            */}
           </div>
         </div>
       </section>
@@ -144,96 +146,88 @@ export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: 
             </h2>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="group">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-xl flex items-center justify-center mr-6 rtl:mr-0 rtl:ml-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">🚀</span>
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {/* Approach Card */}
+            <div className="group relative">
+              <div className="bg-gradient-to-br from-white to-[#F8F4FF] p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-[#6812F7]/10 h-full">
+                <div className="flex items-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-2xl flex items-center justify-center mr-5 rtl:mr-0 rtl:ml-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                    <span className="text-3xl">💡</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">{t('companyStory.beginning.title')}</h3>
-                </div>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  {t('companyStory.beginning.description')}
-                </p>
-              </div>
-
-              <div className="group">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#9253F0] to-[#6812F7] rounded-xl flex items-center justify-center mr-6 rtl:mr-0 rtl:ml-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">💡</span>
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">{t('companyStory.approach.title')}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors duration-300">{t('companyStory.approach.title')}</h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   {t('companyStory.approach.description')}
                 </p>
+                {/* Decorative element */}
+                <div className="absolute -top-3 -right-3 w-6 h-6 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-full opacity-40 group-hover:scale-150 transition-all duration-500"></div>
               </div>
+            </div>
 
-              <div className="group">
-                <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[#6812F7] to-[#DFC7FE] rounded-xl flex items-center justify-center mr-6 rtl:mr-0 rtl:ml-6 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">🎯</span>
+            {/* Promise Card */}
+            <div className="group relative">
+              <div className="bg-gradient-to-br from-white to-[#F8F4FF] p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-[#6812F7]/10 h-full">
+                <div className="flex items-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#9253F0] to-[#6812F7] rounded-2xl flex items-center justify-center mr-5 rtl:mr-0 rtl:ml-5 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg">
+                    <span className="text-3xl">🎯</span>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">{t('companyStory.promise.title')}</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 group-hover:text-[#6812F7] transition-colors duration-300">{t('companyStory.promise.title')}</h3>
                 </div>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   {t('companyStory.promise.description')}
                 </p>
+                {/* Decorative element */}
+                <div className="absolute -bottom-3 -left-3 w-6 h-6 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-full opacity-40 group-hover:scale-150 transition-all duration-500"></div>
               </div>
-            </div>
-
-            <div className="relative">
-              <div className="bg-gradient-to-br from-[#6812F7]/5 to-[#9253F0]/5 p-8 rounded-3xl border border-[#6812F7]/10 shadow-2xl">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-                    <div className="text-4xl font-bold text-[#6812F7] mb-3 group-hover:scale-110 transition-transform duration-300">∞</div>
-                    <div className="text-gray-600 font-medium">{t('companyStory.stats.innovationPotential')}</div>
-                    <div className="text-sm text-gray-500 mt-2">{t('companyStory.stats.innovationDescription')}</div>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-                    <div className="text-4xl font-bold text-[#9253F0] mb-3 group-hover:scale-110 transition-transform duration-300">2024</div>
-                    <div className="text-gray-600 font-medium">{t('companyStory.stats.founded')}</div>
-                    <div className="text-sm text-gray-500 mt-2">{t('companyStory.stats.foundedDescription')}</div>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-                    <div className="text-4xl font-bold text-green-600 mb-3 group-hover:scale-110 transition-transform duration-300">100%</div>
-                    <div className="text-gray-600 font-medium">{t('companyStory.stats.clientFocused')}</div>
-                    <div className="text-sm text-gray-500 mt-2">{t('companyStory.stats.clientFocusedDescription')}</div>
-                  </div>
-                  <div className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group">
-                    <div className="text-4xl font-bold text-orange-600 mb-3 group-hover:scale-110 transition-transform duration-300">100%</div>
-                    <div className="text-gray-600 font-medium">{t('companyStory.stats.satisfaction')}</div>
-                    <div className="text-sm text-gray-500 mt-2">{t('companyStory.stats.satisfactionDescription')}</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Elements */}
-              <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-full opacity-20 animate-pulse"></div>
-              <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-br from-[#9253F0] to-[#DFC7FE] rounded-full opacity-30 animate-bounce"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Mission & Vision */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="text-4xl mb-6">🎯</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('missionVision.mission.title')}</h3>
-              <p className="text-gray-600">
-                {t('missionVision.mission.description')}
-              </p>
+      <section className="py-24 bg-gradient-to-b from-white to-[#F8F4FF]/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Mission Card */}
+            <div className="group relative">
+              <div className="relative bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 overflow-hidden h-full">
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#6812F7]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                    <span className="text-4xl">🎯</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-5 group-hover:text-[#6812F7] transition-colors duration-300">{t('missionVision.mission.title')}</h3>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    {t('missionVision.mission.description')}
+                  </p>
+                </div>
+                
+                {/* Decorative corner */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-[#6812F7]/10 to-transparent rounded-bl-[100px]"></div>
+              </div>
             </div>
-            <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <div className="text-4xl mb-6">🚀</div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('missionVision.vision.title')}</h3>
-              <p className="text-gray-600">
-                {t('missionVision.vision.description')}
-              </p>
+            
+            {/* Vision Card */}
+            <div className="group relative">
+              <div className="relative bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 overflow-hidden h-full">
+                {/* Background gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#9253F0]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                
+                <div className="relative">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[#9253F0] to-[#6812F7] rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg">
+                    <span className="text-4xl">🚀</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-gray-900 mb-5 group-hover:text-[#9253F0] transition-colors duration-300">{t('missionVision.vision.title')}</h3>
+                  <p className="text-lg text-gray-600 leading-relaxed">
+                    {t('missionVision.vision.description')}
+                  </p>
+                </div>
+                
+                {/* Decorative corner */}
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-[#9253F0]/10 to-transparent rounded-tr-[100px]"></div>
+              </div>
             </div>
           </div>
         </div>

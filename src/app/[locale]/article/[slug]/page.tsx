@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     return {
         title: article.title,
         description: article.excerpt || article.description || (isArabic 
-            ? "مقال من تاسامي"
+            ? "مقال من تسامي"
             : "Article from Tasami"),
         keywords: article.tags && Array.isArray(article.tags) ? article.tags : [],
         authors: article.author ? [{ name: article.author.name }] : [],

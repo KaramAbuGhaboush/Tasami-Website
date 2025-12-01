@@ -62,11 +62,15 @@ export const paginationSchema = z.object({
 // Contact form validation
 export const contactFormSchema = z.object({
   name: z.string().trim().min(2, 'Name must be between 2 and 100 characters').max(100, 'Name must be between 2 and 100 characters'),
-  email: emailSchema,
+  email: emailSchema.optional(),
+  phone: z.string().trim().optional(),
   company: z.string().trim().optional(),
   message: z.string().trim().min(10, 'Message must be between 10 and 2000 characters').max(2000, 'Message must be between 10 and 2000 characters'),
   service: z.string().trim().min(2, 'Service must be between 2 and 100 characters').max(100, 'Service must be between 2 and 100 characters'),
   budget: z.string().trim().min(2, 'Budget must be between 2 and 50 characters').max(50, 'Budget must be between 2 and 50 characters'),
+}).refine((data) => data.email || data.phone, {
+  message: 'Either email or phone number is required',
+  path: ['email'],
 });
 
 // Blog article validation

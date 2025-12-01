@@ -21,10 +21,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return {
         title: {
             default: isArabic 
-                ? "تاسامي - حلول الذكاء الاصطناعي والأتمتة والتصميم والتسويق"
-                : "Tasami - AI, Automation, Design & Marketing Solutions",
+                ? "تسامي - نحو عالم رقمي بلا حدود"
+                : "Tasami - Towards a Limitless Digital World",
             template: isArabic 
-                ? "%s | تاسامي"
+                ? "%s | تسامي"
                 : "%s | Tasami"
         },
         description: isArabic
@@ -50,8 +50,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
             url: `${baseUrl}/${locale}`,
             siteName: 'Tasami',
             title: isArabic 
-                ? "تاسامي - حلول الذكاء الاصطناعي والأتمتة والتصميم والتسويق"
-                : "Tasami - AI, Automation, Design & Marketing Solutions",
+                ? "تسامي - نحو عالم رقمي بلا حدود"
+                : "Tasami - Towards a Limitless Digital World",
             description: isArabic
                 ? "شركة تقنية رائدة متخصصة في الذكاء الاصطناعي والأتمتة والتصميم وواجهات المستخدم وحلول التسويق."
                 : "Leading tech company specializing in AI, automation, design, UX/UI, and marketing solutions.",
@@ -67,8 +67,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         twitter: {
             card: 'summary_large_image',
             title: isArabic 
-                ? "تاسامي - حلول الذكاء الاصطناعي والأتمتة والتصميم والتسويق"
-                : "Tasami - AI, Automation, Design & Marketing Solutions",
+                ? "تسامي - نحو عالم رقمي بلا حدود"
+                : "Tasami - Towards a Limitless Digital World",
             description: isArabic
                 ? "شركة تقنية رائدة متخصصة في الذكاء الاصطناعي والأتمتة والتصميم وواجهات المستخدم وحلول التسويق."
                 : "Leading tech company specializing in AI, automation, design, UX/UI, and marketing solutions.",
@@ -134,20 +134,19 @@ export default async function LocaleLayout({
             <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
             <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
             
-            {/* Preload critical fonts */}
+            {/* Poppins Font from Google Fonts */}
             <link
-                rel="preload"
-                href="/Font/ROCK.TTF"
-                as="font"
-                type="font/ttf"
+                rel="preconnect"
+                href="https://fonts.googleapis.com"
+            />
+            <link
+                rel="preconnect"
+                href="https://fonts.gstatic.com"
                 crossOrigin="anonymous"
             />
             <link
-                rel="preload"
-                href="/Font/Rockwell-Bold.ttf"
-                as="font"
-                type="font/ttf"
-                crossOrigin="anonymous"
+                href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+                rel="stylesheet"
             />
             {locale === 'ar' && (
                 <>

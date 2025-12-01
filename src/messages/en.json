@@ -49,11 +49,12 @@
     "badgeText": "Fresh & Innovative Startup",
     "title": "About",
     "subtitle": "Tasami",
-    "description": "We're a dynamic startup team of passionate experts, dedicated to transforming businesses through",
-    "descriptionHighlight1": "innovative AI",
+    "description": "We are a specialized team developing integrated technical and marketing solutions powered by",
+    "descriptionHighlight1": "AI",
     "descriptionHighlight2": "automation",
     "descriptionHighlight3": "design",
-    "descriptionHighlight4": "marketing solutions",
+    "descriptionHighlight4": "modern marketing strategies",
+    "descriptionSuffix": "We transform business ideas into practical systems that support growth and increase efficiency.",
     "and": "and",
     "hero": {
       "cta1": "Work With Us",
@@ -75,7 +76,7 @@
       },
       "approach": {
         "title": "Our Approach",
-        "description": "As a new company, we bring the energy and innovation of a startup combined with decades of combined experience from our team members who have worked at top tech companies and successful startups. We're agile, focused, and deeply committed to each client's success."
+        "description": "We work with an approach based on innovation, speed, and focus. We blend our team's diverse expertise with flexible execution methods that ensure practical, refined solutions tailored specifically to each client's needs — with the goal of achieving clear and measurable results."
       },
       "promise": {
         "title": "Our Promise",
@@ -129,29 +130,23 @@
     },
     "faq": {
       "title": "Frequently Asked Questions",
-      "description": "Common questions about working with our startup team",
+      "description": "Common questions about working with Tasami",
       "items": {
-        "question1": "How long has your company been in business?",
-        "answer1": "We're a fresh, dynamic startup founded in 2024. While we're new to the market, our team brings decades of combined experience from top tech companies and successful startups.",
-        "question2": "What makes you different from established agencies?",
-        "answer2": "As a new company, we offer fresh perspectives, cutting-edge approaches, and personalized attention that larger agencies can't match. We're agile, innovative, and deeply invested in each client's success.",
-        "question3": "Do you have experience with our industry?",
-        "answer3": "Our team has worked across various industries including healthcare, finance, e-commerce, and SaaS. We bring diverse experience and adapt quickly to new sectors and challenges.",
-        "question4": "What's your team structure?",
-        "answer4": "We're a lean, focused team with senior leadership across all key areas. This structure allows us to be nimble, cost-effective, and provide direct access to decision-makers.",
-        "question5": "How do you ensure quality with a small team?",
-        "answer5": "Our small team is our strength. Each member is a senior expert in their field, ensuring high-quality work. We also partner with trusted specialists when needed, maintaining our core team's focus and expertise.",
-        "question6": "What's your pricing structure?",
-        "answer6": "We offer competitive, transparent pricing tailored to each project. As a new company, we provide excellent value while maintaining high standards. We're happy to discuss custom packages that fit your budget.",
-        "question7": "How do you handle project management?",
-        "answer7": "We use modern project management tools and maintain regular communication with clients. Our small team ensures direct access to decision-makers and faster response times than larger agencies.",
-        "question8": "What if we need to scale our project?",
-        "answer8": "We're designed to grow with you. Our flexible team structure allows us to bring in specialized talent as needed, ensuring we can handle projects of any size while maintaining our personal touch."
+        "question1": "What solutions does Tasami provide?",
+        "answer1": "We deliver a full stack of tech and marketing solutions, including app development, automation systems, branding, social media management, and digital performance optimization.",
+        "question2": "How long does a project usually take?",
+        "answer2": "Timelines depend on the project size, but we always follow a clear roadmap and fixed milestones to ensure fast and organized delivery.",
+        "question3": "Can I request updates after the project is delivered?",
+        "answer3": "Yes, we offer post-delivery support and continuous upgrade options as your business grows.",
+        "question4": "How do you ensure high-quality results?",
+        "answer4": "We follow a structured workflow, run pre-delivery testing, and rely on data insights to deliver results that actually perform.",
+        "question5": "Do you offer ready-made pricing plans?",
+        "answer5": "Yes, we provide flexible packages for small and medium businesses, plus custom proposals for special projects."
       }
     },
     "cta": {
-      "title": "Ready to Work With Us?",
-      "description": "Let's discuss how our team can help transform your business with innovative technology solutions.",
+      "title": "Want to Boost Your Business Performance?",
+      "description": "Let us show you how our innovative technical and marketing solutions can transform your business into a real success story.",
       "getInTouch": "Get in Touch",
       "joinTeam": "Join Our Team"
     }
@@ -160,7 +155,7 @@
     "badgeText": "Ready to Transform Your Business?",
     "title1": "Let's Build Something",
     "title2": "Extraordinary Together",
-    "description": "We're a new, innovative company ready to help you transform your business with cutting-edge AI, automation, and design solutions.",
+    "description": "We deliver integrated tech & marketing solutions: AI, automation, programming, design, marketing. We build systems and ideas that drive real business growth.",
     "descriptionHighlight": "Let's build something amazing together!",
     "trustIndicators": {
       "responseTime": "24-Hour Response Time",
@@ -200,7 +195,8 @@
       "labels": {
         "fullName": "Full Name *",
         "companyName": "Company Name",
-        "email": "Email *",
+        "email": "Email",
+        "phone": "Phone",
         "serviceRequired": "Service Required *",
         "projectBudget": "Project Budget *",
         "projectDetails": "Project Details *"
@@ -209,7 +205,11 @@
         "fullName": "Jane Cooper",
         "companyName": "Ex. Tesla Inc",
         "email": "You@Example.Com",
+        "phone": "+1 (555) 123-4567",
         "message": "Tell us more about your idea"
+      },
+      "helperText": {
+        "contactRequired": "At least one contact method (email or phone) is required"
       },
       "selectOptions": {
         "selectService": "Select Your Service",
@@ -386,11 +386,11 @@
     "subtitle": "Portfolio",
     "ourPortfolio": "Our Portfolio",
     "work": "Work",
-    "heroDescription": "Discover how we've transformed businesses through",
-    "cuttingEdgeAI": "cutting-edge AI",
+    "heroDescription": "Our work reflects the power of the solutions we deliver. We develop integrated technical and marketing projects powered by",
+    "cuttingEdgeAI": "AI",
     "automation": "automation",
-    "designSolutions": "design solutions",
-    "heroDescription2": "Each project tells a story of innovation, growth, and exceptional results.",
+    "designSolutions": "design innovation",
+    "heroDescription2": "while maintaining complete confidentiality of our clients' details. What we showcase here are examples that demonstrate the quality, thinking, and results we achieve without revealing any sensitive information.",
     "and": "and",
     "projects": "Projects",
     "successRate": "Success Rate",

@@ -5,6 +5,7 @@ export interface ContactFormData {
   name: string;
   company: string;
   email: string;
+  phone: string;
   service: string;
   budget: string;
   message: string;
@@ -36,6 +37,7 @@ export function useContact(): UseContactReturn {
     name: '',
     company: '',
     email: '',
+    phone: '',
     service: '',
     budget: '',
     message: ''
@@ -59,6 +61,7 @@ export function useContact(): UseContactReturn {
       const response = await apiClient.submitContactMessage({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         company: formData.company,
         service: formData.service,
         budget: formData.budget,
@@ -87,6 +90,7 @@ export function useContact(): UseContactReturn {
       name: '',
       company: '',
       email: '',
+      phone: '',
       service: '',
       budget: '',
       message: ''
@@ -97,23 +101,16 @@ export function useContact(): UseContactReturn {
     {
       title: "Email Us",
       description: "Get a personalized response within 2 hours",
-      contact: "hello@tasami.com",
-      icon: "📧",
+      contact: "info@tasami.co",
+      icon: "mail",
       urgency: "Fast Response"
     },
     {
       title: "WhatsApp",
       description: "Chat with us instantly",
-      contact: "+1 (555) 123-4567",
-      icon: "💬",
+      contact: "+972-592764104",
+      icon: "whatsapp",
       urgency: "Instant Chat"
-    },
-    {
-      title: "Schedule 30 mins meeting with our CEO",
-      description: "Direct access to our CEO for strategic discussions",
-      contact: "Book Meeting",
-      icon: "👔",
-      urgency: "CEO Access"
     }
   ]
 

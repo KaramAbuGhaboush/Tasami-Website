@@ -10,7 +10,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const isArabic = locale === 'ar'
   
   return {
-    title: isArabic ? 'المدونة | تاسامي' : 'Blog | Tasami',
+    title: isArabic ? 'المدونة | تسامي' : 'Blog | Tasami',
     description: isArabic
       ? 'اكتشف أحدث المقالات والأفكار حول الذكاء الاصطناعي والأتمتة والتصميم والتسويق'
       : 'Discover the latest articles and insights on AI, automation, design, and marketing',
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       locale: isArabic ? 'ar_SA' : 'en_US',
       url: `${baseUrl}/${locale}/blog`,
       siteName: 'Tasami',
-      title: isArabic ? 'المدونة | تاسامي' : 'Blog | Tasami',
+      title: isArabic ? 'المدونة | تسامي' : 'Blog | Tasami',
       description: isArabic
         ? 'اكتشف أحدث المقالات والأفكار حول الذكاء الاصطناعي والأتمتة والتصميم والتسويق'
         : 'Discover the latest articles and insights on AI, automation, design, and marketing',

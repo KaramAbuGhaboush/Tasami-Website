@@ -35,36 +35,24 @@ export function getAboutData() {
 
   const faqs: FAQ[] = [
     {
-      question: "How long has your company been in business?",
-      answer: "We're a fresh, dynamic startup founded in 2024. While we're new to the market, our team brings decades of combined experience from top tech companies and successful startups."
+      question: "What solutions does Tasami provide?",
+      answer: "We deliver a full stack of tech and marketing solutions, including app development, automation systems, branding, social media management, and digital performance optimization."
     },
     {
-      question: "What makes you different from established agencies?",
-      answer: "As a new company, we offer fresh perspectives, cutting-edge approaches, and personalized attention that larger agencies can't match. We're agile, innovative, and deeply invested in each client's success."
+      question: "How long does a project usually take?",
+      answer: "Timelines depend on the project size, but we always follow a clear roadmap and fixed milestones to ensure fast and organized delivery."
     },
     {
-      question: "Do you have experience with our industry?",
-      answer: "Our team has worked across various industries including healthcare, finance, e-commerce, and SaaS. We bring diverse experience and adapt quickly to new sectors and challenges."
+      question: "Can I request updates after the project is delivered?",
+      answer: "Yes, we offer post-delivery support and continuous upgrade options as your business grows."
     },
     {
-      question: "What's your team structure?",
-      answer: "We're a lean, focused team with senior leadership across all key areas. This structure allows us to be nimble, cost-effective, and provide direct access to decision-makers."
+      question: "How do you ensure high-quality results?",
+      answer: "We follow a structured workflow, run pre-delivery testing, and rely on data insights to deliver results that actually perform."
     },
     {
-      question: "How do you ensure quality with a small team?",
-      answer: "Our small team is our strength. Each member is a senior expert in their field, ensuring high-quality work. We also partner with trusted specialists when needed, maintaining our core team's focus and expertise."
-    },
-    {
-      question: "What's your pricing structure?",
-      answer: "We offer competitive, transparent pricing tailored to each project. As a new company, we provide excellent value while maintaining high standards. We're happy to discuss custom packages that fit your budget."
-    },
-    {
-      question: "How do you handle project management?",
-      answer: "We use modern project management tools and maintain regular communication with clients. Our small team ensures direct access to decision-makers and faster response times than larger agencies."
-    },
-    {
-      question: "What if we need to scale our project?",
-      answer: "We're designed to grow with you. Our flexible team structure allows us to bring in specialized talent as needed, ensuring we can handle projects of any size while maintaining our personal touch."
+      question: "Do you offer ready-made pricing plans?",
+      answer: "Yes, we provide flexible packages for small and medium businesses, plus custom proposals for special projects."
     }
   ]
 

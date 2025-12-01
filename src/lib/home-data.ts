@@ -6,17 +6,17 @@ export function getHomeServices(locale: string): ServiceInfo[] {
       id: "ai-solutions",
       title: "AI Solutions",
       titleAr: "حلول الذكاء الاصطناعي",
-      description: "Machine learning, natural language processing, and intelligent automation to revolutionize your business processes and drive unprecedented efficiency.",
-      descriptionAr: "تعلم الآلة، معالجة اللغات الطبيعية، والأتمتة الذكية لإحداث ثورة في عمليات عملك وتحقيق كفاءة غير مسبوقة.",
+      description: "AI is a powerful business tool that enables companies to work faster, more accurately, and more profitably. From analyzing big data in seconds, to automating repetitive tasks, to understanding customers and making better decisions.",
+      descriptionAr: "الذكاء الاصطناعي هو أداة أعمال قوية تمكّن الشركات من العمل بشكل أسرع، أدق، وأربح. من تحليل البيانات الضخمة خلال ثوانٍ، إلى تشغيل مهام متكررة بشكل آلي، إلى فهم العملاء واتخاذ قرارات أفضل.",
       features: [
-        "Machine Learning Models",
-        "Natural Language Processing",
-        "Intelligent Automation"
+        "AI solutions for data analysis and behavior prediction",
+        "Interactive systems that understand language and communicate with customers automatically",
+        "Smart automation that runs routine tasks without human intervention"
       ],
       featuresAr: [
-        "نماذج تعلم الآلة",
-        "معالجة اللغات الطبيعية",
-        "الأتمتة الذكية"
+        "حلول ذكاء اصطناعي لتحليل البيانات والتنبؤ بالسلوك",
+        "أنظمة تفاعلية تفهم اللغة وتتواصل مع العملاء تلقائيًا",
+        "أتمتة ذكية تشغّل المهام الروتينية بدون تدخل بشري"
       ],
       icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
       color: "#6812F7",

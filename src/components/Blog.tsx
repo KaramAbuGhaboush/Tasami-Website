@@ -464,18 +464,18 @@ export const Blog = memo(function Blog({
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="flex flex-wrap justify-center gap-8">
             {displayCategories.length > 0 ? (
               displayCategories.map((category) => {
                 const articleCount = getArticleCount(category.id);
                 return (
-                  <div key={category.id} className="luxury-card p-6 rounded-2xl text-center">
+                  <div key={category.id} className="luxury-card p-6 rounded-2xl text-center w-full sm:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)] min-w-[250px] flex flex-col items-center">
                     <div className="text-4xl mb-4">{category.icon || '📝'}</div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{category.name}</h3>
-                    <p className="text-gray-600 mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 text-center">{category.name}</h3>
+                    <p className="text-gray-600 mb-4 text-center">
                       {category.description || t('popularTopicsDescription')}
                     </p>
-                    <div className="text-2xl font-bold gradient-text">
+                    <div className="text-2xl font-bold gradient-text text-center">
                       {articleCount}+ {t('popularTopicsArticles') || 'Articles'}
                     </div>
                   </div>

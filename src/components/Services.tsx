@@ -15,7 +15,7 @@ export const Services = memo(function Services({ services, processSteps }: Servi
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="-mt-20 pt-40 pb-20">
+      <section className="-mt-20 pt-40 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
@@ -29,7 +29,7 @@ export const Services = memo(function Services({ services, processSteps }: Servi
       </section>
 
       {/* Services Grid */}
-      <section className="py-20">
+      <section className="pt-10 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => {
@@ -44,18 +44,29 @@ export const Services = memo(function Services({ services, processSteps }: Servi
               }
               const serviceKey = serviceKeyMap[service.title] || 'aiSolutions'
 
+              // Map service to its specific image
+              const serviceImageMap: Record<string, string> = {
+                'AI Solutions': '/SERVICES/AI.png',
+                'Automation': '/SERVICES/automation.png',
+                'Design & UX/UI': '/SERVICES/ui ux.png',
+                'Marketing Solutions': '/SERVICES/marketing.png',
+                'Quality Assurance': '/SERVICES/quality assuurance.png',
+                '24/7 Support': '/SERVICES/24:7 support.png'
+              }
+              const serviceImage = serviceImageMap[service.title] || '/SERVICES/AI.png'
+
               return (
                 <div
                   key={index}
                   className="group relative h-[500px] w-full rounded-2xl overflow-hidden cursor-pointer"
                   style={{
-                    backgroundImage: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500"><rect width="300" height="500" fill="%23f3f4f6"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="48">${service.icon}</text></svg>')`,
+                    backgroundImage: `url('${serviceImage}')`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
                   }}
                 >
                   {/* Default State - Background Image with Title */}
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all duration-300 flex flex-col justify-start p-8">
+                  <div className="absolute inset-0 transition-all duration-300 flex flex-col justify-start p-8">
                     <h3 className="text-4xl font-bold text-black group-hover:opacity-0 transition-opacity duration-300">
                       {t(`serviceItems.${serviceKey}.title`)}
                     </h3>

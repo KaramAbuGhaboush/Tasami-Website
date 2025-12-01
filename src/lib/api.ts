@@ -528,10 +528,9 @@ class ApiClient {
 
   async submitContactMessage(messageData: {
     name: string;
-    email: string;
+    email?: string;
     phone?: string;
     company?: string;
-    subject: string;
     message: string;
     service?: string;
     budget?: string;

@@ -26,7 +26,7 @@ export function Career({
     return (
       <div className="min-h-screen">
         {/* Hero Section Skeleton */}
-        <section className="relative -mt-20 pt-40 flex items-center overflow-hidden">
+        <section className="relative -mt-20 pt-20 pb-16 flex items-center overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 w-full">
             <div className="text-center space-y-8">
@@ -112,7 +112,7 @@ export function Career({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative -mt-20 pt-40 flex items-center overflow-hidden">
+      <section className="relative -mt-20 pt-20 pb-16 flex items-center overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
           {/* Gradient Background */}
@@ -158,7 +158,7 @@ export function Career({
             </p>
 
 
-            {/* Stats */}
+{/* Stats - Hidden
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-[#6812F7] mb-2">50+</div>
@@ -177,16 +177,16 @@ export function Career({
                 <div className="text-gray-600">{t('satisfaction')}</div>
               </div>
             </div>
+            */}
           </div>
         </div>
       </section>
 
 
-      {/* Company Culture */}
+{/* Company Culture & Numbers - Hidden
       <section className={`py-20 bg-gray-50 ${isRTL ? 'text-right' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className={`flex flex-col lg:flex-row gap-12 items-center ${isRTL ? 'lg:flex-row' : ''}`}>
-            {/* Text content - appears first in Arabic (right side) */}
             <div className="flex-1">
               <h2 className={`text-3xl md:text-4xl font-bold text-gray-900 mb-6 ${isRTL ? 'text-right' : ''}`}>
                 {t('ourCulture')}
@@ -230,7 +230,6 @@ export function Career({
                 </div>
               </div>
             </div>
-            {/* Stats box - appears second in Arabic (left side) */}
             <div className="flex-1 bg-gradient-to-br from-blue-100 to-purple-100 p-8 rounded-2xl">
               <div className="text-center">
                 <div className="text-6xl mb-6">👥</div>
@@ -258,6 +257,7 @@ export function Career({
           </div>
         </div>
       </section>
+      */}
 
       {/* Job Openings */}
       <section className={`py-20 bg-white ${isRTL ? 'text-right' : ''}`}>

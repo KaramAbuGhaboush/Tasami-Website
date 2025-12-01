@@ -2,22 +2,7 @@
 @import "tw-animate-css";
 @import "highlight.js/styles/github.css";
 
-/* Rockwell Font Faces */
-@font-face {
-  font-family: 'Rockwell';
-  src: url('/Font/ROCK.TTF') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Rockwell';
-  src: url('/Font/Rockwell-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Poppins Font - loaded via Google Fonts */
 
 /* Hacen Algeria Font Faces */
 @font-face {
@@ -41,8 +26,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Rockwell', serif;
-  --font-mono: 'Rockwell', serif;
+  --font-sans: 'Poppins', sans-serif;
+  --font-mono: 'Poppins', sans-serif;
   
   /* Arabic font override */
   --font-arabic: 'Hacen Algeria', sans-serif;
@@ -338,7 +323,7 @@ html {
   }
 body {
     @apply bg-background text-foreground;
-    font-family: 'Rockwell', serif;
+    font-family: 'Poppins', sans-serif;
     background: #F2F3FF;
     min-height: 100vh;
   }
