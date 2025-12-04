@@ -51,7 +51,7 @@ export const Services = memo(function Services({ services, processSteps }: Servi
                 'Design & UX/UI': '/SERVICES/ui ux.png',
                 'Marketing Solutions': '/SERVICES/marketing.png',
                 'Quality Assurance': '/SERVICES/quality assuurance.png',
-                '24/7 Support': '/SERVICES/24:7 support.png'
+                '24/7 Support': '/SERVICES/24-7-support.png'
               }
               const serviceImage = serviceImageMap[service.title] || '/SERVICES/AI.png'
 
