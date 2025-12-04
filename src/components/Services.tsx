@@ -1,6 +1,6 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { memo } from 'react'
 import { Service, ProcessStep } from '@/hooks/useServices'

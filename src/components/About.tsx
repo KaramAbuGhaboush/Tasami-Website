@@ -1,7 +1,8 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
-import { useTranslations, useLocale } from 'next-intl'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { memo } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Value, FAQ } from '@/lib/about-data'
@@ -15,8 +16,8 @@ interface AboutProps {
 
 export const About = memo(function About({ values, faqs, openFAQ, setOpenFAQ }: AboutProps) {
   const t = useTranslations('about')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
   return (
     <div className="min-h-screen">
       {/* Hero Section */}

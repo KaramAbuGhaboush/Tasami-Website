@@ -467,7 +467,8 @@
     "relatedArticles": "مقالات ذات صلة",
     "relatedArticlesDescription": "استمر في استكشاف المحتوى المشابه",
     "shareArticle": "مشاركة المقال",
-    "noPostsFound": "لم يتم العثور على مقالات في هذه الفئة."
+    "noPostsFound": "لم يتم العثور على مقالات في هذه الفئة.",
+    "noCategories": "لا توجد فئات متاحة."
   },
   "career": {
     "title": "الوظائف",

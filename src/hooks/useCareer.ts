@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient } from '@/lib/api'
 
 export interface Job {
@@ -26,7 +26,7 @@ export interface UseCareerReturn {
 }
 
 export function useCareer(): UseCareerReturn {
-  const locale = useLocale() as 'en' | 'ar'
+  const { locale } = useLanguage()
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -3,9 +3,6 @@
 import { useWork } from '@/hooks/useWork'
 import { Work } from '@/components/Work'
 
-// Note: ISR (revalidate) only works with Server Components.
-// This page uses client-side hooks, so caching should be handled at the API level.
-
 export default function WorkPage() {
     const {
         projects,

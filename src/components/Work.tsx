@@ -1,7 +1,7 @@
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { memo } from 'react'
 import { TransformedTestimonial } from '@/hooks/useWork'
 import { SkeletonProjectCard, SkeletonTestimonial, SkeletonShimmer } from '@/components/ui/skeleton'
@@ -56,8 +56,8 @@ export const Work = memo(function Work({
   handleTouchEnd
 }: WorkProps) {
   const t = useTranslations('work')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
 
   return (
     <div className="min-h-screen">

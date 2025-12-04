@@ -1,9 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { useEffect } from 'react'
 
 export default function NotFound() {
+  const { locale, direction } = useLanguage()
+  const t = useTranslations('notFound')
+
   // Hide navbar and footer on 404 page
   useEffect(() => {
     document.body.setAttribute('data-page', 'not-found')
@@ -13,7 +18,7 @@ export default function NotFound() {
   }, [])
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden not-found-page" data-page="not-found">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden not-found-page" dir={direction} data-page="not-found">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-[#F8F4FF] via-white to-[#E8E0FF]"></div>
@@ -47,11 +52,11 @@ export default function NotFound() {
 
         {/* Error Message */}
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-          Page Not Found
+          {t('title')}
         </h1>
 
         <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          The page you're looking for doesn't exist or has been moved.
+          {t('description')}
         </p>
 
         {/* Action Buttons */}
@@ -60,47 +65,47 @@ export default function NotFound() {
             href="/"
             className="bg-gradient-to-r from-[#6812F7] to-[#9253F0] text-white px-8 py-4 rounded-full text-lg font-semibold hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            Go Home
+            {t('goHome')}
           </Link>
           <Link
             href="/contact"
             className="border-2 border-[#6812F7] text-[#6812F7] px-8 py-4 rounded-full text-lg font-semibold hover:bg-[#6812F7] hover:text-white transition-all duration-300"
           >
-            Get Help
+            {t('getHelp')}
           </Link>
         </div>
 
         {/* Quick Links */}
         <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">Popular Pages</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">{t('popularPages')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link
               href="/services"
               className="p-4 bg-white rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-2xl mb-2">🚀</div>
-              <div className="text-sm font-medium text-gray-900">Services</div>
+              <div className="text-sm font-medium text-gray-900">{t('services')}</div>
             </Link>
             <Link
               href="/about"
               className="p-4 bg-white rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-2xl mb-2">👥</div>
-              <div className="text-sm font-medium text-gray-900">About Us</div>
+              <div className="text-sm font-medium text-gray-900">{t('aboutUs')}</div>
             </Link>
             <Link
               href="/work"
               className="p-4 bg-white rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-2xl mb-2">💼</div>
-              <div className="text-sm font-medium text-gray-900">Our Work</div>
+              <div className="text-sm font-medium text-gray-900">{t('ourWork')}</div>
             </Link>
             <Link
               href="/blog"
               className="p-4 bg-white rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-2xl mb-2">📝</div>
-              <div className="text-sm font-medium text-gray-900">Blog</div>
+              <div className="text-sm font-medium text-gray-900">{t('blog')}</div>
             </Link>
           </div>
         </div>
@@ -108,11 +113,10 @@ export default function NotFound() {
         {/* Fun Message */}
         <div className="mt-12 text-gray-500">
           <p className="text-sm">
-            Pro tip: <strong>Double-check the URL for typos!</strong>
+            {t('proTip')} <strong>{t('proTipText')}</strong>
           </p>
         </div>
       </div>
     </div>
   )
 }
-

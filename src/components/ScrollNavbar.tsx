@@ -1,32 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Link, usePathname, useRouter } from '@/i18n/routing'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export default function ScrollNavbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
-  const router = useRouter()
-  const locale = useLocale()
+  const { locale, setLocale } = useLanguage()
   const t = useTranslations('common')
-
-  // Get current locale from URL as fallback
-  const [currentLocale, setCurrentLocale] = useState<string>('en')
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const localeFromUrl = window.location.pathname.split('/')[1]
-      if (localeFromUrl === 'en' || localeFromUrl === 'ar') {
-        setCurrentLocale(localeFromUrl)
-      } else {
-        // Fallback to locale from useLocale hook if not in URL
-        setCurrentLocale(locale as string)
-      }
-    }
-  }, [locale, pathname])
 
   const navItems = [
     { name: t('home'), href: '/' },
@@ -47,51 +33,15 @@ export default function ScrollNavbar() {
   }, [])
 
   const handleLanguageSwitch = () => {
-    const newLocale = currentLocale === 'en' ? 'ar' : 'en'
-
-    // Get the actual current path from window.location.pathname
-    let currentPath = ''
-    if (typeof window !== 'undefined') {
-      const fullPath = window.location.pathname
-      
-      // Extract path without locale prefix
-      // Handle patterns like: /en/article/slug or /ar/article/slug
-      const pathMatch = fullPath.match(/^\/(en|ar)(\/.*)?$/)
-      
-      if (pathMatch && pathMatch[2]) {
-        // There's a path after the locale
-        currentPath = pathMatch[2] // This gives us /article/slug
-      } else {
-        // Just locale with no path, or no locale at all
-        currentPath = '/'
-      }
-    } else {
-      // Fallback to pathname from hook (should already exclude locale)
-      currentPath = pathname || '/'
-    }
-    
-    // Clean up: ensure it starts with / and is not just /en or /ar
-    if (!currentPath || currentPath === '' || currentPath === '/en' || currentPath === '/ar') {
-      currentPath = '/'
-    } else if (!currentPath.startsWith('/')) {
-      currentPath = '/' + currentPath
-    }
-
-    // Build the new URL with locale prefix
-    // For root path: /ar or /en
-    // For other paths: /ar/article/slug
-    const newUrl = currentPath === '/' 
-      ? `/${newLocale}`
-      : `/${newLocale}${currentPath}`
-
-    // Use window.location.href for navigation
-    window.location.href = newUrl
+    const newLocale = locale === 'en' ? 'ar' : 'en'
+    setLocale(newLocale)
+    // No page refresh needed - language change is instant via context
   }
 
   // Show the language name that user will switch TO
   // If current is English, show Arabic button text (so user can switch TO Arabic)
   // If current is Arabic, show English button text (so user can switch TO English)
-  const languageButtonText = currentLocale === 'en' ? 'العربية' : 'English'
+  const languageButtonText = locale === 'en' ? 'العربية' : 'English'
 
   // Helper function to determine if a nav item is active
   const isActive = (href: string) => {

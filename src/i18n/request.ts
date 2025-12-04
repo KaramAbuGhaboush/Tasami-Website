@@ -1,15 +1,13 @@
 import { getRequestConfig } from 'next-intl/server';
-import { routing } from './routing';
 
-export default getRequestConfig(async ({ requestLocale }) => {
-    let locale = await requestLocale;
+// Default locale - actual locale will be determined client-side from sessionStorage
+const DEFAULT_LOCALE = 'en';
 
-    if (!locale || !routing.locales.includes(locale as 'en' | 'ar')) {
-        locale = routing.defaultLocale;
-    }
-
+export default getRequestConfig(async () => {
+    // Always return default locale for server-side rendering
+    // Client-side will override this using the LanguageContext
     return {
-        locale,
-        messages: (await import(`../messages/${locale}.json`)).default
+        locale: DEFAULT_LOCALE,
+        messages: (await import(`../messages/${DEFAULT_LOCALE}.json`)).default
     };
 });
