@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useMemo, useCallback, memo } from 'react'
-import { Link } from '@/i18n/routing'
-import { useTranslations, useLocale } from 'next-intl'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { BlogPost, BlogCategory } from '@/hooks/useBlog'
 import OptimizedImage from '@/components/OptimizedImage'
 import { SkeletonBlogPost, SkeletonFeaturedPost, SkeletonShimmer } from '@/components/ui/skeleton'
@@ -53,8 +54,8 @@ export const Blog = memo(function Blog({
   handleRetry
 }: BlogProps) {
   const t = useTranslations('blog')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   // Format readTime for display based on locale

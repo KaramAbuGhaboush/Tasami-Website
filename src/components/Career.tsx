@@ -1,9 +1,9 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { Job } from '@/hooks/useCareer'
 import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { SkeletonJobListing, SkeletonShimmer, SkeletonText } from '@/components/ui/skeleton'
 
 interface CareerProps {
@@ -20,8 +20,8 @@ export function Career({
   handleRetry
 }: CareerProps) {
   const t = useTranslations('career')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
   if (loading) {
     return (
       <div className="min-h-screen">

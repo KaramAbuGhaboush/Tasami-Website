@@ -1,8 +1,8 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { Article } from '@/hooks/useArticle'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -46,8 +46,8 @@ interface ArticleProps {
 export const ArticleComponent = memo(function ArticleComponent({ article, loading, error, handleRetry }: ArticleProps) {
   const t = useTranslations('blog')
   const tCommon = useTranslations('common')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
   const [formattedDate, setFormattedDate] = useState<string>('')
   const [isMounted, setIsMounted] = useState(false)
 

@@ -468,7 +468,8 @@
     "relatedArticles": "Related Articles",
     "relatedArticlesDescription": "Continue exploring similar content",
     "shareArticle": "Share Article",
-    "noPostsFound": "No posts found in this category."
+    "noPostsFound": "No posts found in this category.",
+    "noCategories": "No categories available."
   },
   "career": {
     "title": "Career",

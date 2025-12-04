@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { Project } from '@/hooks/useProject'
 import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 interface ProjectCaseStudyProps {
   project: Project;
@@ -35,8 +35,8 @@ const getImageSrc = (image: string | null | undefined) => {
 
 export function ProjectCaseStudy({ project }: ProjectCaseStudyProps) {
   const t = useTranslations('work.projectCaseStudy')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
 
   return (
     <div className={`min-h-screen bg-white ${isRTL ? 'text-right' : ''}`}>

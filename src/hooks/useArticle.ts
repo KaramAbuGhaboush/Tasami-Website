@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient } from '@/lib/api'
 import { notFound } from 'next/navigation'
 
@@ -55,7 +55,7 @@ export interface UseArticleReturn {
 }
 
 export function useArticle(slug: string): UseArticleReturn {
-  const locale = useLocale() as 'en' | 'ar'
+  const { locale } = useLanguage()
   const [article, setArticle] = useState<Article | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 
 export interface ServiceInfo {
   id: string;
@@ -21,7 +21,7 @@ export interface UseHomeReturn {
 }
 
 export function useHome(): UseHomeReturn {
-  const locale = useLocale()
+  const { locale } = useLanguage()
   const services: ServiceInfo[] = [
     {
       id: "ai-solutions",

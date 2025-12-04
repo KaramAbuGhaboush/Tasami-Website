@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useLocale } from 'next-intl';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { apiClient } from '@/lib/api';
 
 export interface Project {
@@ -31,7 +31,7 @@ export interface UseProjectsReturn {
 }
 
 export function useProjects(category?: string): UseProjectsReturn {
-  const locale = useLocale() as 'en' | 'ar';
+  const { locale } = useLanguage();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

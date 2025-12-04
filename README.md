@@ -177,76 +177,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 # Tasami-Website
 # Tasami-Website
 
+
 ```
 Tasami-Website
 ├─ .cursor
 │  └─ commands
 │     └─ en.md
 ├─ .htaccess
-├─ backend
-│  ├─ .htaccess
-│  ├─ API_DOCUMENTATION.md
-│  ├─ ecosystem.config.js
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ prisma
-│  │  ├─ schema.prisma
-│  │  ├─ seed-blog-articles.ts
-│  │  ├─ seed-blog-categories.ts
-│  │  ├─ seed-categories.ts
-│  │  ├─ seed-job-positions.ts
-│  │  ├─ seed-testimonials.ts
-│  │  └─ seed.ts
-│  ├─ src
-│  │  ├─ config
-│  │  │  ├─ constants.ts
-│  │  │  ├─ security.ts
-│  │  │  └─ swagger.ts
-│  │  ├─ middleware
-│  │  │  ├─ auth.ts
-│  │  │  ├─ cache.ts
-│  │  │  ├─ errorHandler.ts
-│  │  │  ├─ security.ts
-│  │  │  ├─ upload.ts
-│  │  │  └─ validation.ts
-│  │  ├─ routes
-│  │  │  ├─ auth.ts
-│  │  │  ├─ blog.ts
-│  │  │  ├─ career.ts
-│  │  │  ├─ categories.ts
-│  │  │  ├─ contact.ts
-│  │  │  ├─ employees.ts
-│  │  │  ├─ projects.ts
-│  │  │  ├─ testimonials.ts
-│  │  │  └─ timeEntries.ts
-│  │  ├─ server.ts
-│  │  ├─ services
-│  │  │  └─ emailService.ts
-│  │  └─ utils
-│  │     ├─ localization.ts
-│  │     └─ performance.ts
-│  ├─ tsconfig.json
-│  └─ uploads
-│     └─ images
-│        ├─ ai-business.jpg
-│        ├─ automation.jpg
-│        ├─ blog-1761169139935-987005233.jpg
-│        ├─ blog-1761175809687-585532344.png
-│        ├─ blog-1761330088014-927718302.jpg
-│        ├─ blog-1761334517026-637957566.jpg
-│        ├─ blog-1761334590365-787994890.jpg
-│        ├─ blog-1761335029322-523342903.jpg
-│        ├─ blog-1761335206725-856540857.jpg
-│        ├─ blog-1761335328805-948574623.jpg
-│        ├─ blog-1762274338145-747602469.jpeg
-│        ├─ blog-1762275150502-513036041.jpeg
-│        ├─ blog-1762275706800-645284966.jpeg
-│        ├─ data-analysis.jpg
-│        ├─ design-ui.jpg
-│        ├─ marketing.jpg
-│        └─ mvp.jpg
 ├─ components.json
+├─ DEPLOYMENT.md
 ├─ eslint.config.mjs
+├─ GET_CONNECTION_STRINGS.md
 ├─ middleware.ts
 ├─ next.config.production.ts
 ├─ next.config.ts
@@ -254,7 +195,15 @@ Tasami-Website
 ├─ package.json
 ├─ postcss.config.mjs
 ├─ prisma
-│  └─ schema.prisma
+│  ├─ prisma
+│  ├─ schema.prisma
+│  └─ seed
+│     ├─ seed-blog-articles.ts
+│     ├─ seed-blog-categories.ts
+│     ├─ seed-categories.ts
+│     ├─ seed-job-positions.ts
+│     ├─ seed-testimonials.ts
+│     └─ seed.ts
 ├─ public
 │  ├─ file.svg
 │  ├─ Font
@@ -274,13 +223,62 @@ Tasami-Website
 │  │  ├─ ecommerce-automation.lottie
 │  │  ├─ manifest.json
 │  │  ├─ Marketing_Solutions.json
-│  │  └─ Mvp.json
+│  │  ├─ Mvp.json
+│  │  └─ technology.json
 │  ├─ next.svg
+│  ├─ Service.png
+│  ├─ SERVICES
+│  │  ├─ AI.png
+│  │  ├─ automation.png
+│  │  ├─ marketing.png
+│  │  ├─ quality assuurance.png
+│  │  ├─ support.png
+│  │  └─ ui ux.png
+│  ├─ uploads
+│  │  └─ images
+│  │     ├─ ai-business.jpg
+│  │     ├─ automation.jpg
+│  │     ├─ blog-1761169139935-987005233.jpg
+│  │     ├─ blog-1761175809687-585532344.png
+│  │     ├─ blog-1761330088014-927718302.jpg
+│  │     ├─ blog-1761334517026-637957566.jpg
+│  │     ├─ blog-1761334590365-787994890.jpg
+│  │     ├─ blog-1761335029322-523342903.jpg
+│  │     ├─ blog-1761335206725-856540857.jpg
+│  │     ├─ blog-1761335328805-948574623.jpg
+│  │     ├─ blog-1762274338145-747602469.jpeg
+│  │     ├─ blog-1762275150502-513036041.jpeg
+│  │     ├─ blog-1762275706800-645284966.jpeg
+│  │     ├─ blog-1763664004352-850976354.png
+│  │     ├─ blog-1763665152946-835915516.png
+│  │     ├─ blog-1763666007731-854440354.png
+│  │     ├─ blog-1763666015485-444750258.png
+│  │     ├─ blog-1763666022891-273831090.webp
+│  │     ├─ blog-1763666031883-897728295.png
+│  │     ├─ blog-1763666054820-769930234.png
+│  │     ├─ blog-1763666061917-83019116.png
+│  │     ├─ blog-1763667975671-143622414.png
+│  │     ├─ blog-1763668453473-499737783.png
+│  │     ├─ blog-1763668463504-438861050.png
+│  │     ├─ blog-1763668578526-242663891.png
+│  │     ├─ blog-1763668584957-393162903.webp
+│  │     ├─ blog-1763668593480-989675991.png
+│  │     ├─ blog-1763668603170-484988376.png
+│  │     ├─ blog-1763669181929-577484479.webp
+│  │     ├─ data-analysis.jpg
+│  │     ├─ design-ui.jpg
+│  │     ├─ marketing.jpg
+│  │     └─ mvp.jpg
 │  ├─ vercel.svg
 │  └─ window.svg
 ├─ README.md
+├─ scripts
+├─ Service.png
+├─ SETUP_GUIDE.md
 ├─ src
 │  ├─ app
+│  │  ├─ 404
+│  │  │  └─ page.tsx
 │  │  ├─ admin
 │  │  │  ├─ blog
 │  │  │  │  └─ page.tsx
@@ -288,6 +286,7 @@ Tasami-Website
 │  │  │  │  └─ page.tsx
 │  │  │  ├─ contact
 │  │  │  │  └─ page.tsx
+│  │  │  ├─ layout.tsx
 │  │  │  ├─ page.tsx
 │  │  │  ├─ portfolio
 │  │  │  │  └─ page.tsx
@@ -297,15 +296,101 @@ Tasami-Website
 │  │  │  │        └─ page.tsx
 │  │  │  └─ users
 │  │  │     └─ page.tsx
+│  │  ├─ api
+│  │  │  ├─ auth
+│  │  │  │  ├─ login
+│  │  │  │  │  └─ route.ts
+│  │  │  │  ├─ logout
+│  │  │  │  │  └─ route.ts
+│  │  │  │  ├─ me
+│  │  │  │  │  └─ route.ts
+│  │  │  │  └─ register
+│  │  │  │     └─ route.ts
+│  │  │  ├─ blog
+│  │  │  │  ├─ articles
+│  │  │  │  │  ├─ route.ts
+│  │  │  │  │  ├─ [id]
+│  │  │  │  │  └─ [slug]
+│  │  │  │  │     └─ route.ts
+│  │  │  │  ├─ authors
+│  │  │  │  │  ├─ route.ts
+│  │  │  │  │  └─ [id]
+│  │  │  │  │     └─ route.ts
+│  │  │  │  ├─ categories
+│  │  │  │  │  ├─ route.ts
+│  │  │  │  │  └─ [id]
+│  │  │  │  │     └─ route.ts
+│  │  │  │  └─ upload-image
+│  │  │  │     └─ route.ts
+│  │  │  ├─ career
+│  │  │  │  ├─ applications
+│  │  │  │  │  └─ route.ts
+│  │  │  │  └─ jobs
+│  │  │  │     ├─ route.ts
+│  │  │  │     └─ [id]
+│  │  │  │        └─ route.ts
+│  │  │  ├─ categories
+│  │  │  │  ├─ route.ts
+│  │  │  │  └─ [id]
+│  │  │  │     └─ route.ts
+│  │  │  ├─ contact
+│  │  │  │  └─ messages
+│  │  │  │     ├─ route.ts
+│  │  │  │     └─ [id]
+│  │  │  │        └─ route.ts
+│  │  │  ├─ employees
+│  │  │  │  ├─ analytics
+│  │  │  │  │  ├─ project-distribution
+│  │  │  │  │  │  └─ route.ts
+│  │  │  │  │  └─ team-summary
+│  │  │  │  │     └─ route.ts
+│  │  │  │  ├─ route.ts
+│  │  │  │  ├─ stats
+│  │  │  │  │  └─ route.ts
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ route.ts
+│  │  │  │     ├─ time-entries
+│  │  │  │     │  └─ route.ts
+│  │  │  │     └─ weekly-summary
+│  │  │  │        └─ route.ts
+│  │  │  ├─ projects
+│  │  │  │  ├─ route.ts
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ content-blocks
+│  │  │  │     │  ├─ reorder
+│  │  │  │     │  │  └─ route.ts
+│  │  │  │     │  ├─ route.ts
+│  │  │  │     │  └─ [blockId]
+│  │  │  │     │     └─ route.ts
+│  │  │  │     └─ route.ts
+│  │  │  ├─ testimonials
+│  │  │  │  ├─ route.ts
+│  │  │  │  └─ [id]
+│  │  │  │     └─ route.ts
+│  │  │  └─ time-entries
+│  │  │     ├─ profile
+│  │  │     │  ├─ route.ts
+│  │  │     │  └─ weekly-goal
+│  │  │     │     └─ route.ts
+│  │  │     ├─ route.ts
+│  │  │     ├─ weekly-summary
+│  │  │     │  └─ route.ts
+│  │  │     └─ [id]
+│  │  │        └─ route.ts
 │  │  ├─ employee
+│  │  │  ├─ layout.tsx
 │  │  │  └─ page.tsx
 │  │  ├─ favicon.ico
 │  │  ├─ global-error.tsx
 │  │  ├─ globals.css
 │  │  ├─ layout.tsx
 │  │  ├─ login
+│  │  │  ├─ layout.tsx
 │  │  │  └─ page.tsx
+│  │  ├─ not-found.tsx
 │  │  ├─ page.tsx
+│  │  ├─ robots.ts
+│  │  ├─ sitemap.ts
 │  │  └─ [locale]
 │  │     ├─ about
 │  │     │  └─ page.tsx
@@ -313,6 +398,7 @@ Tasami-Website
 │  │     │  └─ [slug]
 │  │     │     └─ page.tsx
 │  │     ├─ blog
+│  │     │  ├─ layout.tsx
 │  │     │  └─ page.tsx
 │  │     ├─ career
 │  │     │  └─ page.tsx
@@ -338,9 +424,11 @@ Tasami-Website
 │  │        └─ page.tsx
 │  ├─ components
 │  │  ├─ About.tsx
+│  │  ├─ AboutClient.tsx
 │  │  ├─ admin
 │  │  │  ├─ BlogPage.tsx
 │  │  │  ├─ CareerPage.tsx
+│  │  │  ├─ CareerPageForm.tsx
 │  │  │  ├─ ContactPage.tsx
 │  │  │  ├─ DashboardCharts.tsx
 │  │  │  ├─ OverviewPage.tsx
@@ -357,6 +445,7 @@ Tasami-Website
 │  │  ├─ ConditionalNavbar.tsx
 │  │  ├─ Contact.tsx
 │  │  ├─ Employee.tsx
+│  │  ├─ ErrorBoundary.tsx
 │  │  ├─ Footer.tsx
 │  │  ├─ Home.tsx
 │  │  ├─ LightweightAnimation.tsx
@@ -390,6 +479,7 @@ Tasami-Website
 │  │  │  ├─ select.tsx
 │  │  │  ├─ separator.tsx
 │  │  │  ├─ sheet.tsx
+│  │  │  ├─ skeleton.tsx
 │  │  │  ├─ table.tsx
 │  │  │  ├─ tabs.tsx
 │  │  │  ├─ textarea.tsx
@@ -423,18 +513,39 @@ Tasami-Website
 │  │  ├─ request.ts
 │  │  └─ routing.ts
 │  ├─ lib
+│  │  ├─ about-data.ts
 │  │  ├─ api.ts
+│  │  ├─ auth.ts
+│  │  ├─ cache.ts
 │  │  ├─ config.ts
-│  │  └─ utils.ts
+│  │  ├─ errors.ts
+│  │  ├─ home-data.ts
+│  │  ├─ logger.ts
+│  │  ├─ prisma.ts
+│  │  ├─ rate-limit.ts
+│  │  ├─ services-data.ts
+│  │  ├─ structured-data.ts
+│  │  ├─ upload.ts
+│  │  ├─ utils.ts
+│  │  └─ validation.ts
 │  ├─ messages
 │  │  ├─ ar.json
 │  │  └─ en.json
 │  ├─ middleware
 │  │  └─ auth.ts
-│  ├─ utils
-│  └─ __tests__
-│     ├─ portfolio-admin.test.tsx
-│     └─ usePortfolioAdmin.test.ts
+│  ├─ server
+│  │  ├─ services
+│  │  │  └─ emailService.ts
+│  │  └─ utils
+│  │     ├─ localization.ts
+│  │     └─ performance.ts
+│  ├─ services
+│  │  ├─ blogService.ts
+│  │  ├─ careerService.ts
+│  │  ├─ contactService.ts
+│  │  └─ projectService.ts
+│  └─ utils
+├─ TROUBLESHOOTING_DIRECT_CONNECTION.md
 └─ tsconfig.json
 
 ```
