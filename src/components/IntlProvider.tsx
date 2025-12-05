@@ -28,7 +28,7 @@ export function IntlProvider({ children }: IntlProviderProps) {
 
   return (
     <ErrorBoundary>
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone="UTC">
         <ConditionalNavbar />
         {children}
         <ConditionalFooter />

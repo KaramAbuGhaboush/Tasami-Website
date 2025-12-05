@@ -406,12 +406,17 @@
       "company": "COMPANY",
       "category": "CATEGORY",
       "timeline": "TIMELINE",
+      "teamSize": "TEAM SIZE",
       "servicesWeProvided": "SERVICES WE PROVIDED",
       "shareThisCaseStudy": "Share this Case Study:",
       "projectShowcase": "Project Showcase",
       "interactiveProjectDemonstration": "Interactive project demonstration",
       "noContentAddedYet": "No content added yet",
-      "noContentDescription": "This project doesn't have any custom content blocks."
+      "noContentDescription": "This project doesn't have any custom content blocks.",
+      "challenge": "The Challenge",
+      "solution": "The Solution",
+      "technologies": "Technologies Used",
+      "results": "Results"
     },
     "noProjectsFound": "No Projects Found",
     "noProjectsDescription": "We're working on adding more projects. Check back soon!",

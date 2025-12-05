@@ -8,6 +8,7 @@ export default getRequestConfig(async () => {
     // Client-side will override this using the LanguageContext
     return {
         locale: DEFAULT_LOCALE,
-        messages: (await import(`../messages/${DEFAULT_LOCALE}.json`)).default
+        messages: (await import(`../messages/${DEFAULT_LOCALE}.json`)).default,
+        timeZone: 'UTC' // Set default timezone to avoid markup mismatches
     };
 });
