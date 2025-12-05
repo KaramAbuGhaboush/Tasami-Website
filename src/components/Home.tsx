@@ -1,7 +1,8 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
-import { useTranslations, useLocale } from 'next-intl'
+import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { Suspense, lazy, memo } from 'react'
 import LightweightAnimation from '@/components/LightweightAnimation'
 import PerformanceToggle from '@/components/PerformanceToggle'
@@ -19,8 +20,8 @@ export const Home = memo(function Home({ services }: HomeProps) {
   const tCards = useTranslations('home.cards')
   const tServices = useTranslations('home.servicesSection')
   const tCta = useTranslations('home.ctaSection')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
 
   return (
     <div className="min-h-screen">

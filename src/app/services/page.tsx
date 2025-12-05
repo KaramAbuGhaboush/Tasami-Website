@@ -1,7 +1,9 @@
+'use client'
+
 import { Services } from '@/components/Services'
 import { getServicesData } from '@/lib/services-data'
 
-export default async function ServicesPage() {
+export default function ServicesPage() {
     const {
         services,
         processSteps
@@ -13,12 +15,5 @@ export default async function ServicesPage() {
             processSteps={processSteps}
         />
     )
-}
-
-export async function generateStaticParams() {
-    return [
-        { locale: 'en' },
-        { locale: 'ar' }
-    ]
 }
 

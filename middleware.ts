@@ -1,9 +1,4 @@
-import createMiddleware from 'next-intl/middleware';
-import { routing } from './src/i18n/routing';
 import { NextRequest, NextResponse } from 'next/server';
-
-// Create the next-intl middleware
-const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -14,11 +9,20 @@ export default function middleware(request: NextRequest) {
     pathname.startsWith('/_next') ||
     pathname.startsWith('/_vercel') ||
     pathname.startsWith('/Font') || 
-    pathname.startsWith('/fonts') || 
+    pathname.startsWith('/fonts') ||
     pathname.startsWith('/images') ||
     pathname.match(/\.(ttf|woff|woff2|eot|svg|png|jpg|jpeg|gif|ico|webp)$/i)
   ) {
     return NextResponse.next();
+  }
+  
+  // Redirect old locale-based URLs to new structure (e.g., /en/about -> /about)
+  const localeMatch = pathname.match(/^\/(en|ar)(\/.*)?$/);
+  if (localeMatch) {
+    const newPath = localeMatch[2] || '/';
+    const url = request.nextUrl.clone();
+    url.pathname = newPath;
+    return NextResponse.redirect(url);
   }
   
   // Check for protected routes (admin and employee)
@@ -40,14 +44,8 @@ export default function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
-  // Exclude login path from internationalization
-  // Login path should work without locale prefixes
-  if (pathname.startsWith('/login')) {
-    return NextResponse.next();
-  }
-  
-  // Apply next-intl middleware for all other paths
-  return intlMiddleware(request);
+  // Allow all other paths through
+  return NextResponse.next();
 }
 
 export const config = {

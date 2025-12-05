@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient } from '@/lib/api'
 
 export interface BlogPost {
@@ -50,7 +50,7 @@ export interface UseBlogReturn {
 }
 
 export function useBlog(): UseBlogReturn {
-  const locale = useLocale() as 'en' | 'ar'
+  const { locale } = useLanguage()
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [categoryObjects, setCategoryObjects] = useState<BlogCategory[]>([]);

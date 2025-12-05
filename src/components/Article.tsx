@@ -1,8 +1,8 @@
 'use client'
 
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { Article } from '@/hooks/useArticle'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -46,15 +46,15 @@ interface ArticleProps {
 export const ArticleComponent = memo(function ArticleComponent({ article, loading, error, handleRetry }: ArticleProps) {
   const t = useTranslations('blog')
   const tCommon = useTranslations('common')
-  const locale = useLocale()
-  const isRTL = locale === 'ar'
+  const { locale, direction } = useLanguage()
+  const isRTL = direction === 'rtl'
   const [formattedDate, setFormattedDate] = useState<string>('')
   const [isMounted, setIsMounted] = useState(false)
 
   // Format readTime for display based on locale
   const formatReadTime = (readTime: string) => {
     if (!readTime) return readTime
-    
+
     // If readTime contains "min read" or similar, format it based on locale
     if (readTime.includes('min') || readTime.includes('دقيقة')) {
       if (isRTL) {
@@ -76,7 +76,7 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
         return readTime
       }
     }
-    
+
     return readTime
   }
 
@@ -199,7 +199,7 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
     )
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN 
+  const baseUrl = process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN
     ? `https://${process.env.NEXT_PUBLIC_PRODUCTION_DOMAIN}`
     : 'https://www.tasami.co'
 
@@ -248,47 +248,54 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
-          <nav className="mb-8">
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+          <nav className="mb-8" dir={isRTL ? 'rtl' : 'ltr'}>
+            <div className={`flex items-center justify-start ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'} text-sm text-gray-500`}>
               <Link href="/" className="hover:text-[#6812F7] transition-colors">{tCommon('home')}</Link>
-              <span>›</span>
+              <span>{isRTL ? '›' : '›'}</span>
               <Link href="/blog" className="hover:text-[#6812F7] transition-colors">{tCommon('blog')}</Link>
-              <span>›</span>
+              <span>{isRTL ? '›' : '›'}</span>
               <span className="text-gray-900">{article.category.name}</span>
             </div>
           </nav>
 
           {/* Article Meta */}
-          <div className="flex items-center space-x-4 text-sm text-gray-500 mb-6">
-            <span>{formatReadTime(article.readTime)}</span>
-            <span>•</span>
-            <span suppressHydrationWarning>{isMounted ? formattedDate : ''}</span>
-            <span>•</span>
+          <div className={`flex items-center justify-start ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'} text-sm text-gray-500 mb-6`} dir={isRTL ? 'rtl' : 'ltr'}>
+
             <span className="bg-[#6812F7] text-white px-3 py-1 rounded-full text-xs font-semibold">
               {article.category.name}
             </span>
+            <span>•</span>
+            <span suppressHydrationWarning>{isMounted ? formattedDate : ''}</span>
+            <span>•</span>
+            <span>{formatReadTime(article.readTime)}</span>
           </div>
 
           {/* Article Title */}
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6">
+          <h1 className={`text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-6 ${isRTL ? 'text-right' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
             {article.title}
           </h1>
 
           {/* Article Excerpt */}
-          <p className="text-xl text-gray-600 leading-relaxed mb-8">
+          <p className={`text-xl text-gray-600 leading-relaxed mb-8 ${isRTL ? 'text-right' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
             {article.excerpt}
           </p>
 
           {/* Author Info */}
-          <div className="flex items-center space-x-4 mb-12">
+          <div className={`flex items-center ${isRTL ? 'flex-row space-x-reverse space-x-4' : 'space-x-4'} mb-12`}>
             <div className="w-16 h-16 bg-gradient-to-br from-[#6812F7] to-[#9253F0] rounded-full flex items-center justify-center text-2xl">
               {article.author.avatar}
             </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{article.author.name}</h3>
-              <p className="text-gray-600">{article.author.role}</p>
+            <div className={isRTL ? 'text-right' : ''}>
+              <h3 className={`text-lg font-semibold text-gray-900 ${isRTL ? 'text-right' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
+                {article.author.name}
+              </h3>
+              <p className={`text-gray-600 ${isRTL ? 'text-right' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
+                {article.author.role}
+              </p>
               {article.author.bio && (
-                <p className="text-sm text-gray-500 mt-1">{article.author.bio}</p>
+                <p className={`text-sm text-gray-500 mt-1 ${isRTL ? 'text-right' : ''}`} dir={isRTL ? 'rtl' : 'ltr'}>
+                  {article.author.bio}
+                </p>
               )}
             </div>
           </div>
@@ -304,8 +311,8 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                 priority
               />
-              <div className="absolute bottom-4 left-4">
-                <div className="bg-white/90 backdrop-blur-sm text-[#6812F7] px-6 py-3 rounded-full text-lg font-semibold">
+              <div className={`absolute bottom-4 ${isRTL ? 'right-4' : 'left-4'}`}>
+                <div className="bg-white/90 backdrop-blur-sm text-[#6812F7] px-6 py-3 rounded-full text-lg font-semibold" dir={isRTL ? 'rtl' : 'ltr'}>
                   {article.category.name}
                 </div>
               </div>
@@ -327,10 +334,10 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
           <div className={`prose prose-lg max-w-none ${isRTL ? 'prose-rtl' : ''}`}>
             {article.content && article.content.includes('<') ? (
               // If content contains HTML tags, render as HTML (for backward compatibility)
-              <div 
+              <div
                 className={isRTL ? 'text-right' : ''}
                 dir={isRTL ? 'rtl' : 'ltr'}
-                dangerouslySetInnerHTML={{ __html: article.content }} 
+                dangerouslySetInnerHTML={{ __html: article.content }}
               />
             ) : (
               // Otherwise, render as markdown
@@ -452,7 +459,7 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
                             <div className="ml-3">
                               <p className="font-semibold text-gray-900 text-sm">{relatedArticle.author.name}</p>
                               <p className="text-xs text-gray-500" suppressHydrationWarning>
-                                {isMounted 
+                                {isMounted
                                   ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
                                   : ''
                                 }
@@ -461,7 +468,7 @@ export const ArticleComponent = memo(function ArticleComponent({ article, loadin
                           </>
                         ) : (
                           <p className="text-xs text-gray-500" suppressHydrationWarning>
-                            {isMounted 
+                            {isMounted
                               ? new Date(relatedArticle.createdAt).toLocaleDateString(locale === 'ar' ? 'ar-SA' : 'en-US')
                               : ''
                             }

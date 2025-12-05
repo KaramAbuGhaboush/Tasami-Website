@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/routing';
+import Link from 'next/link';
 import Image from 'next/image';
 import { memo } from 'react';
 import { Project } from '@/hooks/useWorkData';

@@ -405,12 +405,17 @@
       "company": "الشركة",
       "category": "الفئة",
       "timeline": "الجدول الزمني",
+      "teamSize": "حجم الفريق",
       "servicesWeProvided": "الخدمات التي قدمناها",
       "shareThisCaseStudy": "شارك دراسة الحالة هذه:",
       "projectShowcase": "عرض المشروع",
       "interactiveProjectDemonstration": "عرض تفاعلي للمشروع",
       "noContentAddedYet": "لم يتم إضافة محتوى بعد",
-      "noContentDescription": "لا يحتوي هذا المشروع على أي كتل محتوى مخصصة."
+      "noContentDescription": "لا يحتوي هذا المشروع على أي كتل محتوى مخصصة.",
+      "challenge": "التحدي",
+      "solution": "الحل",
+      "technologies": "التقنيات المستخدمة",
+      "results": "النتائج"
     },
     "noProjectsFound": "لم يتم العثور على مشاريع",
     "noProjectsDescription": "نعمل على إضافة المزيد من المشاريع. تحقق مرة أخرى قريباً!",
@@ -467,7 +472,8 @@
     "relatedArticles": "مقالات ذات صلة",
     "relatedArticlesDescription": "استمر في استكشاف المحتوى المشابه",
     "shareArticle": "مشاركة المقال",
-    "noPostsFound": "لم يتم العثور على مقالات في هذه الفئة."
+    "noPostsFound": "لم يتم العثور على مقالات في هذه الفئة.",
+    "noCategories": "لا توجد فئات متاحة."
   },
   "career": {
     "title": "الوظائف",

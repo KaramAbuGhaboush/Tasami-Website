@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import { useEffect, useState, useCallback } from 'react'
-import { useLocale } from 'next-intl'
+import { useLanguage } from '@/contexts/LanguageContext'
 import { apiClient } from '@/lib/api'
 
 export interface Technology {
@@ -90,7 +90,7 @@ export interface UseProjectReturn {
 }
 
 export function useProject(projectId: string): UseProjectReturn {
-  const locale = useLocale() as 'en' | 'ar';
+  const { locale } = useLanguage();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
