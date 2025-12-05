@@ -9,6 +9,8 @@ import { z } from 'zod'
 import {
   transformProjectsByLocale,
   transformProjectCategoryByLocale,
+  transformProjectTechnologyByLocale,
+  transformProjectResultByLocale,
   normalizeLocale,
 } from '@/server/utils/localization'
 
@@ -48,7 +50,9 @@ export class ProjectService {
         solution: true,
         solutionAr: true,
         timeline: true,
+        timelineAr: true,
         teamSize: true,
+        teamSizeAr: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -117,12 +121,30 @@ export class ProjectService {
 
     // Transform projects based on locale
     const transformedProjects = transformProjectsByLocale(projects, normalizedLocale)
-    const finalProjects = transformedProjects.map((project: any) => ({
-      ...project,
-      category: project.category
-        ? transformProjectCategoryByLocale(project.category, normalizedLocale)
-        : project.category,
-    }))
+    const finalProjects = transformedProjects.map((project: any) => {
+      const transformed = {
+        ...project,
+        category: project.category
+          ? transformProjectCategoryByLocale(project.category, normalizedLocale)
+          : project.category,
+      }
+      
+      // Transform technologies
+      if (transformed.technologies && Array.isArray(transformed.technologies)) {
+        transformed.technologies = transformed.technologies.map((tech: any) =>
+          transformProjectTechnologyByLocale(tech, normalizedLocale)
+        )
+      }
+      
+      // Transform results
+      if (transformed.results && Array.isArray(transformed.results)) {
+        transformed.results = transformed.results.map((result: any) =>
+          transformProjectResultByLocale(result, normalizedLocale)
+        )
+      }
+      
+      return transformed
+    })
 
     return { projects: finalProjects }
   }
@@ -147,7 +169,9 @@ export class ProjectService {
         solution: true,
         solutionAr: true,
         timeline: true,
+        timelineAr: true,
         teamSize: true,
+        teamSizeAr: true,
         status: true,
         createdAt: true,
         updatedAt: true,
@@ -222,6 +246,20 @@ export class ProjectService {
     transformedProject.category = project.category
       ? transformProjectCategoryByLocale(project.category, normalizedLocale)
       : project.category
+    
+    // Transform technologies
+    if (transformedProject.technologies && Array.isArray(transformedProject.technologies)) {
+      transformedProject.technologies = transformedProject.technologies.map((tech: any) =>
+        transformProjectTechnologyByLocale(tech, normalizedLocale)
+      )
+    }
+    
+    // Transform results
+    if (transformedProject.results && Array.isArray(transformedProject.results)) {
+      transformedProject.results = transformedProject.results.map((result: any) =>
+        transformProjectResultByLocale(result, normalizedLocale)
+      )
+    }
 
     return transformedProject
   }
