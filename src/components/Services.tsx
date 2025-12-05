@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { memo } from 'react'
 import { Service, ProcessStep } from '@/hooks/useServices'
@@ -44,25 +45,42 @@ export const Services = memo(function Services({ services, processSteps }: Servi
               }
               const serviceKey = serviceKeyMap[service.title] || 'aiSolutions'
 
+              // Map service to image filename
+              const serviceImageMap: Record<string, string> = {
+                'AI Solutions': '/SERVICES/AI.png',
+                'Automation': '/SERVICES/automation.png',
+                'Design & UX/UI': '/SERVICES/ui ux.png',
+                'Marketing Solutions': '/SERVICES/marketing.png',
+                'Quality Assurance': '/SERVICES/quality assuurance.png',
+                '24/7 Support': '/SERVICES/support.png'
+              }
+              const serviceImage = serviceImageMap[service.title] || '/SERVICES/AI.png'
+
               return (
                 <div
                   key={index}
                   className="group relative h-[500px] w-full rounded-2xl overflow-hidden cursor-pointer"
-                  style={{
-                    backgroundImage: `url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 500"><rect width="300" height="500" fill="%23f3f4f6"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" font-size="48">${service.icon}</text></svg>')`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
                 >
-                  {/* Default State - Background Image with Title */}
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-all duration-300 flex flex-col justify-start p-8">
-                    <h3 className="text-4xl font-bold text-black group-hover:opacity-0 transition-opacity duration-300">
+                  {/* Background Image - Preserving original colors */}
+                  <div className="absolute inset-0">
+                    <Image
+                      src={serviceImage}
+                      alt={t(`serviceItems.${serviceKey}.title`)}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
+
+                  {/* Default State - Title directly on image */}
+                  <div className="absolute inset-0 flex flex-col justify-start p-8 z-10">
+                    <h3 className="text-4xl font-bold text-gray-900 group-hover:opacity-0 transition-opacity duration-300 drop-shadow-lg">
                       {t(`serviceItems.${serviceKey}.title`)}
                     </h3>
                   </div>
 
-                  {/* Hover State - Solid Color with Description and CTA */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-start p-8">
+                  {/* Hover State - Description and CTA with semi-transparent overlay */}
+                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-start p-8 z-20">
                     <h3 className="text-4xl font-bold text-white mb-6">
                       {t(`serviceItems.${serviceKey}.title`)}
                     </h3>
